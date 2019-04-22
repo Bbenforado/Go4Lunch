@@ -50,6 +50,7 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/main_activity_nav_header"
         app:menu="@menu/main_activity_drawer_menu"
+        app:itemIconTint="#000000"
         android:fitsSystemWindows="true"/>
 
 
