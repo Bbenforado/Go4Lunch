@@ -14,19 +14,8 @@ import com.example.blanche.go4lunch.R;
  */
 public class ThirdPageFragment extends Fragment {
 
-
-    private static final String KEY_POSITION = "position";
-
     public ThirdPageFragment() {
         // Required empty public constructor
-    }
-
-    public static ThirdPageFragment newInstance(int position) {
-        ThirdPageFragment fragment = new ThirdPageFragment();
-        Bundle args = new Bundle();
-        args.putInt(KEY_POSITION, position);
-        fragment.setArguments(args);
-        return fragment;
     }
 
 

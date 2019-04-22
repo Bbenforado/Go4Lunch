@@ -20,15 +20,6 @@ public class SecondPageFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SecondPageFragment newInstance(int position) {
-        SecondPageFragment fragment = new SecondPageFragment();
-        Bundle args = new Bundle();
-        args.putInt(KEY_POSITION, position);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
