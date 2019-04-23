@@ -16,7 +16,13 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.fragments.PageFragment;
 import com.example.blanche.go4lunch.fragments.SecondPageFragment;
@@ -50,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //we will have to see if a user if already connected, then displays or not
-        if (!isCurrentUserLogged()) {
+       // if (!isCurrentUserLogged()) {
             startSignInActivity();
-        }
+        //}
 
         ButterKnife.bind(this);
         configureToolbar();
@@ -77,7 +83,22 @@ public class MainActivity extends AppCompatActivity {
     private void configureNavigationView() {
         navigationView = findViewById(R.id.nav_view);
         //navigationView.setNavigationItemSelectedListener(this);
+        displayUserInfoInNavigationDrawer();
+    }
 
+    private void displayUserInfoInNavigationDrawer() {
+        View headerLayout = navigationView.getHeaderView(0);
+        ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
+        TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
+        if (isCurrentUserLogged()) {
+            if (getCurrentUser().getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(this.getCurrentUser().getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(profilePictureImageview);
+            }
+            userNameTextview.setText(getCurrentUser().getDisplayName());
+        }
     }
 
     private void configureToolbar() {
@@ -105,9 +126,11 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
                         showFragment(new PageFragment());
+                        actionBar.setTitle("I'm hungry!");
                         return true;
                     case R.id.navigation_list:
                         showFragment(new SecondPageFragment());
+                        actionBar.setTitle("I'm hungry!");
                         return true;
                     case R.id.navigation_workmates:
                         showFragment(new ThirdPageFragment());
