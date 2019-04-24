@@ -1,6 +1,7 @@
 package com.example.blanche.go4lunch.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -35,12 +36,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     public static final int RC_SIGN_IN = 123;
+    public static final int SIGN_OUT_TASK = 10;
+    public static final int DELETE_USER_TASK = 20;
 
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
@@ -56,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //we will have to see if a user if already connected, then displays or not
-       // if (!isCurrentUserLogged()) {
+        if (!isCurrentUserLogged()) {
             startSignInActivity();
-        //}
-
+        }
+;
         ButterKnife.bind(this);
         configureToolbar();
         configureNavigationView();
@@ -77,16 +82,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayUserInfoInNavigationDrawer();
+    }
+
     //----------------------
     //CONFIGURATION
     //----------------------------
     private void configureNavigationView() {
+        System.out.println("1");
         navigationView = findViewById(R.id.nav_view);
-        //navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setNavigationItemSelectedListener(this);
         displayUserInfoInNavigationDrawer();
     }
 
     private void displayUserInfoInNavigationDrawer() {
+        System.out.println("we here here");
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
@@ -101,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void configureToolbar() {
+    protected void configureToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -141,6 +154,27 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         bottomNavigationView.setOnNavigationItemSelectedListener(listener);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.lunch:
+                Toast.makeText(this, "you clicked on lunch", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.settings:
+                //OPEN SETTING ACTIVITY WITH DELETE ACCOUNT BUTTON
+                launchSettingActivity();
+                break;
+            case R.id.log_out:
+                signOutUser();
+                break;
+            default:
+                break;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     //-----------------------
@@ -207,4 +241,36 @@ public class MainActivity extends AppCompatActivity {
     protected FirebaseUser getCurrentUser(){ return FirebaseAuth.getInstance().getCurrentUser(); }
 
     protected Boolean isCurrentUserLogged(){ return (this.getCurrentUser() != null); }
+
+    private void signOutUser() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+    }
+
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
+        return new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                switch (origin) {
+                    case SIGN_OUT_TASK:
+                        finish();
+                        //startSignInActivity();
+                        break;
+                    case DELETE_USER_TASK:
+                        finish();
+                        break;
+                        default:
+                            break;
+                }
+            }
+        };
+    }
+
+    private void launchSettingActivity() {
+        Intent settingActivity = new Intent(this, SettingActivity.class);
+        startActivity(settingActivity);
+    }
+
+
 }

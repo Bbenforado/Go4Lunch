@@ -31,6 +31,8 @@ dependencies {
 
     implementation('android.arch.lifecycle:extensions:1.1.1')
 
+    implementation 'com.google.code.gson:gson:2.8.2'
+
     //FIREBASE
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.google.firebase:firebase-auth:16.2.1'
