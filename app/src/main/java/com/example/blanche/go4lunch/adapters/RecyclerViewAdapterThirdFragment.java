@@ -6,26 +6,27 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.example.blanche.go4lunch.R;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
+public class RecyclerViewAdapterThirdFragment extends RecyclerView.Adapter<WorkmateViewHolder> {
 
-    public RecyclerViewAdapter() {
+    public RecyclerViewAdapterThirdFragment() {
 
     }
 
     @NonNull
     @Override
-    public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public WorkmateViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         Context context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.fragment_second_item, viewGroup, false);
-        return new RestaurantViewHolder(view);
+        View view = inflater.inflate(R.layout.fragment_third_item, viewGroup, false);
+        return new WorkmateViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-       // holder.updateWithRestaurant()
+    public void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position) {
+
     }
 
     @Override
