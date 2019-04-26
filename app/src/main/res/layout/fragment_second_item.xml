@@ -77,7 +77,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60dp">
+                android:layout_marginTop="60dp"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:id="@+id/horaires"
@@ -86,6 +87,25 @@
                     android:text="horaires ici"
                     android:textStyle="italic"
                     android:textSize="11sp"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_star"
+                    android:layout_alignParentRight="true"
+                    />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_star"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"/>
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_star"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="40dp"/>
 
             </RelativeLayout>
 

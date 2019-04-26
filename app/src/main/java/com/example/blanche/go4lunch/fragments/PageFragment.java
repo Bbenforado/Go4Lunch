@@ -26,4 +26,6 @@ public class PageFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_page, container, false);
     }
 
+
+
 }

@@ -2,17 +2,16 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
-    android:background="@android:color/white"
+    android:layout_height="300dp"
+    android:background="#cfa2db"
     android:id="@+id/drawer_layout"
     android:gravity="center"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="90dp"
-        android:layout_height="90dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/ic_lunch"
         android:layout_weight="2"
         android:layout_marginTop="40dp"
@@ -30,13 +29,15 @@
             android:layout_height="40dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:layout_marginTop="110dp"
             android:src="@drawable/ic_profile_picture"/>
         <TextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="NAME HERE"
-            android:layout_marginTop="20dp"/>
+            android:textStyle="bold"
+            android:layout_marginTop="130dp"/>
 
     </LinearLayout>
 

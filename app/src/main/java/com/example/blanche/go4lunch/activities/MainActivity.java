@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
@@ -34,19 +33,18 @@ import com.firebase.ui.auth.IdpResponse;
 import java.util.Arrays;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     public static final int RC_SIGN_IN = 123;
     public static final int SIGN_OUT_TASK = 10;
     public static final int DELETE_USER_TASK = 20;
-
+    public static final String KEY_FRAGMENT = "keyFragment";
+    public static final String APP_PREFERENCES = "appPreferences";
+    private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
     private DrawerLayout drawerLayout;
@@ -64,13 +62,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (!isCurrentUserLogged()) {
             startSignInActivity();
         }
-;
+        preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
+
         ButterKnife.bind(this);
         configureToolbar();
         configureNavigationView();
         configureDrawerLayout();
         setListener();
         showFragment(new PageFragment());
+
+        preferences.edit().putString(KEY_FRAGMENT, null).apply();
     }
 
     @Override
@@ -86,20 +87,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStart() {
         super.onStart();
         displayUserInfoInNavigationDrawer();
+
+        if (preferences.getString(KEY_FRAGMENT, null) != null) {
+            if (preferences.getString(KEY_FRAGMENT, null) == "first") {
+                showFragment(new PageFragment());
+            } else if (preferences.getString(KEY_FRAGMENT, null).equals("second")) {
+                showFragment(new SecondPageFragment());
+            } else if (preferences.getString(KEY_FRAGMENT, null) == "third") {
+                showFragment(new ThirdPageFragment());
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        System.out.println("on stop main");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.out.println("on destroy main");
     }
 
     //----------------------
     //CONFIGURATION
     //----------------------------
     private void configureNavigationView() {
-        System.out.println("1");
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         displayUserInfoInNavigationDrawer();
     }
 
     private void displayUserInfoInNavigationDrawer() {
-        System.out.println("we here here");
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
@@ -140,14 +161,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     case R.id.navigation_map:
                         showFragment(new PageFragment());
                         actionBar.setTitle("I'm hungry!");
+                        preferences.edit().putString(KEY_FRAGMENT, "first").apply();
+
+                        System.out.println("pref 4 =" + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                     case R.id.navigation_list:
                         showFragment(new SecondPageFragment());
                         actionBar.setTitle("I'm hungry!");
+                        preferences.edit().putString(KEY_FRAGMENT, "second").apply();
+
+                        System.out.println("pref 5 =" + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                     case R.id.navigation_workmates:
                         showFragment(new ThirdPageFragment());
                         actionBar.setTitle("Available workmates");
+                        preferences.edit().putString(KEY_FRAGMENT, "third").apply();
+
+                        System.out.println("pref 6 = " + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                 }
                 return false;

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
 
@@ -52,6 +53,7 @@ public class SecondPageFragment extends Fragment {
         View result = inflater.inflate(R.layout.fragment_second_page, container, false);
         ButterKnife.bind(this, result);
         configureRecyclerView();
+        configureOnClickRecyclerView();
         return result;
     }
 
@@ -83,8 +85,14 @@ public class SecondPageFragment extends Fragment {
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                        //LAUNCH RESTAURANT ACTIVITY
                         //which displays picture of restaurant and some informations
+                        launchRestaurantDetailsActivity();
                     }
                 });
+    }
+
+    private void launchRestaurantDetailsActivity() {
+        Intent restaurantDetailActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
+        startActivity(restaurantDetailActivity);
     }
 
 }
