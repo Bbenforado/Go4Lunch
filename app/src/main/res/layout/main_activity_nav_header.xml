@@ -4,17 +4,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="300dp"
-    android:background="#cfa2db"
+    android:background="@color/colorPrimary"
     android:id="@+id/drawer_layout"
     android:gravity="center"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_lunch"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/ic_go4lunch_logo"
         android:layout_weight="2"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:tint="@android:color/black"/>
 
     <LinearLayout
@@ -29,15 +29,27 @@
             android:layout_height="40dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="110dp"
+            android:layout_marginTop="0dp"
             android:src="@drawable/ic_profile_picture"/>
-        <TextView
-            android:id="@+id/user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="NAME HERE"
-            android:textStyle="bold"
-            android:layout_marginTop="130dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NAME HERE"
+                android:textStyle="bold"
+                android:layout_marginTop="0dp"/>
+            <TextView
+                android:id="@+id/user_mail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mail here"
+                android:textStyle="italic"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

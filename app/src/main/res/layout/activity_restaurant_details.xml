@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <include
@@ -10,14 +8,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <ImageButton
+        android:id="@+id/i_eat_here_button"
+        android:layout_width="97dp"
+        android:layout_height="97dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="270dp"
+        android:elevation="1dp"
+        android:background="@drawable/ic_button_do_i_eat_here"/>
+
     <ImageView
+        android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
+        android:layout_height="250dp"
+        android:layout_below="@+id/toolbar"
         android:src="@drawable/ic_restaurant"/>
     
     <LinearLayout
+        android:id="@+id/infos_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/image"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:background="@color/colorPrimary"
@@ -36,22 +47,22 @@
                 android:text="Name here"/>
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:src="@drawable/ic_star"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginLeft="10dp"/>
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:src="@drawable/ic_star"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginLeft="5dp"/>
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:src="@drawable/ic_star"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginLeft="5dp"/>
 
         </LinearLayout>
@@ -66,38 +77,93 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/infos_layout"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="2dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/call_button"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/ic_call"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Call"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/like_button"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/ic_like"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Like"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/website_button"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/ic_website"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Website"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <View
+        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_below="@+id/buttons_layout"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:background="@android:color/darker_gray"/>
 
-    <RelativeLayout
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/details_page_swipe_container"
+        android:layout_below="@+id/view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <android.support.design.widget.BottomNavigationView
-            android:id="@+id/navigation"
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/details_page_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="75dp"
-            android:background="@android:color/white"
-            app:itemTextColor="@color/navigation_color_bottom"
-            app:itemIconTint="@color/navigation_color_bottom"
-            app:elevation="0dp"
-            app:menu="@menu/navigation_restaurant_details"/>
-    </RelativeLayout>
+            android:layout_height="match_parent" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        android:background="@android:color/darker_gray"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-</LinearLayout>
+</RelativeLayout>

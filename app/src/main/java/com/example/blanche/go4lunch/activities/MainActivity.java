@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
+        TextView userMail = headerLayout.findViewById(R.id.user_mail);
         if (isCurrentUserLogged()) {
             if (getCurrentUser().getPhotoUrl() != null) {
                 Glide.with(this)
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .into(profilePictureImageview);
             }
             userNameTextview.setText(getCurrentUser().getDisplayName());
+            userMail.setText(getCurrentUser().getEmail());
         }
     }
 
@@ -191,7 +193,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.lunch:
-                Toast.makeText(this, "you clicked on lunch", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "you clicked on lunch", Toast.LENGTH_SHORT).show();
+                launchYourLunchActivity();
                 break;
             case R.id.settings:
                 //OPEN SETTING ACTIVITY WITH DELETE ACCOUNT BUTTON
@@ -231,12 +234,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
-                                Arrays.asList(new
-                                                AuthUI.IdpConfig.EmailBuilder().build(),
+                                Arrays.asList(
                                         new AuthUI.IdpConfig.GoogleBuilder().build(),
                                         new AuthUI.IdpConfig.FacebookBuilder().build()))
                         .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.ic_your_lunch)
+                        .setLogo(R.drawable.ic_go4lunch_logo)
                         .build(),
                 RC_SIGN_IN);
     }
@@ -300,6 +302,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void launchSettingActivity() {
         Intent settingActivity = new Intent(this, SettingActivity.class);
         startActivity(settingActivity);
+    }
+
+    private void launchYourLunchActivity() {
+        Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
+        startActivity(yourLunchActivity);
     }
 
 

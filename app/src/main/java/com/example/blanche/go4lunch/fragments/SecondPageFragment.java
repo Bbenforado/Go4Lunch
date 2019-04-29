@@ -83,8 +83,6 @@ public class SecondPageFragment extends Fragment {
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                       //LAUNCH RESTAURANT ACTIVITY
-                        //which displays picture of restaurant and some informations
                         launchRestaurantDetailsActivity();
                     }
                 });
