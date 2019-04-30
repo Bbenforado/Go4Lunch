@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        actionBar.setTitle("I'm hungry!");
+        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
     }
 
     private void configureDrawerLayout() {
@@ -162,24 +162,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
                         showFragment(new PageFragment());
-                        actionBar.setTitle("I'm hungry!");
+                        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
                         preferences.edit().putString(KEY_FRAGMENT, "first").apply();
-
-                        System.out.println("pref 4 =" + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                     case R.id.navigation_list:
                         showFragment(new SecondPageFragment());
-                        actionBar.setTitle("I'm hungry!");
+                        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
                         preferences.edit().putString(KEY_FRAGMENT, "second").apply();
-
-                        System.out.println("pref 5 =" + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                     case R.id.navigation_workmates:
                         showFragment(new ThirdPageFragment());
-                        actionBar.setTitle("Available workmates");
+                        actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
                         preferences.edit().putString(KEY_FRAGMENT, "third").apply();
-
-                        System.out.println("pref 6 = " + preferences.getString(KEY_FRAGMENT, null));
                         return true;
                 }
                 return false;
@@ -256,14 +250,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {//SUCCESS
                 //launch main activity
-                Toast.makeText(this, "Welcome! Authentification succeed! :)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.succeed_auth_message, Toast.LENGTH_SHORT).show();
             } else {
                 if (response == null) {
-                    Toast.makeText(this, "Error auth", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.error_auth_message, Toast.LENGTH_SHORT).show();
                 } else if(response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    Toast.makeText(this, "No internet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.no_internet_auth_message, Toast.LENGTH_SHORT).show();
                 } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    Toast.makeText(this, "unknown error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.unknown_error_auth_message, Toast.LENGTH_SHORT).show();
                 }
             }
         }

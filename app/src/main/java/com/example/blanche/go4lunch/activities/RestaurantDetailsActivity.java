@@ -56,7 +56,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        actionBar.setTitle("Restaurant Details");
+        actionBar.setTitle(R.string.toolbar_title_for_restaurant_details_activity);
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
 

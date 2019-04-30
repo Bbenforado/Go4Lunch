@@ -38,7 +38,7 @@
         android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete account"
+        android:text="@string/delete_account"
         android:layout_gravity="center"
         android:layout_marginTop="150dp"
         android:padding="10dp"
@@ -48,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Change user name"
+        android:text="@string/change_user_name"
         android:padding="10dp"
         android:background="@color/colorPrimary"
         android:layout_marginTop="15dp"/>

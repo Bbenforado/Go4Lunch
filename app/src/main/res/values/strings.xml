@@ -7,6 +7,24 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="call">Call</string>
+    <string name="website">Website</string>
+    <string name="delete_account">Delete account</string>
+    <string name="change_user_name">Change user name</string>
+    <string name="your_lunch">Your lunch</string>
+    <string name="settings">Settings</string>
+    <string name="log_out">Log out</string>
+    <string name="map_view">Map view</string>
+    <string name="list_view">List view</string>
+    <string name="workmates">Workmates</string>
+    <string name="toolbar_title_for_first_and_second_fragment">I\'m hungry!</string>
+    <string name="toolbar_title_for_third_fragment">Available workmates</string>
+    <string name="succeed_auth_message">Welcome! Authentification succeed! :)</string>
+    <string name="error_auth_message">Error</string>
+    <string name="no_internet_auth_message">No internet</string>
+    <string name="unknown_error_auth_message">Unknown error</string>
+    <string name="toolbar_title_for_restaurant_details_activity">Restaurant details</string>
+
 
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2329713414017344</string>

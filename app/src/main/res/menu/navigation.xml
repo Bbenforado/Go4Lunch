@@ -4,17 +4,17 @@
 
     <item
         android:id="@+id/navigation_map"
-        android:title="Map View"
+        android:title="@string/map_view"
         android:icon="@drawable/ic_map"/>
 
     <item
         android:id="@+id/navigation_list"
-        android:title="List view"
+        android:title="@string/list_view"
         android:icon="@drawable/ic_list"/>
 
     <item
         android:id="@+id/navigation_workmates"
-        android:title="Workmates"
+        android:title="@string/workmates"
         android:icon="@drawable/ic_workmates"/>
 
 </menu>

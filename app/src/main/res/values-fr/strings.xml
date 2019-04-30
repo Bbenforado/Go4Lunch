@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Go4Lunch</string>
+    <string name="change_user_name">Changer de nom d\'utilisateur</string>
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="list_view">Liste</string>
+    <string name="log_out">Déconnection</string>
+    <string name="map_view">Carte</string>
+    <string name="settings">Paramètres</string>
+    <string name="website">Site web</string>
+    <string name="workmates">Collègues</string>
+    <string name="your_lunch">Ton déjeuner</string>
+    <string name="call">Appel</string>
+    <string name="error_auth_message">Erreur</string>
+    <string name="succeed_auth_message">Bienvenue! Connection réussie! :)</string>
+    <string name="toolbar_title_for_first_and_second_fragment">J\'ai faim!</string>
+    <string name="toolbar_title_for_third_fragment">Collègues disponibles</string>
+    <string name="unknown_error_auth_message">Erreur inconnue</string>
+    <string name="no_internet_auth_message">Connection internet non disponible</string>
+    <string name="toolbar_title_for_restaurant_details_activity">Détails du restaurant</string>
+</resources>
