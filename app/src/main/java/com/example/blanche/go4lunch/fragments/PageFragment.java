@@ -3,6 +3,7 @@ package com.example.blanche.go4lunch.fragments;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -10,17 +11,22 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.renderscript.Double4;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.models.RestaurantObject;
+import com.example.blanche.go4lunch.models.RestaurantsResults;
+import com.example.blanche.go4lunch.utils.RestaurantStreams;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +37,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +50,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class PageFragment extends Fragment implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
+    SharedPreferences preferences;
+    Disposable disposable;
+    private List<RestaurantsResults> restaurantsResultsList;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
+    public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
+    public static final String APP_PREFERENCES = "appPreferences";
 
     public PageFragment() {
         // Required empty public constructor
@@ -49,6 +66,10 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
+        restaurantsResultsList = new ArrayList<>();
+        preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
+        System.out.println("on create first = " + preferences.getString(LATITUDE_AND_LONGITUDE, null));
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         return rootView;
@@ -162,7 +183,7 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
             locationManager.requestLocationUpdates(locationProvider, MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
             myLocation = locationManager.getLastKnownLocation(locationProvider);
-            System.out.println("myLocation = " + myLocation.toString());
+            //System.out.println("myLocation = " + myLocation.toString());
         }
         catch (SecurityException e) {
             Toast.makeText(getContext(), "Show my location error: " + e.getMessage(),
@@ -174,6 +195,11 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
         if (myLocation != null) {
             System.out.println("14.here?");
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+
+            String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
+            executeHttpRequestForRestaurant(latLong);
+            preferences.edit().putString(LATITUDE_AND_LONGITUDE, latLong).apply();
+
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -215,5 +241,47 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    //------------------
+    //HTTP REQUEST
+    //----------------------
+    public void executeHttpRequestForRestaurant(String latlng) {
+        disposable =
+                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyAolE90HXhEuYkd1kR0AEGly1uq8eyNig8")
+                        .subscribeWith(new DisposableObserver<RestaurantObject>() {
+
+                            @Override
+                            public void onNext(RestaurantObject restaurantObject) {
+                                Log.e("TAG", "on next");
+                                //updateUI
+                                updateUiWithRestaurants(restaurantObject.getResults());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e("TAG", "on error");
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                Log.e("TAG", "on complete");
+                            }
+                        });
+    }
+
+    //------------------------
+    //UPDATE UI
+    //------------------------
+    private void updateUiWithRestaurants(List<RestaurantsResults> results) {
+        restaurantsResultsList.clear();
+        restaurantsResultsList.addAll(results);
+        for (int i = 0; i < restaurantsResultsList.size(); i++) {
+            Double lat = restaurantsResultsList.get(i).getGeometry().getLocation().getLat();
+            Double longitude = restaurantsResultsList.get(i).getGeometry().getLocation().getLng();
+
+            LatLng restaurantLocation = new LatLng(lat, longitude);
+            map.addMarker(new MarkerOptions().position(restaurantLocation).title("Marker here"));
+        }
     }
 }

@@ -127,10 +127,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView userMail = headerLayout.findViewById(R.id.user_mail);
         if (isCurrentUserLogged()) {
             if (getCurrentUser().getPhotoUrl() != null) {
-                Glide.with(this)
+                /*Glide.with(this)
                         .load(this.getCurrentUser().getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())
-                        .into(profilePictureImageview);
+                        .into(profilePictureImageview);*/
             }
             userNameTextview.setText(getCurrentUser().getDisplayName());
             userMail.setText(getCurrentUser().getEmail());

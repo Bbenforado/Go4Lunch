@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.blanche.go4lunch.R;
@@ -23,6 +25,8 @@ import butterknife.OnClick;
 
 public class RestaurantDetailsActivity extends AppCompatActivity {
 
+    public static final String RESTAURANT_NAME = "name";
+    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
     private Toolbar toolbar;
     private ActionBar actionBar;
     private RecyclerViewAdapterDetails adapter;
@@ -36,6 +40,11 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     @BindView(R.id.call_button) ImageButton callButton;
     @BindView(R.id.like_button) ImageButton likeButton;
     @BindView(R.id.website_button) ImageButton websiteButton;
+    @BindView(R.id.restaurant_name)
+    TextView restaurantName;
+    @BindView(R.id.image)
+    ImageView imageView;
+    @BindView(R.id.type_of_food_and_adress) TextView typeOfFoodAndAdress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +52,10 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_restaurant_details);
         ButterKnife.bind(this);
         System.out.println("on create details");
+
         isButtonClicked = false;
         configureToolbar();
+        displayRestaurantInformations();
         configureRecyclerView();
     }
 
@@ -107,6 +118,16 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     public void openRestaurantWebsite(View v) {
         //get the website of the restaurant and open it in a webview
         Toast.makeText(this, "Not implemented yet, but soon you'll be able to visit restaurant website! :)", Toast.LENGTH_LONG).show();
+    }
+
+    //-------------------
+    //UPDATE UI
+    //------------------------
+    private void displayRestaurantInformations() {
+        String name = getIntent().getExtras().getString(RESTAURANT_NAME);
+        String adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
+        restaurantName.setText(name);
+        typeOfFoodAndAdress.setText(adress);
     }
 
 }
