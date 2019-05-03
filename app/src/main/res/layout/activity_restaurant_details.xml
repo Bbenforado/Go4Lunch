@@ -45,26 +45,30 @@
                 android:layout_marginLeft="10dp"
                 android:textStyle="bold"
                 android:textSize="18dp"
-                android:text="Name here"/>
+                android:text="Name here"
+                android:textColor="@android:color/white"/>
 
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:src="@drawable/ic_star"
                 android:layout_marginTop="4dp"
-                android:layout_marginLeft="10dp"/>
+                android:layout_marginLeft="10dp"
+                android:tint="@android:color/white"/>
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:src="@drawable/ic_star"
                 android:layout_marginTop="4dp"
-                android:layout_marginLeft="5dp"/>
+                android:layout_marginLeft="5dp"
+                android:tint="@android:color/white"/>
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:src="@drawable/ic_star"
                 android:layout_marginTop="4dp"
-                android:layout_marginLeft="5dp"/>
+                android:layout_marginLeft="5dp"
+                android:tint="@android:color/white"/>
 
         </LinearLayout>
 
@@ -75,6 +79,7 @@
             android:layout_marginTop="7dp"
             android:layout_marginLeft="10dp"
             android:text="Type of food + adress"
+            android:textColor="@android:color/white"
             android:paddingBottom="10dp"/>
 
     </LinearLayout>

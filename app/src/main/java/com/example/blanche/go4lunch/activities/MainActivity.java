@@ -21,22 +21,30 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.fragments.PageFragment;
 import com.example.blanche.go4lunch.fragments.SecondPageFragment;
 import com.example.blanche.go4lunch.fragments.ThirdPageFragment;
+import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     public static final int RC_SIGN_IN = 123;
@@ -44,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final int DELETE_USER_TASK = 20;
     public static final String KEY_FRAGMENT = "keyFragment";
     public static final String APP_PREFERENCES = "appPreferences";
+    public static final String KEY_ACTIVITY = "keyActivity";
+    public static final String CURRENT_USER_NAME = "currentUserName";
+    public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
+    public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
@@ -72,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showFragment(new PageFragment());
 
         preferences.edit().putString(KEY_FRAGMENT, null).apply();
+        saveUserInformationsInPreferences();
     }
 
     @Override
@@ -127,10 +140,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView userMail = headerLayout.findViewById(R.id.user_mail);
         if (isCurrentUserLogged()) {
             if (getCurrentUser().getPhotoUrl() != null) {
-                /*Glide.with(this)
-                        .load(this.getCurrentUser().getPhotoUrl())
+                Glide.with(this)
+                        .load(this.getCurrentUser().getPhotoUrl().toString())
                         .apply(RequestOptions.circleCropTransform())
-                        .into(profilePictureImageview);*/
+                        .into(profilePictureImageview);
             }
             userNameTextview.setText(getCurrentUser().getDisplayName());
             userMail.setText(getCurrentUser().getEmail());
@@ -232,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         new AuthUI.IdpConfig.GoogleBuilder().build(),
                                         new AuthUI.IdpConfig.FacebookBuilder().build()))
                         .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.ic_go4lunch_logo)
+                        .setLogo(R.drawable.ic_logo_lunch)
                         .build(),
                 RC_SIGN_IN);
     }
@@ -244,13 +257,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
-
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {//SUCCESS
                 //launch main activity
                 Toast.makeText(this, R.string.succeed_auth_message, Toast.LENGTH_SHORT).show();
+                createUserInFirestore();
             } else {
                 if (response == null) {
                     Toast.makeText(this, R.string.error_auth_message, Toast.LENGTH_SHORT).show();
@@ -260,6 +273,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(this, R.string.unknown_error_auth_message, Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    protected OnFailureListener onFailureListener(){
+        return new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "unknown error", Toast.LENGTH_LONG).show();
+            }
+        };
+    }
+
+    private void createUserInFirestore(){
+        if (this.getCurrentUser() != null){
+
+            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String uid = this.getCurrentUser().getUid();
+
+            UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
         }
     }
 
@@ -293,6 +326,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    //------------------
+    //METHODS TO LAUNCH ACTIVITIES
+    //-----------------------------------
     private void launchSettingActivity() {
         Intent settingActivity = new Intent(this, SettingActivity.class);
         startActivity(settingActivity);
@@ -301,7 +337,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void launchYourLunchActivity() {
         Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
+        preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
     }
+
+    //------------------
+    //SAVE DATA
+    //------------------
+    private void saveUserInformationsInPreferences() {
+        preferences.edit().putString(CURRENT_USER_NAME, getCurrentUser().getDisplayName()).apply();
+        preferences.edit().putString(CURRENT_USER_MAIL_ADRESS, getCurrentUser().getEmail()).apply();
+        preferences.edit().putString(CURRENT_USER_URL_PICTURE, getCurrentUser().getPhotoUrl().toString()).apply();
+    }
+
+
+
+
 
 
 }

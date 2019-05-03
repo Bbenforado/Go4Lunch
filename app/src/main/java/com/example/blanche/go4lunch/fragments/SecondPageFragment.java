@@ -82,8 +82,8 @@ public class SecondPageFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         disposeWhenDestroy();
         System.out.println("on destroy fragment");
     }

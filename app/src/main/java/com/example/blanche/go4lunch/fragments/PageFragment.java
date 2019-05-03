@@ -3,6 +3,7 @@ package com.example.blanche.go4lunch.fragments;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -24,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
+import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
@@ -32,10 +35,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +52,7 @@ import io.reactivex.observers.DisposableObserver;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PageFragment extends Fragment implements OnMapReadyCallback, LocationListener {
+public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
     SharedPreferences preferences;
@@ -56,6 +61,11 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
+    public static final String RESTAURANT_NAME = "name";
+    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String KEY_ACTIVITY = "keyActivity";
+    public static final String CURRENT_USER_NAME = "currentUserName";
+    public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
 
     public PageFragment() {
         // Required empty public constructor
@@ -75,15 +85,15 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
         return rootView;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        disposeWhenDestroy();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-
-        /*LatLng something = new LatLng(62, 82);
-        map.addMarker(new MarkerOptions().position(something).title("Marker here"));
-        float zoomLevel = 10.0f; //This goes up to 21
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(something, zoomLevel));*/
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
@@ -107,8 +117,30 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
             return;
         }
 
+        map.setOnMarkerClickListener(this);
+
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        int tag = (Integer) marker.getTag();
+        if (tag == -1) {
+            marker.setTitle(preferences.getString(CURRENT_USER_NAME, null));
+            marker.setSnippet(preferences.getString(CURRENT_USER_MAIL_ADRESS, null));
+        } else {
+            String restaurantName = restaurantsResultsList.get(tag).getName();
+            String restaurantAdress = restaurantsResultsList.get(tag).getVicinity();
+            preferences.edit().putString(RESTAURANT_NAME, restaurantName).apply();
+            preferences.edit().putString(TYPE_OF_FOOD_AND_ADRESS, restaurantAdress).apply();
+            preferences.edit().putInt(KEY_ACTIVITY, 1).apply();
+            launchDetailsActivity();
+        }
+        return false;
+    }
+
+    //-----------------------
+    //PERMISSIONS
+    //--------------------------------
     private void askPermissionsAndShowMyLocation() {
         System.out.println("4.we come here");
         if (Build.VERSION.SDK_INT >= 23) {
@@ -164,8 +196,9 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
         return bestProvider;
     }
 
-
-
+    //------------------
+    //SHOW LOCATION
+    //----------------------------
     private void showMyLocation() {
         System.out.println("11.ok we are here");
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -183,6 +216,7 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
             locationManager.requestLocationUpdates(locationProvider, MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
             myLocation = locationManager.getLastKnownLocation(locationProvider);
+
             //System.out.println("myLocation = " + myLocation.toString());
         }
         catch (SecurityException e) {
@@ -200,7 +234,7 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
             executeHttpRequestForRestaurant(latLong);
             preferences.edit().putString(LATITUDE_AND_LONGITUDE, latLong).apply();
 
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+            //map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)
@@ -210,22 +244,27 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
                     .build();
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-            MarkerOptions option = new MarkerOptions();
-            option.title("My location");
-            option.snippet("....");
+            Marker marker;
+            marker = map.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title("You are here"));
+            marker.setTag(-1);
+            marker.showInfoWindow();
+
+            /*MarkerOptions option = new MarkerOptions();
+            option.title("You are here");
             option.position(latLng);
             Marker currentMarker = map.addMarker(option);
-            currentMarker.showInfoWindow();
+            currentMarker.showInfoWindow();*/
 
         } else {
-            System.out.println("15. and we don't wanna come here, but infortunatelly we do...");
             Toast.makeText(getContext(), "Location not found!:(", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onLocationChanged(Location location) {
-
+        //executeHttpRequestForRestaurant(location.toString());
     }
 
     @Override
@@ -270,6 +309,12 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
                         });
     }
 
+    private void disposeWhenDestroy() {
+        if(this.disposable != null && !this.disposable.isDisposed()) {
+            this.disposable.dispose();
+        }
+    }
+
     //------------------------
     //UPDATE UI
     //------------------------
@@ -281,7 +326,17 @@ public class PageFragment extends Fragment implements OnMapReadyCallback, Locati
             Double longitude = restaurantsResultsList.get(i).getGeometry().getLocation().getLng();
 
             LatLng restaurantLocation = new LatLng(lat, longitude);
-            map.addMarker(new MarkerOptions().position(restaurantLocation).title("Marker here"));
+            Marker marker;
+            marker = map.addMarker(new MarkerOptions()
+                    .position(restaurantLocation)
+                    .title(restaurantsResultsList.get(i).getName())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker)));
+            marker.setTag(i);
         }
+    }
+
+    private void launchDetailsActivity() {
+        Intent yourLunchActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
+        startActivity(yourLunchActivity);
     }
 }

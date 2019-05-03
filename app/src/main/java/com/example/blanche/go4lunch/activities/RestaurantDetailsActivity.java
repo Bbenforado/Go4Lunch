@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.activities;
 
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -27,6 +28,9 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
 
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String KEY_ACTIVITY = "keyActivity";
+    public static final String APP_PREFERENCES = "appPreferences";
+    SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
     private RecyclerViewAdapterDetails adapter;
@@ -52,7 +56,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_restaurant_details);
         ButterKnife.bind(this);
         System.out.println("on create details");
-
+        preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         isButtonClicked = false;
         configureToolbar();
         displayRestaurantInformations();
@@ -74,7 +78,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     private void configureRecyclerView() {
         //here we fetch an arrayList of objects restaurants and set the adapter to the
         //recycler view, something like:
-        //restaurantResultsList = new ArrayList<>();
         adapter = new RecyclerViewAdapterDetails();
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -124,8 +127,24 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     //UPDATE UI
     //------------------------
     private void displayRestaurantInformations() {
-        String name = getIntent().getExtras().getString(RESTAURANT_NAME);
-        String adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
+        int keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
+        //if key activity == 0, it means this is coming from the navigation drawer
+        String name = null;
+        String adress = null;
+        if (keyActivity == 0) {
+            button.setVisibility(View.INVISIBLE);
+        } else if(keyActivity == 1) {
+            name = preferences.getString(RESTAURANT_NAME, null);
+            adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
+        } else {
+            name = getIntent().getExtras().getString(RESTAURANT_NAME);
+            adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
+        }
+        setRestaurantInformations(name, adress);
+        preferences.edit().putInt(KEY_ACTIVITY, -1).apply();
+    }
+
+    private void setRestaurantInformations(String name, String adress) {
         restaurantName.setText(name);
         typeOfFoodAndAdress.setText(adress);
     }

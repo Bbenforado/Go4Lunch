@@ -12,10 +12,10 @@
     <ImageView
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:src="@drawable/ic_go4lunch_logo"
+        android:src="@drawable/ic_logo_lunch"
         android:layout_weight="2"
         android:layout_marginTop="30dp"
-        android:tint="@android:color/black"/>
+        android:tint="@android:color/white"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,13 +41,16 @@
                 android:layout_height="wrap_content"
                 android:text="NAME HERE"
                 android:textStyle="bold"
-                android:layout_marginTop="0dp"/>
+                android:layout_marginTop="0dp"
+                android:textColor="@android:color/white"/>
             <TextView
                 android:id="@+id/user_mail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="mail here"
-                android:textStyle="italic"/>
+                android:textStyle="italic"
+                android:textSize="9dp"
+                android:textColor="@android:color/white"/>
 
         </LinearLayout>
 
