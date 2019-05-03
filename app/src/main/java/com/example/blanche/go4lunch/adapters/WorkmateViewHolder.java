@@ -5,7 +5,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.models.User;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,5 +23,14 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
     public WorkmateViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+    }
+
+    public void updateWithUsers(User user, RequestManager glide) {
+        textView.setText(user.getUsername());
+        if (user.getUrlPicture() != null) {
+            glide.load(user.getUrlPicture())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(imageView);
+        }
     }
 }

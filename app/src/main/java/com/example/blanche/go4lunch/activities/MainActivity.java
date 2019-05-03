@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
     public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";
+    private List<User> userList;
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
@@ -293,6 +294,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String uid = this.getCurrentUser().getUid();
 
             UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+
+            //userList = new ArrayList<>();
+            //userList.add()
         }
     }
 

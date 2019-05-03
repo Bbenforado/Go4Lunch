@@ -10,10 +10,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
+import com.example.blanche.go4lunch.api.UserHelper;
+import com.example.blanche.go4lunch.models.User;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.Query;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,7 +28,7 @@ import butterknife.ButterKnife;
  * A simple {@link Fragment} subclass.
  */
 public class ThirdPageFragment extends Fragment {
-
+    private static final String COLLECTION_NAME = "users";
     public static final String KEY_POSITION = "position";
     private static final String KEY_RESTAURANT = "restaurant";
     public static final String RESTAURANT_NAME = "name";
@@ -62,7 +68,14 @@ public class ThirdPageFragment extends Fragment {
         //here we fetch an arrayList of objects restaurants and set the adapter to the
         //recycler view, something like:
         //restaurantResultsList = new ArrayList<>();
-        adapter = new RecyclerViewAdapterThirdFragment();
+        adapter = new RecyclerViewAdapterThirdFragment(generateOptionsForAdapter(UserHelper.getAllUsers()),
+                Glide.with(this));
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                recyclerView.smoothScrollToPosition(adapter.getItemCount()); // Scroll to bottom on new messages
+            }
+        });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
@@ -85,6 +98,13 @@ public class ThirdPageFragment extends Fragment {
                         //which displays picture of restaurant and some informations
                     }
                 });
+    }
+
+    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
+        return new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .setLifecycleOwner(this)
+                .build();
     }
 
 }

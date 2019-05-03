@@ -7,12 +7,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.RequestManager;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.models.User;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-public class RecyclerViewAdapterThirdFragment extends RecyclerView.Adapter<WorkmateViewHolder> {
+public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<User, WorkmateViewHolder> {
 
-    public RecyclerViewAdapterThirdFragment() {
+    private final RequestManager glide;
 
+    /**
+     * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
+     * FirestoreRecyclerOptions} for configuration options.
+     *
+     * @param options
+     */
+    public RecyclerViewAdapterThirdFragment(@NonNull FirestoreRecyclerOptions<User> options,
+                                            RequestManager glide) {
+        super(options);
+        this.glide = glide;
     }
 
     @NonNull
@@ -25,12 +39,10 @@ public class RecyclerViewAdapterThirdFragment extends RecyclerView.Adapter<Workm
     }
 
     @Override
-    public void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position) {
-
+    protected void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position, @NonNull User model) {
+        holder.updateWithUsers(model, this.glide);
     }
 
-    @Override
-    public int getItemCount() {
-        return 5;
-    }
+
+
 }
