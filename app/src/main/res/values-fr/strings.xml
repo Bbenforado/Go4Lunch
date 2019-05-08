@@ -18,4 +18,5 @@
     <string name="unknown_error_auth_message">Erreur inconnue</string>
     <string name="no_internet_auth_message">Connection internet non disponible</string>
     <string name="toolbar_title_for_restaurant_details_activity">Détails du restaurant</string>
+    <string name="message_workmates">mange à</string>
 </resources>

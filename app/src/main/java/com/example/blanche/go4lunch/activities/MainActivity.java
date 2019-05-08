@@ -14,6 +14,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.blanche.go4lunch.EssaiActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.fragments.PageFragment;
@@ -40,7 +42,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
     public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";
+    public static final String CURRENT_USER_UID = "currentUserUid";
     private List<User> userList;
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
@@ -75,17 +84,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (!isCurrentUserLogged()) {
             startSignInActivity();
         }
-        preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-
-        ButterKnife.bind(this);
-        configureToolbar();
-        configureNavigationView();
-        configureDrawerLayout();
-        setListener();
-        showFragment(new PageFragment());
-
-        preferences.edit().putString(KEY_FRAGMENT, null).apply();
-        saveUserInformationsInPreferences();
+        else {
+            preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
+            ButterKnife.bind(this);
+            configureToolbar();
+            preferences.edit().putString(KEY_FRAGMENT, null).apply();
+            preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
+            saveUserInformationsInPreferences();
+            configureNavigationView();
+            configureDrawerLayout();
+            setListener();
+            showFragment(new PageFragment());
+        }
     }
 
     @Override
@@ -100,15 +110,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
-        displayUserInfoInNavigationDrawer();
-
-        if (preferences.getString(KEY_FRAGMENT, null) != null) {
-            if (preferences.getString(KEY_FRAGMENT, null) == "first") {
-                showFragment(new PageFragment());
-            } else if (preferences.getString(KEY_FRAGMENT, null).equals("second")) {
-                showFragment(new SecondPageFragment());
-            } else if (preferences.getString(KEY_FRAGMENT, null) == "third") {
-                showFragment(new ThirdPageFragment());
+        if (isCurrentUserLogged()) {
+            //displayUserInfoInNavigationDrawer();
+            if (preferences.getString(KEY_FRAGMENT, null) != null) {
+                if (preferences.getString(KEY_FRAGMENT, null) == "first") {
+                    showFragment(new PageFragment());
+                } else if (preferences.getString(KEY_FRAGMENT, null).equals("second")) {
+                    showFragment(new SecondPageFragment());
+                } else if (preferences.getString(KEY_FRAGMENT, null) == "third") {
+                    showFragment(new ThirdPageFragment());
+                }
             }
         }
     }
@@ -135,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void displayUserInfoInNavigationDrawer() {
+        //final View headerLayout = navigationView.getHeaderView(0);
+
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
@@ -168,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //---------------------------
     //ACTIONS
     //----------------------------
+
+
     private void setListener() {
         listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -201,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.lunch:
-                //Toast.makeText(this, "you clicked on lunch", Toast.LENGTH_SHORT).show();
                 launchYourLunchActivity();
                 break;
             case R.id.settings:
@@ -223,9 +237,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //--------------------------
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
-
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_item:
+                return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void showFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -295,8 +319,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
 
-            //userList = new ArrayList<>();
-            //userList.add()
         }
     }
 
@@ -352,10 +374,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         preferences.edit().putString(CURRENT_USER_MAIL_ADRESS, getCurrentUser().getEmail()).apply();
         preferences.edit().putString(CURRENT_USER_URL_PICTURE, getCurrentUser().getPhotoUrl().toString()).apply();
     }
-
-
-
-
-
-
 }

@@ -17,6 +17,7 @@ public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<U
 
     private final RequestManager glide;
 
+
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
      * FirestoreRecyclerOptions} for configuration options.

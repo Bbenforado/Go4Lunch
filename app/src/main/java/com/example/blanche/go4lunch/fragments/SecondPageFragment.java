@@ -105,6 +105,7 @@ public class SecondPageFragment extends Fragment {
             @Override
             public void onRefresh() {
                 //refresh the page, request the api
+                System.out.println("coordinates on the refresh = " + coordinates);
                 executeHttpRequestForRestaurant(coordinates);
             }
         });
@@ -137,7 +138,7 @@ public class SecondPageFragment extends Fragment {
     //-------------------------
     public void executeHttpRequestForRestaurant(String latlng) {
         disposable =
-                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyAolE90HXhEuYkd1kR0AEGly1uq8eyNig8")
+                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
                 .subscribeWith(new DisposableObserver<RestaurantObject>() {
 
                     @Override

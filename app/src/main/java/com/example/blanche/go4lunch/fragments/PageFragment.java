@@ -98,7 +98,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                System.out.println("1. we come here");
                 askPermissionsAndShowMyLocation();
             }
         });
@@ -106,11 +105,9 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         map.getUiSettings().setZoomControlsEnabled(true);
 
         try {
-            System.out.println("2.here");
             map.setMyLocationEnabled(true);
         }
         catch (SecurityException e) {
-            System.out.println("3.error here");
             Toast.makeText(getContext(), "Show my location error: " + e.getMessage(),
                     Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -142,23 +139,19 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //PERMISSIONS
     //--------------------------------
     private void askPermissionsAndShowMyLocation() {
-        System.out.println("4.we come here");
         if (Build.VERSION.SDK_INT >= 23) {
-            System.out.println("5.we come here too");
             int accessCoarsePermission
                     = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
             int accessFinePermission
                     = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
             if (accessCoarsePermission != PackageManager.PERMISSION_GRANTED
             || accessFinePermission != PackageManager.PERMISSION_GRANTED) {
-                System.out.println("6.we come here toooo");
                 String[] permissions = new String[] {
                         Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
                 requestPermissions(permissions, REQUEST_ID_ACCESS_COURSE_FINE_LOCATION);
                 return;
             }
         }
-        System.out.println("10.do we arrive here?");
         showMyLocation();
 
     }
@@ -166,17 +159,14 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        System.out.println("7.we come here");
         switch (requestCode) {
             case REQUEST_ID_ACCESS_COURSE_FINE_LOCATION: {
                 if (grantResults.length > 1
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 &&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    System.out.println("8.are we coming here?");
                     Toast.makeText(getContext(), "Permission granted! :)", Toast.LENGTH_SHORT).show();
                     showMyLocation();
                 } else {
-                    System.out.println("9. or here??");
                     Toast.makeText(getContext(), "Permission denied! :(", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -200,24 +190,19 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //SHOW LOCATION
     //----------------------------
     private void showMyLocation() {
-        System.out.println("11.ok we are here");
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = getEnabledLocationProvider();
         System.out.println("location provider = " + locationProvider);
         if (locationProvider == null) {
-            System.out.println("12.maybe here?");
             return;
         }
         final long MIN_TIME_BW_UPDATES = 1000;
         final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
         Location myLocation = null;
         try {
-            System.out.println("13.or maybe here?");
             locationManager.requestLocationUpdates(locationProvider, MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
             myLocation = locationManager.getLastKnownLocation(locationProvider);
-
-            //System.out.println("myLocation = " + myLocation.toString());
         }
         catch (SecurityException e) {
             Toast.makeText(getContext(), "Show my location error: " + e.getMessage(),
@@ -227,14 +212,16 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         }
 
         if (myLocation != null) {
-            System.out.println("14.here?");
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
             String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
+
+            System.out.println("lat = " + latLong);
             executeHttpRequestForRestaurant(latLong);
+
             preferences.edit().putString(LATITUDE_AND_LONGITUDE, latLong).apply();
 
-            //map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)
@@ -287,7 +274,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //----------------------
     public void executeHttpRequestForRestaurant(String latlng) {
         disposable =
-                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyAolE90HXhEuYkd1kR0AEGly1uq8eyNig8")
+                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
                         .subscribeWith(new DisposableObserver<RestaurantObject>() {
 
                             @Override
@@ -295,6 +282,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                                 Log.e("TAG", "on next");
                                 //updateUI
                                 updateUiWithRestaurants(restaurantObject.getResults());
+                                System.out.println("size first fragment = " + restaurantObject.getResults().size());
                             }
 
                             @Override

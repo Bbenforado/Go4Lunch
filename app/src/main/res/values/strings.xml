@@ -7,6 +7,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!-- The class name to the ScrollingChildBehavior required for AppBarLayout -->
+    <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+
     <string name="call">Call</string>
     <string name="website">Website</string>
     <string name="delete_account">Delete account</string>
@@ -24,6 +27,7 @@
     <string name="no_internet_auth_message">No internet</string>
     <string name="unknown_error_auth_message">Unknown error</string>
     <string name="toolbar_title_for_restaurant_details_activity">Restaurant details</string>
+    <string name="message_workmates">%1$s is eating at</string>
 
 
     <!-- FACEBOOK PURPOSE -->

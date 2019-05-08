@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.activities;
 
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,16 +38,18 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     private boolean isButtonClicked;
     @BindView(R.id.details_page_recycler_view)
     RecyclerView recyclerView;
-    @BindView(R.id.details_page_swipe_container)
+    /*@BindView(R.id.details_page_swipe_container)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.i_eat_here_button)
-    ImageButton button;
+    ImageButton button;*/
+    @BindView(R.id.floating_action_button)
+    FloatingActionButton button;
     @BindView(R.id.call_button) ImageButton callButton;
     @BindView(R.id.like_button) ImageButton likeButton;
     @BindView(R.id.website_button) ImageButton websiteButton;
     @BindView(R.id.restaurant_name)
     TextView restaurantName;
-    @BindView(R.id.image)
+    @BindView(R.id.main_backdrop)
     ImageView imageView;
     @BindView(R.id.type_of_food_and_adress) TextView typeOfFoodAndAdress;
 
@@ -58,7 +61,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         System.out.println("on create details");
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         isButtonClicked = false;
-        configureToolbar();
+        //configureToolbar();
         displayRestaurantInformations();
         configureRecyclerView();
     }
@@ -83,19 +86,19 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void configureSwipeRefreshLayout() {
+   /* private void configureSwipeRefreshLayout() {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 //refresh the page, request the api
             }
         });
-    }
+    }*/
 
     //--------------------------
     //ACTIONS
     //-----------------------------
-    @OnClick(R.id.i_eat_here_button)
+    /*@OnClick(R.id.i_eat_here_button)
     public void chooseRestaurant(View view) {
         isButtonClicked = !isButtonClicked;
         if (isButtonClicked) {
@@ -103,7 +106,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         } else {
             button.setBackgroundResource(R.drawable.ic_button_do_i_eat_here);
         }
-    }
+    }*/
 
     @OnClick(R.id.call_button)
     public void callRestaurant(View v) {

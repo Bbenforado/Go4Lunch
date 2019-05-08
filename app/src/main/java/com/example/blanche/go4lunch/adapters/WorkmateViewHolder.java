@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.adapters;
 
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,10 +20,12 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
     ImageView imageView;
     @BindView(R.id.text)
     TextView textView;
+    Resources res;
 
     public WorkmateViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+        res = itemView.getResources();
     }
 
     public void updateWithUsers(User user, RequestManager glide) {

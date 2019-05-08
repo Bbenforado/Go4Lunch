@@ -51,15 +51,6 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void updateUIWithUserInfos() {
-        /*userNameTextview.setText(getCurrentUser().getDisplayName());
-        userMailTextview.setText(getCurrentUser().getEmail());*/
-        /*if (getCurrentUser().getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(getCurrentUser().getPhotoUrl())
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(imageView);
-        }*/
-
         String userName = preferences.getString(CURRENT_USER_NAME, null);
         String userMail = preferences.getString(CURRENT_USER_MAIL_ADRESS, null);
         String photoUrl = preferences.getString(CURRENT_USER_URL_PICTURE, null);
