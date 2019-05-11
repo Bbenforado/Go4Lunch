@@ -1,47 +1,57 @@
 package com.example.blanche.go4lunch.activities;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
+import android.content.res.ColorStateList;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterDetails;
-import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
+import com.example.blanche.go4lunch.api.UserHelper;
+import com.example.blanche.go4lunch.models.User;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class RestaurantDetailsActivity extends AppCompatActivity {
+public class RestaurantDetailsActivity extends BaseActivity {
 
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String RESTAURANT_PHOTO = "photo";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String APP_PREFERENCES = "appPreferences";
-    SharedPreferences preferences;
+    public static final String TIME_WHEN_SAVED = "time";
+    private int keyActivity;
+    boolean isButtonClicked;
+    private User currentUser;
+    private String name;
+    private String adress;
+    private String photoId;
+    private SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
     private RecyclerViewAdapterDetails adapter;
-    private boolean isButtonClicked;
     @BindView(R.id.details_page_recycler_view)
     RecyclerView recyclerView;
     /*@BindView(R.id.details_page_swipe_container)
-    SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.i_eat_here_button)
-    ImageButton button;*/
+    SwipeRefreshLayout swipeRefreshLayout;*/
     @BindView(R.id.floating_action_button)
     FloatingActionButton button;
     @BindView(R.id.call_button) ImageButton callButton;
@@ -60,23 +70,54 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         System.out.println("on create details");
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-        isButtonClicked = false;
+
+        keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
+
+        //get the data from your lunch (first fragment) [0] or from second fragment [1]
+        if (keyActivity == 0) {
+            /*name = preferences.getString(RESTAURANT_NAME, null);
+            adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
+            photoId = preferences.getString(RESTAURANT_PHOTO, null);*/
+        } else if(keyActivity == 1) {
+            name = getIntent().getExtras().getString(RESTAURANT_NAME);
+            adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
+            photoId = getIntent().getExtras().getString(RESTAURANT_PHOTO);
+        }
+
+        getCurrentUserDataFromFireBase();
         //configureToolbar();
         displayRestaurantInformations();
+
         configureRecyclerView();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        preferences.edit().putInt(KEY_ACTIVITY, -1).apply();
     }
 
     //-----------------------
     //CONFIGURATION
     //--------------------------------
 
-    protected void configureToolbar() {
-        toolbar = findViewById(R.id.toolbar);
+    /*protected void configureToolbar() {
+        //toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        actionBar.setTitle(R.string.toolbar_title_for_restaurant_details_activity);
+        int keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
+        String name = null;
+        if (keyActivity == 0) {
+        } else if(keyActivity == 1) {
+            name = preferences.getString(RESTAURANT_NAME, null);
+        } else {
+            name = getIntent().getExtras().getString(RESTAURANT_NAME);
+        }
+
+        actionBar.setTitle(name);
         actionBar.setDisplayHomeAsUpEnabled(true);
-    }
+    }*/
 
     private void configureRecyclerView() {
         //here we fetch an arrayList of objects restaurants and set the adapter to the
@@ -98,15 +139,42 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     //--------------------------
     //ACTIONS
     //-----------------------------
-    /*@OnClick(R.id.i_eat_here_button)
-    public void chooseRestaurant(View view) {
+    @OnClick(R.id.floating_action_button)
+    public void saveRestaurant() {
         isButtonClicked = !isButtonClicked;
+        String userUid = getCurrentUser().getUid();
+        //if true
         if (isButtonClicked) {
-            button.setBackgroundResource(R.drawable.ic_button_i_eat_here);
+            //change the color of the button
+            button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
+
+            //if it s from the second fragment
+            if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
+                //we save at what time the user chose the restaurant
+                saveTimeWhenChoseRestaurant();
+
+                //we update the name of the restaurant in firebase
+                UserHelper.updateUserChosenRestaurant(userUid, true, name);
+
+                //we display toast message to user
+                Toast.makeText(this, "You are going to eat at " + name + " !", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            button.setBackgroundResource(R.drawable.ic_button_do_i_eat_here);
+            //unclick button
+            if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
+                //update the name of the restaurant in firebase
+                UserHelper.updateUserChosenRestaurant(userUid, false, null);
+                //change button color
+                button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                //display message to user
+                Toast.makeText(this, "Want to eat somewhere else?", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
+            }
         }
-    }*/
+    }
 
     @OnClick(R.id.call_button)
     public void callRestaurant(View v) {
@@ -130,26 +198,54 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     //UPDATE UI
     //------------------------
     private void displayRestaurantInformations() {
-        int keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
         //if key activity == 0, it means this is coming from the navigation drawer
-        String name = null;
-        String adress = null;
-        if (keyActivity == 0) {
-            button.setVisibility(View.INVISIBLE);
-        } else if(keyActivity == 1) {
-            name = preferences.getString(RESTAURANT_NAME, null);
-            adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
-        } else {
-            name = getIntent().getExtras().getString(RESTAURANT_NAME);
-            adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
+        if (name != null && adress != null && photoId != null) {
+            String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4";
+            setRestaurantInformations(name, adress, url);
         }
-        setRestaurantInformations(name, adress);
-        preferences.edit().putInt(KEY_ACTIVITY, -1).apply();
     }
 
-    private void setRestaurantInformations(String name, String adress) {
+    private void displayColorButton(User user) {
+        if (user.getChosenRestaurant() != null) {
+            if (name.equals(user.getChosenRestaurant())) {
+                button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
+                isButtonClicked = true;
+            } else {
+                button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                isButtonClicked = false;
+            }
+        }
+    }
+
+    private void getCurrentUserDataFromFireBase() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                currentUser = documentSnapshot.toObject(User.class);
+                if (currentUser.isHasChosenRestaurant()) {
+                    displayColorButton(currentUser);
+                }
+            }
+        });
+    }
+
+    private void saveTimeWhenChoseRestaurant() {
+        TimeZone timeZone = TimeZone.getDefault();
+        long timeWhenSaved = Calendar.getInstance().getTimeInMillis();
+        timeWhenSaved = timeWhenSaved + timeZone.getDSTSavings();
+        preferences.edit().putLong(TIME_WHEN_SAVED, timeWhenSaved).apply();
+    }
+
+
+
+    private void setRestaurantInformations(String name, String adress, String url) {
         restaurantName.setText(name);
         typeOfFoodAndAdress.setText(adress);
+        Glide.with(this)
+                .load(url)
+                .apply(RequestOptions.noTransformation())
+                .into(imageView);
+
     }
 
 }

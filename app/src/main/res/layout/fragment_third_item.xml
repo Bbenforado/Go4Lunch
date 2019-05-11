@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:text="displays where the person is going to eat"
             android:layout_toRightOf="@+id/fragment_page_item_image"
+            android:textSize="12dp"
             android:layout_marginTop="30dp"
             android:layout_marginLeft="20dp"/>
 

@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.utils;
 
+import com.example.blanche.go4lunch.models.RestaurantInformationObject;
 import com.example.blanche.go4lunch.models.RestaurantObject;
 
 import io.reactivex.Observable;
@@ -22,4 +23,8 @@ public interface PlacesService {
                                                   @Query("radius") int radius,
                                                   @Query("type") String type,
                                                   @Query("key") String apiKey);
+
+    @GET("/maps/api/place/details/json?fields=name,rating,formatted_phone_number,photo,vicinity,geometry,opening_hours,website")
+    Observable<RestaurantInformationObject> getRestaurantInfo (@Query("placeid")String placeId,
+                                                               @Query("key")String apiKey);
 }

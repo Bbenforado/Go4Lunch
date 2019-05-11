@@ -20,6 +20,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -40,9 +42,15 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.disposables.Disposable;
@@ -79,7 +87,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         restaurantsResultsList = new ArrayList<>();
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
-        System.out.println("on create first = " + preferences.getString(LATITUDE_AND_LONGITUDE, null));
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         return rootView;
@@ -216,7 +223,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
             String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
 
-            System.out.println("lat = " + latLong);
             executeHttpRequestForRestaurant(latLong);
 
             preferences.edit().putString(LATITUDE_AND_LONGITUDE, latLong).apply();
@@ -269,6 +275,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
     }
 
+
     //------------------
     //HTTP REQUEST
     //----------------------
@@ -318,7 +325,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             marker = map.addMarker(new MarkerOptions()
                     .position(restaurantLocation)
                     .title(restaurantsResultsList.get(i).getName())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker)));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
             marker.setTag(i);
         }
     }

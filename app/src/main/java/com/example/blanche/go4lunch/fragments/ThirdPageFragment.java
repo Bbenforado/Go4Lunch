@@ -72,7 +72,6 @@ public class ThirdPageFragment extends Fragment {
         View result = inflater.inflate(R.layout.fragment_third_page, container, false);
         ButterKnife.bind(this, result);
         preferences = getActivity().getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-        //getCurrentUserFromFirestore();
         configureRecyclerView();
 
         return result;

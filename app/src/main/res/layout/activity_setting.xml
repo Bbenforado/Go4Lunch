@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/profile_picture_settings"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
         android:src="@drawable/ic_profile_picture"/>
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:text="@string/delete_account"
         android:layout_gravity="center"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="120dp"
         android:padding="10dp"
         android:background="@color/colorPrimary"
         android:textColor="@android:color/white"/>

@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.models.Restaurant;
+import com.example.blanche.go4lunch.models.RestaurantInformations;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 
 import java.util.List;
@@ -16,10 +18,24 @@ import java.util.List;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
     private List<RestaurantsResults> restaurantsResultsList;
+    private List<Restaurant> restaurantList;
+    private List<RestaurantInformations> restaurantInformationsList;
     private RequestManager glide;
 
-    public RecyclerViewAdapter(List<RestaurantsResults> restaurantsResultsList, RequestManager glide) {
+    //WHEN USE NEARBY
+    /*public RecyclerViewAdapter(List<RestaurantsResults> restaurantsResultsList, RequestManager glide) {
         this.restaurantsResultsList = restaurantsResultsList;
+        this.glide = glide;
+    }*/
+
+    //WHEN USE NEARBY AND DETAILS API
+    /*public RecyclerViewAdapter (List<Restaurant> restaurantList, RequestManager glide) {
+        this.restaurantList = restaurantList;
+        this.glide = glide;
+    }*/
+
+    public RecyclerViewAdapter(List<RestaurantInformations> restaurantInformationsList, RequestManager glide) {
+        this.restaurantInformationsList = restaurantInformationsList;
         this.glide = glide;
     }
 
@@ -31,18 +47,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RestaurantViewHold
         View view = inflater.inflate(R.layout.fragment_second_item, viewGroup, false);
         return new RestaurantViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
-       holder.updateWithRestaurants(this.restaurantsResultsList.get(position), this.glide);
+        //WHEN USE NEARBY
+       //holder.updateWithRestaurants(this.restaurantsResultsList.get(position), this.glide);
+       //WHEN USE NEARBY AND DETAILS API
+       //holder.updateWithRestaurants(this.restaurantList.get(position), this.glide);
+        holder.update(this.restaurantInformationsList.get(position), this.glide);
     }
 
     @Override
     public int getItemCount() {
-        return restaurantsResultsList.size();
+        //WHEN USE NEARBY
+        //return restaurantsResultsList.size();
+        //WHEN USE NEARBY AND DETAILS
+       // return restaurantList.size();
+        return restaurantInformationsList.size();
     }
 
-    public RestaurantsResults getRestaurant(int position) {
-        return this.restaurantsResultsList.get(position);
+    //public RestaurantsResults getRestaurant(int position) {
+   // public Restaurant getRestaurant(int position) {
+    public RestaurantInformations getRestaurant(int position) {
+       // return this.restaurantsResultsList.get(position);
+        //return  this.restaurantList.get(position);
+        return this.restaurantInformationsList.get(position);
     }
 }

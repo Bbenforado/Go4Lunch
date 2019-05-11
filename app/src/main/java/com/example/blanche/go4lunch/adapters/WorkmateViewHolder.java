@@ -29,7 +29,13 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateWithUsers(User user, RequestManager glide) {
-        textView.setText(user.getUsername());
+        if (user.isHasChosenRestaurant()) {
+            String finalString = user.getUsername() + " is eating at " + user.getChosenRestaurant();
+            textView.setText(finalString);
+        } else {
+            String finalString = user.getUsername() + " hasn't decided yet";
+            textView.setText(finalString);
+        }
         if (user.getUrlPicture() != null) {
             glide.load(user.getUrlPicture())
                     .apply(RequestOptions.circleCropTransform())

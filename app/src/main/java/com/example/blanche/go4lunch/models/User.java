@@ -1,16 +1,25 @@
 package com.example.blanche.go4lunch.models;
 
-import afu.org.checkerframework.checker.nullness.qual.Nullable;
+import android.support.annotation.Nullable;
 
 public class User {
 
     private String uid;
     private String username;
     private boolean hasChosenRestaurant;
+    private String chosenRestaurant;
     @Nullable
     private String urlPicture;
 
     public User() {
+    }
+
+    public User(String uid, String username, String urlPicture, boolean hasChosenRestaurant, String chosenRestaurant) {
+        this.uid = uid;
+        this.username = username;
+        this.urlPicture = urlPicture;
+        this.hasChosenRestaurant = hasChosenRestaurant;
+        this.chosenRestaurant = chosenRestaurant;
     }
 
     public User(String uid, String username, String urlPicture) {
@@ -35,6 +44,14 @@ public class User {
 
     public String getUrlPicture() {
         return urlPicture;
+    }
+
+    public String getChosenRestaurant() {
+        return chosenRestaurant;
+    }
+
+    public boolean isHasChosenRestaurant() {
+        return hasChosenRestaurant;
     }
 
     // --- SETTERS ---

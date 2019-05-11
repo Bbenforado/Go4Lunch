@@ -43,10 +43,16 @@ public class UserHelper {
     }
 
 
+
+
     // --- UPDATE ---
 
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
+    }
+
+    public static Task<Void> updateUserChosenRestaurant(String uid, Boolean hasChosenRestaurant, String restaurantName) {
+        return UserHelper.getUsersCollection().document(uid).update("hasChosenRestaurant", hasChosenRestaurant, "chosenRestaurant", restaurantName);
     }
 
     public static Task<Void> updateIsMentor(String uid, Boolean isMentor) {

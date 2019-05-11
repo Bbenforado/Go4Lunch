@@ -10,12 +10,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SettingActivity extends AppCompatActivity {
+public class SettingActivity extends BaseActivity {
 
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String CURRENT_USER_NAME = "currentUserName";
@@ -51,12 +52,10 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void updateUIWithUserInfos() {
-        String userName = preferences.getString(CURRENT_USER_NAME, null);
-        String userMail = preferences.getString(CURRENT_USER_MAIL_ADRESS, null);
-        String photoUrl = preferences.getString(CURRENT_USER_URL_PICTURE, null);
+        String photoUrl = getCurrentUser().getPhotoUrl().toString();
 
-        userNameTextview.setText(userName);
-        userMailTextview.setText(userMail);
+        userNameTextview.setText(getCurrentUser().getDisplayName());
+        userMailTextview.setText(getCurrentUser().getEmail());
         if (photoUrl != null) {
             Glide.with(this)
                     .load(photoUrl)
