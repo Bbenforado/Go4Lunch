@@ -26,15 +26,6 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/navigation"
             android:layout_width="match_parent"
@@ -44,7 +35,10 @@
             app:itemTextColor="@color/navigation_color_bottom"
             app:itemIconTint="@color/navigation_color_bottom"
             app:menu="@menu/navigation"/>
-    </RelativeLayout>
+
+    </LinearLayout>
+
+
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"

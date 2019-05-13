@@ -17,8 +17,8 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
-    private List<RestaurantsResults> restaurantsResultsList;
-    private List<Restaurant> restaurantList;
+    /*private List<RestaurantsResults> restaurantsResultsList;
+    private List<Restaurant> restaurantList;*/
     private List<RestaurantInformations> restaurantInformationsList;
     private RequestManager glide;
 

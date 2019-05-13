@@ -35,6 +35,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
     public static final String RESTAURANT_PHOTO = "photo";
+    public static final String RESTAURANT_PHONE_NUMBER = "number";
+    public static final String RESTAURANT_WEBSITE = "website";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String TIME_WHEN_SAVED = "time";
@@ -44,6 +46,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private String name;
     private String adress;
     private String photoId;
+    private String website;
+    private String phoneNumber;
     private SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
@@ -72,21 +76,26 @@ public class RestaurantDetailsActivity extends BaseActivity {
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
 
         keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
-
-        //get the data from your lunch (first fragment) [0] or from second fragment [1]
+        getCurrentUserDataFromFireBase();
+        //get the data from your lunch (first fragment) [0] or from second fragment [1], or from navigation drawer
         if (keyActivity == 0) {
-            /*name = preferences.getString(RESTAURANT_NAME, null);
+            name = preferences.getString(RESTAURANT_NAME, null);
             adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
-            photoId = preferences.getString(RESTAURANT_PHOTO, null);*/
+            photoId = preferences.getString(RESTAURANT_PHOTO, null);
+            System.out.println("name = " + name + " adress = " + adress + " photo = " + photoId);
         } else if(keyActivity == 1) {
             name = getIntent().getExtras().getString(RESTAURANT_NAME);
             adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
             photoId = getIntent().getExtras().getString(RESTAURANT_PHOTO);
+            website = getIntent().getExtras().getString(RESTAURANT_WEBSITE);
+            phoneNumber = getIntent().getExtras().getString(RESTAURANT_PHONE_NUMBER);
         }
 
-        getCurrentUserDataFromFireBase();
+
         //configureToolbar();
-        displayRestaurantInformations();
+        if (keyActivity == 0 || keyActivity == 1) {
+            displayRestaurantInformations();
+        }
 
         configureRecyclerView();
     }
@@ -154,7 +163,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                 saveTimeWhenChoseRestaurant();
 
                 //we update the name of the restaurant in firebase
-                UserHelper.updateUserChosenRestaurant(userUid, true, name);
+                UserHelper.updateUserChosenRestaurant(userUid, true, name, adress, phoneNumber, website, photoId);
 
                 //we display toast message to user
                 Toast.makeText(this, "You are going to eat at " + name + " !", Toast.LENGTH_SHORT).show();
@@ -165,7 +174,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
             //unclick button
             if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
                 //update the name of the restaurant in firebase
-                UserHelper.updateUserChosenRestaurant(userUid, false, null);
+                UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null);
                 //change button color
                 button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 //display message to user
@@ -199,7 +208,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //------------------------
     private void displayRestaurantInformations() {
         //if key activity == 0, it means this is coming from the navigation drawer
+        System.out.println("coming here?");
         if (name != null && adress != null && photoId != null) {
+            System.out.println("and here?");
             String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4";
             setRestaurantInformations(name, adress, url);
         }
@@ -222,8 +233,20 @@ public class RestaurantDetailsActivity extends BaseActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 currentUser = documentSnapshot.toObject(User.class);
-                if (currentUser.isHasChosenRestaurant()) {
-                    displayColorButton(currentUser);
+                if (keyActivity == 0 || keyActivity == 1) {
+                    if (currentUser.isHasChosenRestaurant()) {
+                        displayColorButton(currentUser);
+
+                    }
+                } else if (keyActivity == 2) {
+                    if (currentUser.isHasChosenRestaurant()) {
+                        button.setVisibility(View.GONE);
+                        name = currentUser.getChosenRestaurant();
+                        adress = currentUser.getChosenRestaurantAdress();
+                        photoId = currentUser.getChosenRestaurantPhotoId();
+                        System.out.println("name = " + name + " adress = " + adress + " photo = " + photoId);
+                        displayRestaurantInformations();
+                    }
                 }
             }
         });

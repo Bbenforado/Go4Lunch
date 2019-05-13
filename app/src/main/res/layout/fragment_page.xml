@@ -11,6 +11,14 @@
         android:layout_height="match_parent"
         tools:context="org.o7planning.mygooglemap.MainActivity">
 
+        <ProgressBar
+            android:id="@+id/bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:elevation="2dp"/>
+
         <fragment
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

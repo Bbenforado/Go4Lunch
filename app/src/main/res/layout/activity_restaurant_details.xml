@@ -117,7 +117,7 @@
                         android:layout_marginLeft="10dp"
                         android:text="Type of food + adress"
                         android:textColor="@android:color/white"
-                        android:paddingBottom="10dp"/>
+                        android:paddingBottom="9dp"/>
 
                 </LinearLayout>
 

@@ -28,6 +28,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginBottom="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="0dp"
             android:src="@drawable/ic_profile_picture"/>
@@ -41,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:text="NAME HERE"
                 android:textStyle="bold"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="8dp"
                 android:textColor="@android:color/white"/>
             <TextView
                 android:id="@+id/user_mail"

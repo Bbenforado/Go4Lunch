@@ -45,18 +45,15 @@ public class UserHelper {
 
 
 
+
     // --- UPDATE ---
 
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
     }
 
-    public static Task<Void> updateUserChosenRestaurant(String uid, Boolean hasChosenRestaurant, String restaurantName) {
-        return UserHelper.getUsersCollection().document(uid).update("hasChosenRestaurant", hasChosenRestaurant, "chosenRestaurant", restaurantName);
-    }
-
-    public static Task<Void> updateIsMentor(String uid, Boolean isMentor) {
-        return UserHelper.getUsersCollection().document(uid).update("isMentor", isMentor);
+    public static Task<Void> updateUserChosenRestaurant(String uid, Boolean hasChosenRestaurant, String restaurantName, String adress, String number, String website, String photoId) {
+        return UserHelper.getUsersCollection().document(uid).update("hasChosenRestaurant", hasChosenRestaurant, "chosenRestaurant", restaurantName, "chosenRestaurantAdress", adress, "chosenRestaurantPhoneNumber", number, "chosenRestaurantWebsite", website, "chosenRestaurantPhotoId", photoId);
     }
 
     // --- DELETE ---

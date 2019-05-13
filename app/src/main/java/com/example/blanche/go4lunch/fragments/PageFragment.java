@@ -18,12 +18,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.blanche.go4lunch.R;
@@ -53,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
@@ -63,6 +67,8 @@ import io.reactivex.observers.DisposableObserver;
 public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
+    @BindView(R.id.bar)
+    ProgressBar bar;
     SharedPreferences preferences;
     Disposable disposable;
     private List<RestaurantsResults> restaurantsResultsList;
@@ -71,6 +77,9 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String RESTAURANT_PHONE_NUMBER = "number";
+    public static final String RESTAURANT_WEBSITE = "website";
+    public static final String RESTAURANT_PHOTO = "photo";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
@@ -84,6 +93,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
+        ButterKnife.bind(this, rootView);
         restaurantsResultsList = new ArrayList<>();
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
@@ -134,9 +144,11 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         } else {
             String restaurantName = restaurantsResultsList.get(tag).getName();
             String restaurantAdress = restaurantsResultsList.get(tag).getVicinity();
+            String restaurantPhoto = restaurantsResultsList.get(tag).getPhotos().get(0).getPhotoReference();
             preferences.edit().putString(RESTAURANT_NAME, restaurantName).apply();
             preferences.edit().putString(TYPE_OF_FOOD_AND_ADRESS, restaurantAdress).apply();
-            preferences.edit().putInt(KEY_ACTIVITY, 1).apply();
+            preferences.edit().putString(RESTAURANT_PHOTO, restaurantPhoto).apply();
+            preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
             launchDetailsActivity();
         }
         return false;
@@ -222,6 +234,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
             String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
+            System.out.println("position = " + latLong);
 
             executeHttpRequestForRestaurant(latLong);
 
@@ -229,13 +242,15 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
-            CameraPosition cameraPosition = new CameraPosition.Builder()
+            /*CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)
                     .zoom(15)
                     .bearing(90)
                     .tilt(40)
                     .build();
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
+            float zoomLevel = 16.0f;
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
 
             Marker marker;
             marker = map.addMarker(new MarkerOptions()
@@ -280,6 +295,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //HTTP REQUEST
     //----------------------
     public void executeHttpRequestForRestaurant(String latlng) {
+        bar.setVisibility(View.VISIBLE);
         disposable =
                 RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
                         .subscribeWith(new DisposableObserver<RestaurantObject>() {
@@ -289,7 +305,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                                 Log.e("TAG", "on next");
                                 //updateUI
                                 updateUiWithRestaurants(restaurantObject.getResults());
-                                System.out.println("size first fragment = " + restaurantObject.getResults().size());
                             }
 
                             @Override
@@ -328,6 +343,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
             marker.setTag(i);
         }
+        bar.setVisibility(View.GONE);
     }
 
     private void launchDetailsActivity() {

@@ -19,4 +19,7 @@
     <string name="no_internet_auth_message">Connection internet non disponible</string>
     <string name="toolbar_title_for_restaurant_details_activity">Détails du restaurant</string>
     <string name="message_workmates">mange à</string>
+    <string name="opening_hours">Horaires non disponibles</string>
+    <string name="workmate_has_chose">mange à</string>
+    <string name="workmate_didnt_chose_yet">n\'a pas encore choisi</string>
 </resources>

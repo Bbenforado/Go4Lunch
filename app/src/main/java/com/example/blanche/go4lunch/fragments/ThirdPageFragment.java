@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.R;
@@ -47,8 +48,7 @@ public class ThirdPageFragment extends Fragment {
     SharedPreferences preferences;
     private RecyclerViewAdapterThirdFragment adapter;
     @Nullable private User currentUser;
-
-
+    @BindView(R.id.bar) ProgressBar bar;
     @BindView(R.id.fragment_page_recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.fragment_page_swipe_container)
@@ -71,9 +71,9 @@ public class ThirdPageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.fragment_third_page, container, false);
         ButterKnife.bind(this, result);
+        //bar.setVisibility(View.VISIBLE);
         preferences = getActivity().getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         configureRecyclerView();
-
         return result;
     }
 
@@ -81,17 +81,6 @@ public class ThirdPageFragment extends Fragment {
     //CONFIGURATION
     //-------------------
     private void configureRecyclerView() {
-        //here we fetch an arrayList of objects restaurants and set the adapter to the
-        //recycler view, something like:
-        //restaurantResultsList = new ArrayList<>();
-        /*String userUid = preferences.getString(CURRENT_USER_UID, null);
-        UserHelper.getUser(userUid).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                currentUser = documentSnapshot.toObject(User.class);
-            }
-        });*/
-
         adapter = new RecyclerViewAdapterThirdFragment(generateOptionsForAdapter(UserHelper.getAllUsers()),
                 Glide.with(this));
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -102,6 +91,7 @@ public class ThirdPageFragment extends Fragment {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //bar.setVisibility(View.GONE);
     }
 
     private void configureSwipeRefreshLayout() {

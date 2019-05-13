@@ -8,10 +8,32 @@ public class User {
     private String username;
     private boolean hasChosenRestaurant;
     private String chosenRestaurant;
+    private String chosenRestaurantAdress;
+    private String chosenRestaurantWebsite;
+    private String chosenRestaurantPhoneNumber;
+    private String chosenRestaurantPhotoId;
+
+    public String getChosenRestaurantPhotoId() {
+        return chosenRestaurantPhotoId;
+    }
+
     @Nullable
     private String urlPicture;
 
     public User() {
+    }
+
+
+
+    public User(String uid, String username, String urlPicture, boolean hasChosenRestaurant, String chosenRestaurant, String chosenRestaurantAdress, String chosenRestaurantPhoneNumber, String chosenRestaurantWebsite) {
+        this.uid = uid;
+        this.username = username;
+        this.urlPicture = urlPicture;
+        this.hasChosenRestaurant = hasChosenRestaurant;
+        this.chosenRestaurant = chosenRestaurant;
+        this.chosenRestaurantAdress = chosenRestaurantAdress;
+        this.chosenRestaurantPhoneNumber = chosenRestaurantPhoneNumber;
+        this.chosenRestaurantWebsite = chosenRestaurantWebsite;
     }
 
     public User(String uid, String username, String urlPicture, boolean hasChosenRestaurant, String chosenRestaurant) {
@@ -52,6 +74,18 @@ public class User {
 
     public boolean isHasChosenRestaurant() {
         return hasChosenRestaurant;
+    }
+
+    public String getChosenRestaurantAdress() {
+        return chosenRestaurantAdress;
+    }
+
+    public String getChosenRestaurantWebsite() {
+        return chosenRestaurantWebsite;
+    }
+
+    public String getChosenRestaurantPhoneNumber() {
+        return chosenRestaurantPhoneNumber;
     }
 
     // --- SETTERS ---

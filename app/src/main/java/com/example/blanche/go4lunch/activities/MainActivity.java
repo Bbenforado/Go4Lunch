@@ -409,10 +409,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void launchYourLunchActivity() {
-        preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
+        preferences.edit().putInt(KEY_ACTIVITY, 2).apply();
         Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
-
     }
 
     //------------------
@@ -426,7 +425,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     private void checkTime() {
-        //retrieve the date saved when we saved the last mood
+        //retrieve the date saved when user saved place he s going to eat
         long timeWhenSaved = preferences.getLong(TIME_WHEN_SAVED, 0);
 
         if (timeWhenSaved != 0) {
@@ -440,7 +439,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             //see how many days passed between current time and last day we saved restaurant(at midnight)
             long timeBetween = currentTime - atStartOfTheDay;
             if(timeBetween >= DAY_IN_MILLIS) {
-                UserHelper.updateUserChosenRestaurant(getCurrentUser().getUid(), false, null);
+                UserHelper.updateUserChosenRestaurant(getCurrentUser().getUid(), false, null, null, null, null, null);
             }
         }
     }

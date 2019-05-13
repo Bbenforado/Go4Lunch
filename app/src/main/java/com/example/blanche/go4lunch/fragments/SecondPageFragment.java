@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+
 import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
@@ -25,6 +27,8 @@ import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
+
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -43,6 +47,8 @@ public class SecondPageFragment extends Fragment {
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String RESTAURANT_PHONE_NUMBER = "number";
+    public static final String RESTAURANT_WEBSITE = "website";
     public static final String RESTAURANT_PHOTO = "photo";
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
@@ -59,7 +65,8 @@ public class SecondPageFragment extends Fragment {
     private List<Restaurant> restaurantList;
     private List<RestaurantInformations> restaurantInformationsList;
     private RecyclerViewAdapter adapter;
-
+    @BindView(R.id.bar)
+    ProgressBar bar;
     @BindView(R.id.fragment_second_page_recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.fragment_second_page_swipe_container)
@@ -126,6 +133,8 @@ public class SecondPageFragment extends Fragment {
             public void onRefresh() {
                 //refresh the page, request the api
                 //executeHttpRequestForRestaurant(coordinates);
+                request(coordinates);
+                bar.setVisibility(View.GONE);
             }
         });
     }
@@ -139,8 +148,10 @@ public class SecondPageFragment extends Fragment {
                         preferences.edit().putInt(KEY_ACTIVITY, 1).apply();
                         Bundle bundle = new Bundle();
                         bundle.putString(RESTAURANT_NAME, restaurantInformationsList.get(position).getName());
-                       // bundle.putString(TYPE_OF_FOOD_AND_ADRESS, restaurantInformationsList.get(position).getVicinity());
+                        bundle.putString(TYPE_OF_FOOD_AND_ADRESS, restaurantInformationsList.get(position).getVicinity());
                         bundle.putString(RESTAURANT_PHOTO, restaurantInformationsList.get(position).getPhotos().get(0).getPhotoReference());
+                        bundle.putString(RESTAURANT_PHONE_NUMBER, restaurantInformationsList.get(position).getFormattedPhoneNumber());
+                        bundle.putString(RESTAURANT_WEBSITE, restaurantInformationsList.get(position).getWebsite());
                         launchRestaurantDetailsActivity(bundle);
                     }
                 });
@@ -157,6 +168,7 @@ public class SecondPageFragment extends Fragment {
     //HTTP REQUEST
     //-------------------------
     private void request(String latlng) {
+        updateUiWhenStartingRequest();
         disposable =
                 RestaurantStreams.streamFetchPlaceInfo(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
                         .subscribeWith(new DisposableObserver<List<RestaurantInformations>>() {
@@ -282,6 +294,10 @@ public class SecondPageFragment extends Fragment {
         }
     }
 
+    private void updateUiWhenStartingRequest() {
+        bar.setVisibility(View.VISIBLE);
+    }
+
     /*private void updateUiWithRestaurants(List<RestaurantsResults> results) {
         System.out.println("enter update ui");
         swipeRefreshLayout.setRefreshing(false);
@@ -294,8 +310,11 @@ public class SecondPageFragment extends Fragment {
     }*/
 
     private void updateList(List<RestaurantInformations> results) {
+
+        swipeRefreshLayout.setRefreshing(false);
         restaurantInformationsList.clear();
         restaurantInformationsList.addAll(results);
+        bar.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
     }
 
