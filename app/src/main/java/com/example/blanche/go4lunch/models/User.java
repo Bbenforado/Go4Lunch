@@ -12,6 +12,7 @@ public class User {
     private String chosenRestaurantWebsite;
     private String chosenRestaurantPhoneNumber;
     private String chosenRestaurantPhotoId;
+    private String restaurantId;
 
     public String getChosenRestaurantPhotoId() {
         return chosenRestaurantPhotoId;
@@ -56,6 +57,11 @@ public class User {
     }
 
     // --- GETTERS ---
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
     public String getUid() {
         return uid;
     }

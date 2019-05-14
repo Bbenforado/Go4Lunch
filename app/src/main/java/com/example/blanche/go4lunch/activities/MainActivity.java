@@ -2,8 +2,6 @@ package com.example.blanche.go4lunch.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationListener;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -14,7 +12,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,11 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -46,7 +39,6 @@ import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.fragments.PageFragment;
 import com.example.blanche.go4lunch.fragments.SecondPageFragment;
 import com.example.blanche.go4lunch.fragments.ThirdPageFragment;
-import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -58,17 +50,10 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int RC_SIGN_IN = 123;
@@ -86,7 +71,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final String RESTAURANT_PHOTO = "photo";
     public static final long DAY_IN_MILLIS = 24*60*60*1000;
     public static final String TIME_WHEN_SAVED = "time";
-    int AUTOCOMPLETE_REQUEST_CODE = 1;
+
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
@@ -168,6 +153,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //----------------------
     //CONFIGURATION
     //----------------------------
+    protected void configureToolbar() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
+        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
+    }
     private void configureNavigationView() {
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -192,12 +183,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    protected void configureToolbar() {
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
-        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-    }
+
 
     private void configureDrawerLayout() {
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -262,26 +248,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //-----------------------
     //METHODS
     //--------------------------
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_item:
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
-                    Intent intent = new Autocomplete.IntentBuilder(
-                            AutocompleteActivityMode.FULLSCREEN, fields)
-                            .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                            .build(this);
-                    startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-                return true;
-                default:
-                    return super.onOptionsItemSelected(item);
-        }
-    }
 
     private void showFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -315,22 +282,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
     }
 
-    private void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                Toast.makeText(this, "Place " + place.getName(), Toast.LENGTH_SHORT).show();
-                //addMarker(place);
 
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Toast.makeText(this, "error " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
-
-            } else if (requestCode == RESULT_CANCELED) {
-                Toast.makeText(this, "you cancelled operation", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     private void addMarker(Place place) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -439,7 +391,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             //see how many days passed between current time and last day we saved restaurant(at midnight)
             long timeBetween = currentTime - atStartOfTheDay;
             if(timeBetween >= DAY_IN_MILLIS) {
-                UserHelper.updateUserChosenRestaurant(getCurrentUser().getUid(), false, null, null, null, null, null);
+                UserHelper.updateUserChosenRestaurant(getCurrentUser().getUid(), false, null, null, null, null, null, null);
             }
         }
     }

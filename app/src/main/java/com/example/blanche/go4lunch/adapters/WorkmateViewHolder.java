@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.adapters;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -28,12 +29,12 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
         res = itemView.getResources();
     }
 
-    public void updateWithUsers(User user, RequestManager glide) {
+    public void updateWithUsers(Context context, User user, RequestManager glide) {
         if (user.isHasChosenRestaurant()) {
-            String finalString = user.getUsername() + " " + R.string.workmate_has_chose + " " + user.getChosenRestaurant();
+            String finalString = user.getUsername() + " " + context.getString(R.string.workmate_has_chose) + " " + user.getChosenRestaurant();
             textView.setText(finalString);
         } else {
-            String finalString = user.getUsername() + " " + R.string.workmate_didnt_chose_yet;
+            String finalString = user.getUsername() + " " + context.getString(R.string.workmate_didnt_chose_yet);
             textView.setText(finalString);
         }
         if (user.getUrlPicture() != null) {

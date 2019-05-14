@@ -16,6 +16,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<User, WorkmateViewHolder> {
 
     private final RequestManager glide;
+    Context context;
 
 
     /**
@@ -33,7 +34,7 @@ public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<U
     @NonNull
     @Override
     public WorkmateViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        Context context = viewGroup.getContext();
+        context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.fragment_third_item, viewGroup, false);
         return new WorkmateViewHolder(view);
@@ -41,7 +42,7 @@ public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<U
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position, @NonNull User model) {
-        holder.updateWithUsers(model, this.glide);
+        holder.updateWithUsers(context, model, this.glide);
     }
 
 

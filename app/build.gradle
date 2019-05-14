@@ -42,10 +42,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
 
     //FIREBASE
-    implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-auth:16.2.1'
+    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
     implementation 'com.firebaseui:firebase-ui-firestore:4.0.1'
+    implementation 'com.google.firebase:firebase-database:16.0.6'
 
     //BUTTERKNIFE
     implementation 'com.jakewharton:butterknife:8.8.1'

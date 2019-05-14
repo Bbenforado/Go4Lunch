@@ -24,7 +24,7 @@ public interface PlacesService {
                                                   @Query("type") String type,
                                                   @Query("key") String apiKey);
 
-    @GET("/maps/api/place/details/json?fields=name,rating,formatted_phone_number,photo,vicinity,geometry,opening_hours,website")
+    @GET("/maps/api/place/details/json?fields=name,rating,formatted_phone_number,place_id,photo,vicinity,geometry,opening_hours,website")
     Observable<RestaurantInformationObject> getRestaurantInfo (@Query("placeid")String placeId,
                                                                @Query("key")String apiKey);
 }

@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.support.design.widget.FloatingActionButton;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -18,13 +20,30 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterDetails;
+import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.User;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,9 +56,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
     public static final String RESTAURANT_PHOTO = "photo";
     public static final String RESTAURANT_PHONE_NUMBER = "number";
     public static final String RESTAURANT_WEBSITE = "website";
+    public static final String RESTAURANT_ID = "idRestaurant";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String TIME_WHEN_SAVED = "time";
+    public static final String RESTAURANT_WEBSITE_URL = "url";
+    public static final String KEY = "key";
     private int keyActivity;
     boolean isButtonClicked;
     private User currentUser;
@@ -48,10 +70,11 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private String photoId;
     private String website;
     private String phoneNumber;
+    private String restaurantId;
     private SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
-    private RecyclerViewAdapterDetails adapter;
+    private RecyclerViewAdapterThirdFragment adapter;
     @BindView(R.id.details_page_recycler_view)
     RecyclerView recyclerView;
     /*@BindView(R.id.details_page_swipe_container)
@@ -65,7 +88,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
     TextView restaurantName;
     @BindView(R.id.main_backdrop)
     ImageView imageView;
+    @BindView(R.id.textview_for_recyclerview) TextView textView;
     @BindView(R.id.type_of_food_and_adress) TextView typeOfFoodAndAdress;
+    private List<String> users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,13 +107,17 @@ public class RestaurantDetailsActivity extends BaseActivity {
             name = preferences.getString(RESTAURANT_NAME, null);
             adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
             photoId = preferences.getString(RESTAURANT_PHOTO, null);
-            System.out.println("name = " + name + " adress = " + adress + " photo = " + photoId);
+            restaurantId = preferences.getString(RESTAURANT_ID, null);
+            preferences.edit().putString(KEY, "0").apply();
         } else if(keyActivity == 1) {
             name = getIntent().getExtras().getString(RESTAURANT_NAME);
             adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
             photoId = getIntent().getExtras().getString(RESTAURANT_PHOTO);
             website = getIntent().getExtras().getString(RESTAURANT_WEBSITE);
+            System.out.println("website = " + website);
             phoneNumber = getIntent().getExtras().getString(RESTAURANT_PHONE_NUMBER);
+            restaurantId = getIntent().getExtras().getString(RESTAURANT_ID);
+            System.out.println("id in third = " + restaurantId);
         }
 
 
@@ -98,6 +127,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
         }
 
         configureRecyclerView();
+        System.out.println("users = " + users.size());
     }
 
     @Override
@@ -129,9 +159,35 @@ public class RestaurantDetailsActivity extends BaseActivity {
     }*/
 
     private void configureRecyclerView() {
-        //here we fetch an arrayList of objects restaurants and set the adapter to the
-        //recycler view, something like:
-        adapter = new RecyclerViewAdapterDetails();
+        users = new ArrayList<>();
+        Query query = UserHelper.getUsersCollection().whereEqualTo("restaurantId", restaurantId);
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                      @Override
+                                      public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                          if (e != null) {
+                                              Log.w("TAG", "Listen failed", e);
+                                              return;
+                                          }
+
+                                          for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                              if (doc.get("restaurantId") != null) {
+                                                  users.add(doc.getString("chosenRestaurant"));
+                                                  System.out.println("users in function = " + users);
+                                                  textView.setVisibility(View.GONE);
+                                              }
+                                          }
+                                      }
+                                  });
+
+
+        adapter = new RecyclerViewAdapterThirdFragment(generateOptionsForAdapter(query),
+                        Glide.with(this));
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                recyclerView.smoothScrollToPosition(adapter.getItemCount()); // Scroll to bottom on new messages
+            }
+        });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -145,9 +201,17 @@ public class RestaurantDetailsActivity extends BaseActivity {
         });
     }*/
 
+    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
+        return new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .setLifecycleOwner(this)
+                .build();
+    }
+
     //--------------------------
     //ACTIONS
     //-----------------------------
+
     @OnClick(R.id.floating_action_button)
     public void saveRestaurant() {
         isButtonClicked = !isButtonClicked;
@@ -158,23 +222,23 @@ public class RestaurantDetailsActivity extends BaseActivity {
             button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
 
             //if it s from the second fragment
-            if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
+            //if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
                 //we save at what time the user chose the restaurant
                 saveTimeWhenChoseRestaurant();
 
                 //we update the name of the restaurant in firebase
-                UserHelper.updateUserChosenRestaurant(userUid, true, name, adress, phoneNumber, website, photoId);
+                UserHelper.updateUserChosenRestaurant(userUid, true, name, adress, phoneNumber, website, photoId, restaurantId);
 
                 //we display toast message to user
                 Toast.makeText(this, "You are going to eat at " + name + " !", Toast.LENGTH_SHORT).show();
-            } else {
+            /*} else {
                 Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
-            }
+            }*/
         } else {
             //unclick button
             if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
                 //update the name of the restaurant in firebase
-                UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null);
+                UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, restaurantId);
                 //change button color
                 button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
                 //display message to user
@@ -200,7 +264,11 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @OnClick(R.id.website_button)
     public void openRestaurantWebsite(View v) {
         //get the website of the restaurant and open it in a webview
-        Toast.makeText(this, "Not implemented yet, but soon you'll be able to visit restaurant website! :)", Toast.LENGTH_LONG).show();
+        Bundle bundle = new Bundle();
+        bundle.putString(RESTAURANT_WEBSITE_URL, website);
+        Intent webviewActivity = new Intent(this, WebviewActivity.class);
+        webviewActivity.putExtras(bundle);
+        startActivity(webviewActivity);
     }
 
     //-------------------

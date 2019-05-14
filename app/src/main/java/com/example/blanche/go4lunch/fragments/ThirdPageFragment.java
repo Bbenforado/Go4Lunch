@@ -71,7 +71,6 @@ public class ThirdPageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.fragment_third_page, container, false);
         ButterKnife.bind(this, result);
-        //bar.setVisibility(View.VISIBLE);
         preferences = getActivity().getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         configureRecyclerView();
         return result;
@@ -91,7 +90,6 @@ public class ThirdPageFragment extends Fragment {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //bar.setVisibility(View.GONE);
     }
 
     private void configureSwipeRefreshLayout() {

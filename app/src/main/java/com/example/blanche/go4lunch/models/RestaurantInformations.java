@@ -7,6 +7,9 @@ import java.util.List;
 
 public class RestaurantInformations {
 
+    @SerializedName("place_id")
+    @Expose
+    private String placeId;
     @SerializedName("formatted_phone_number")
     @Expose
     private String formattedPhoneNumber;
@@ -31,6 +34,14 @@ public class RestaurantInformations {
     @SerializedName("geometry")
     @Expose
     private Geometry geometry;
+
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
 
     public String getFormattedPhoneNumber() {
         return formattedPhoneNumber;

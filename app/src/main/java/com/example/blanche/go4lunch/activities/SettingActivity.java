@@ -48,7 +48,7 @@ public class SettingActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setTitle(R.string.settings);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+
     }
 
     private void updateUIWithUserInfos() {

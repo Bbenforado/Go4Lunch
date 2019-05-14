@@ -50,6 +50,7 @@ public class SecondPageFragment extends Fragment {
     public static final String RESTAURANT_PHONE_NUMBER = "number";
     public static final String RESTAURANT_WEBSITE = "website";
     public static final String RESTAURANT_PHOTO = "photo";
+    public static final String RESTAURANT_ID = "idRestaurant";
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String CLOSING_HOURS = "closingHours";
@@ -152,6 +153,8 @@ public class SecondPageFragment extends Fragment {
                         bundle.putString(RESTAURANT_PHOTO, restaurantInformationsList.get(position).getPhotos().get(0).getPhotoReference());
                         bundle.putString(RESTAURANT_PHONE_NUMBER, restaurantInformationsList.get(position).getFormattedPhoneNumber());
                         bundle.putString(RESTAURANT_WEBSITE, restaurantInformationsList.get(position).getWebsite());
+                        bundle.putString(RESTAURANT_ID, restaurantInformationsList.get(position).getPlaceId());
+                        System.out.println("id in second frag = " + restaurantInformationsList.get(position).getPlaceId());
                         launchRestaurantDetailsActivity(bundle);
                     }
                 });

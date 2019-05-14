@@ -49,11 +49,23 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,18 +83,24 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     ProgressBar bar;
     SharedPreferences preferences;
     Disposable disposable;
+    List<String> restaurantsNames;
     private List<RestaurantsResults> restaurantsResultsList;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
+    public static final String RESTAURANT_ID = "idRestaurant";
     public static final String RESTAURANT_PHONE_NUMBER = "number";
     public static final String RESTAURANT_WEBSITE = "website";
     public static final String RESTAURANT_PHOTO = "photo";
     public static final String KEY_ACTIVITY = "keyActivity";
+    public static final String KEY = "key";
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
+    private DatabaseReference database;
+    private ValueEventListener listener;
+    private Marker marker;
 
     public PageFragment() {
         // Required empty public constructor
@@ -91,15 +109,38 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        System.out.println("on create map");
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
         ButterKnife.bind(this, rootView);
+        database = FirebaseDatabase.getInstance().getReference();
+
+
         restaurantsResultsList = new ArrayList<>();
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("on destroy map");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        System.out.println("on stop map");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        System.out.println("on start map");
+
     }
 
     @Override
@@ -145,9 +186,11 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             String restaurantName = restaurantsResultsList.get(tag).getName();
             String restaurantAdress = restaurantsResultsList.get(tag).getVicinity();
             String restaurantPhoto = restaurantsResultsList.get(tag).getPhotos().get(0).getPhotoReference();
+            String restaurantId = restaurantsResultsList.get(tag).getPlaceId();
             preferences.edit().putString(RESTAURANT_NAME, restaurantName).apply();
             preferences.edit().putString(TYPE_OF_FOOD_AND_ADRESS, restaurantAdress).apply();
             preferences.edit().putString(RESTAURANT_PHOTO, restaurantPhoto).apply();
+            preferences.edit().putString(RESTAURANT_ID, restaurantId).apply();
             preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
             launchDetailsActivity();
         }
@@ -331,17 +374,44 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     private void updateUiWithRestaurants(List<RestaurantsResults> results) {
         restaurantsResultsList.clear();
         restaurantsResultsList.addAll(results);
+
+        restaurantsNames = new ArrayList<>();
+
         for (int i = 0; i < restaurantsResultsList.size(); i++) {
             Double lat = restaurantsResultsList.get(i).getGeometry().getLocation().getLat();
             Double longitude = restaurantsResultsList.get(i).getGeometry().getLocation().getLng();
+            restaurantsNames.add(restaurantsResultsList.get(i).getName());
 
             LatLng restaurantLocation = new LatLng(lat, longitude);
-            Marker marker;
             marker = map.addMarker(new MarkerOptions()
                     .position(restaurantLocation)
                     .title(restaurantsResultsList.get(i).getName())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
             marker.setTag(i);
+
+            int finalI = i;
+            UserHelper.getUsersCollection()
+                    .whereEqualTo("restaurantId", restaurantsResultsList.get(i).getPlaceId())
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null) {
+                                Log.w("TAG", "Listen failed", e);
+                                return;
+                            }
+                            List<String> users = new ArrayList<>();
+                            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                                if (doc.get("restaurantId") != null) {
+                                    users.add(doc.getString("chosenRestaurant"));
+                                    marker = map.addMarker(new MarkerOptions()
+                                            .position(restaurantLocation)
+                                            .title(doc.getString("chosenRestaurant"))
+                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.food_and_restaurant)));
+                                    marker.setTag(finalI);
+                                }
+                            }
+                        }
+                    });
         }
         bar.setVisibility(View.GONE);
     }
@@ -350,4 +420,5 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         Intent yourLunchActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
     }
+
 }
