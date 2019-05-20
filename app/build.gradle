@@ -42,11 +42,15 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
 
     //FIREBASE
-    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation 'com.google.firebase:firebase-database:16.1.0'
+
+    //FIREBASE UI
     implementation 'com.firebaseui:firebase-ui-auth:4.1.0'
     implementation 'com.firebaseui:firebase-ui-firestore:4.1.0'
-    implementation 'com.google.firebase:firebase-database:16.0.6'
+
 
     //BUTTERKNIFE
     implementation 'com.jakewharton:butterknife:8.8.1'
@@ -58,10 +62,8 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     //GOOGLE SERVICES
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
-
     implementation 'com.google.android.gms:play-services-places:16.0.0'
     //PLACES
-
     implementation 'com.google.android.libraries.places:places:1.0.0'
     //JAVA RX
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'

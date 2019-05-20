@@ -160,13 +160,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                                           for (DocumentSnapshot doc : queryDocumentSnapshots) {
                                               if (doc.get("restaurantId") != null) {
-                                                  System.out.println("doc uid = " + doc.getString("uid"));
-                                                  System.out.println("user uid = " + getCurrentUser().getUid());
-                                                  if (!doc.getString("uid").equals(getCurrentUser().getUid())) {
                                                       users.add(doc.getString("chosenRestaurant"));
                                                       System.out.println("users in function = " + users);
                                                       textView.setVisibility(View.GONE);
-                                                  }
                                               }
                                           }
                                       }
