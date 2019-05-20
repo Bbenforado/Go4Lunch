@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -13,7 +14,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,9 +24,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.blanche.go4lunch.models.User;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -42,6 +47,7 @@ import com.example.blanche.go4lunch.fragments.ThirdPageFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -50,10 +56,9 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
+import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
+
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int RC_SIGN_IN = 123;
@@ -62,9 +67,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final String KEY_FRAGMENT = "keyFragment";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String CURRENT_USER_NAME = "currentUserName";
+    /*public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
-    public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";
+    public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";*/
     public static final String CURRENT_USER_UID = "currentUserUid";
     public static final String RESTAURANT_NAME = "name";
     public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
@@ -89,26 +94,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //we will have to see if a user if already connected, then displays or not
         if (!isCurrentUserLogged()) {
             startSignInActivity();
-        }
-        else {
-            // Initialize Places.
-            Places.initialize(getApplicationContext(), "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4");
-            // Create a new Places client instance.
-            PlacesClient placesClient = Places.createClient(this);
-
-            preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-            ButterKnife.bind(this);
-
-            checkTime();
-
-            configureToolbar();
-            preferences.edit().putString(KEY_FRAGMENT, null).apply();
-            preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
-            saveUserInformationsInPreferences();
-            configureNavigationView();
-            configureDrawerLayout();
-            setListener();
-            showFragment(new PageFragment());
+        } else {
+            configureActivity();
         }
     }
 
@@ -124,8 +111,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (isCurrentUserLogged()) {
+        /*if (isCurrentUserLogged()) {
             if (preferences.getString(KEY_FRAGMENT, null) != null) {
                 if (preferences.getString(KEY_FRAGMENT, null) == "first") {
                     showFragment(new PageFragment());
@@ -135,24 +121,38 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     showFragment(new ThirdPageFragment());
                 }
             }
-        }
+        }*/
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        System.out.println("on stop main");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        System.out.println("on destroy main");
+    protected void onResume() {
+        System.out.println("on resume");
+        super.onResume();
+        updateUiWhenResuming();
     }
 
     //----------------------
     //CONFIGURATION
     //----------------------------
+    private void configureActivity() {
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4");
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+
+        preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
+        ButterKnife.bind(this);
+        configureToolbar();
+        checkTime();
+        //preferences.edit().putString(KEY_FRAGMENT, null).apply();
+        preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
+        configureNavigationView();
+        configureDrawerLayout();
+        setListener();
+
+        showFragment(new PageFragment());
+    }
+
     protected void configureToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -166,7 +166,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void displayUserInfoInNavigationDrawer() {
-
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
@@ -174,18 +173,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (isCurrentUserLogged()) {
             if (getCurrentUser().getPhotoUrl() != null) {
                 Glide.with(this)
-                        .load(this.getCurrentUser().getPhotoUrl().toString())
+                        .load(getCurrentUser().getPhotoUrl().toString())
                         .apply(RequestOptions.circleCropTransform())
                         .into(profilePictureImageview);
             }
-            userNameTextview.setText(getCurrentUser().getDisplayName());
+            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User currentUser = documentSnapshot.toObject(User.class);
+                    userNameTextview.setText(currentUser.getUsername());
+                }
+            });
             userMail.setText(getCurrentUser().getEmail());
         }
     }
 
-
-
     private void configureDrawerLayout() {
+        System.out.println("conf drawer layout");
         drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -195,7 +199,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //---------------------------
     //ACTIONS
     //---------------------------
-
     private void setListener() {
         listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -205,17 +208,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     case R.id.navigation_map:
                         showFragment(new PageFragment());
                         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-                        preferences.edit().putString(KEY_FRAGMENT, "first").apply();
+                        //preferences.edit().putString(KEY_FRAGMENT, "first").apply();
                         return true;
                     case R.id.navigation_list:
                         showFragment(new SecondPageFragment());
                         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-                        preferences.edit().putString(KEY_FRAGMENT, "second").apply();
+                        //preferences.edit().putString(KEY_FRAGMENT, "second").apply();
                         return true;
                     case R.id.navigation_workmates:
                         showFragment(new ThirdPageFragment());
                         actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
-                        preferences.edit().putString(KEY_FRAGMENT, "third").apply();
+                        //preferences.edit().putString(KEY_FRAGMENT, "third").apply();
                         return true;
                 }
                 return false;
@@ -229,7 +232,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.lunch:
-                launchYourLunchActivity();
+                checkIfCurrentUserChoseRestaurant();
                 break;
             case R.id.settings:
                 //OPEN SETTING ACTIVITY WITH DELETE ACCOUNT BUTTON
@@ -248,9 +251,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //-----------------------
     //METHODS
     //--------------------------
-
-
     private void showFragment(Fragment fragment) {
+        System.out.println("show frag");
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content, fragment)
@@ -258,15 +260,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     //--------------------
-    //AUTHENTIFICATION METHODS
+    //AUTHENTICATION METHODS
     //-----------------------------
     private void startSignInActivity() {
+        System.out.println("ok here");
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(
+                                        new AuthUI.IdpConfig.EmailBuilder().build(),
                                         new AuthUI.IdpConfig.GoogleBuilder().build(),
                                         new AuthUI.IdpConfig.FacebookBuilder().build()))
                         .setIsSmartLockEnabled(false, true)
@@ -276,33 +280,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("request here = " + requestCode);
+        System.out.println("result here = " + resultCode);
         handleResponseAfterSignIn(requestCode, resultCode, data);
         handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
     }
 
-
-
-    private void addMarker(Place place) {
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(place.getLatLng())
-                .title(place.getName())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic));
-
-
-    }
-
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
-        IdpResponse response = IdpResponse.fromResultIntent(data);
-
+        System.out.println("request code = " + requestCode);
         if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            System.out.println("result = " + resultCode);
             if (resultCode == RESULT_OK) {//SUCCESS
                 //launch main activity
                 Toast.makeText(this, R.string.succeed_auth_message, Toast.LENGTH_SHORT).show();
                 createUserInFirestore();
+                configureActivity();
             } else {
                 if (response == null) {
+
                     Toast.makeText(this, R.string.error_auth_message, Toast.LENGTH_SHORT).show();
                 } else if(response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                     Toast.makeText(this, R.string.no_internet_auth_message, Toast.LENGTH_SHORT).show();
@@ -314,44 +312,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
 
-    private void createUserInFirestore(){
-        if (this.getCurrentUser() != null){
 
-            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
-            String username = this.getCurrentUser().getDisplayName();
-            String uid = this.getCurrentUser().getUid();
+    private void createUserInFirestore(){
+        System.out.println("we are coming here");
+        if (getCurrentUser() != null){
+
+            String urlPicture = (getCurrentUser().getPhotoUrl() != null) ? getCurrentUser().getPhotoUrl().toString() : null;
+            String username = getCurrentUser().getDisplayName();
+            String uid = getCurrentUser().getUid();
 
             UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
 
         }
     }
 
-
     private void signOutUser() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
     }
-
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
-        return new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                switch (origin) {
-                    case SIGN_OUT_TASK:
-                        finish();
-                        //startSignInActivity();
-                        break;
-                    case DELETE_USER_TASK:
-                        finish();
-                        break;
-                        default:
-                            break;
-                }
-            }
-        };
-    }
-
     //------------------
     //METHODS TO LAUNCH ACTIVITIES
     //-----------------------------------
@@ -367,16 +346,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     //------------------
-    //SAVE DATA
+    //METHODS
     //------------------
-    private void saveUserInformationsInPreferences() {
-        preferences.edit().putString(CURRENT_USER_NAME, getCurrentUser().getDisplayName()).apply();
-        preferences.edit().putString(CURRENT_USER_MAIL_ADRESS, getCurrentUser().getEmail()).apply();
-        preferences.edit().putString(CURRENT_USER_URL_PICTURE, getCurrentUser().getPhotoUrl().toString()).apply();
-    }
-
-
     private void checkTime() {
+        System.out.println("check time");
         //retrieve the date saved when user saved place he s going to eat
         long timeWhenSaved = preferences.getLong(TIME_WHEN_SAVED, 0);
 
@@ -394,5 +367,31 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 UserHelper.updateUserChosenRestaurant(getCurrentUser().getUid(), false, null, null, null, null, null, null);
             }
         }
+    }
+
+    private void checkIfCurrentUserChoseRestaurant() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User currentUser = documentSnapshot.toObject(User.class);
+                if (currentUser.isHasChosenRestaurant()) {
+                    launchYourLunchActivity();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You haven't chose where you are going to eat yet! Check some restaurants and make a choice :)", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void updateUiWhenResuming() {
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
+            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User currentUser = documentSnapshot.toObject(User.class);
+                    userNameTextview.setText(currentUser.getUsername());
+                }
+            });
     }
 }

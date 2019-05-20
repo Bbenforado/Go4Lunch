@@ -254,7 +254,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     private void showMyLocation() {
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = getEnabledLocationProvider();
-        System.out.println("location provider = " + locationProvider);
         if (locationProvider == null) {
             return;
         }

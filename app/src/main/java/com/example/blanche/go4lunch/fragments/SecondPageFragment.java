@@ -53,13 +53,7 @@ public class SecondPageFragment extends Fragment {
     public static final String RESTAURANT_ID = "idRestaurant";
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
-    public static final String CLOSING_HOURS = "closingHours";
-    String coordinates;
-    String closingHours;
-    String distance;
-    String pictureUrl;
-    String name;
-    String adress;
+    private String coordinates;
     SharedPreferences preferences;
     private Disposable disposable;
     private List<RestaurantsResults> restaurantsResultsList;
@@ -161,12 +155,6 @@ public class SecondPageFragment extends Fragment {
 
     }
 
-    private void launchRestaurantDetailsActivity(Bundle bundle) {
-        Intent restaurantDetailActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
-        restaurantDetailActivity.putExtras(bundle);
-        startActivity(restaurantDetailActivity);
-    }
-
     //---------------------
     //HTTP REQUEST
     //-------------------------
@@ -193,124 +181,12 @@ public class SecondPageFragment extends Fragment {
                         });
     }
 
-
-  /*  public void executeHttpRequestForRestaurant(String latlng) {
-        System.out.println("request 1");
-
-        disposable =
-                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
-                .subscribeWith(new DisposableObserver<RestaurantObject>() {
-
-                    @Override
-                    public void onNext(RestaurantObject restaurantObject) {
-                        Log.e("TAG", "on next first request");
-                        //updateUI
-                        for (int i=0; i<restaurantObject.getResults().size(); i++) {
-                           // executeRequestForRestaurantInformations(restaurantObject.getResults().get(i).getPlaceId());
-                            name = restaurantObject.getResults().get(i).getName();
-                            adress = restaurantObject.getResults().get(i).getVicinity();
-                            pictureUrl = restaurantObject.getResults().get(i).getPhotos().get(0).getPhotoReference();
-                            System.out.println("closing hours = " + closingHours);
-                            System.out.println("name = " + name);
-                            System.out.println("adress = " + adress);
-                        }
-                        //restaurantList = createRestaurantsList(restaurantObject.getResults());
-                        //updateUiWithRestaurants(restaurantObject.getResults());
-                        //adapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e("TAG", "on error");
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.e("TAG", "on complete first request");
-
-
-                    }
-                });
-        System.out.println("exit request 1");
-    }*/
-
-    /*public void executeRequestForRestaurantInformations(final String id) {
-        System.out.println("enter in request");
-            disposable =
-                    RestaurantStreams.streamFetchRestaurantInfos(id, "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
-                            .subscribeWith(new DisposableObserver<RestaurantInformationObject>() {
-                                @Override
-                                public void onNext(RestaurantInformationObject restaurantInformationObject) {
-                                    Log.e("TAG", "on next");
-                                    RestaurantInformations info = restaurantInformationObject.getResult();
-                                    OpeningHours openingHours = info.getOpeningHours();
-                                    List<String> openingHoursWeekday = openingHours.getWeekdayText();
-                                    Calendar calendar = Calendar.getInstance();
-                                    int day = calendar.get(Calendar.DAY_OF_WEEK);
-                                    switch (day) {
-                                        case Calendar.MONDAY:
-                                            closingHours = openingHoursWeekday.get(0);
-                                            break;
-                                        case Calendar.TUESDAY:
-                                            closingHours = openingHoursWeekday.get(1);
-                                            break;
-                                        case Calendar.WEDNESDAY:
-                                            closingHours = openingHoursWeekday.get(2);
-                                            break;
-                                        case Calendar.THURSDAY:
-                                            closingHours = openingHoursWeekday.get(3);
-                                            break;
-                                        case Calendar.FRIDAY:
-                                            closingHours = openingHoursWeekday.get(4);
-                                            break;
-                                        case Calendar.SATURDAY:
-                                            closingHours = openingHoursWeekday.get(5);
-                                            break;
-                                        case Calendar.SUNDAY:
-                                            closingHours = openingHoursWeekday.get(6);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    Log.e("TAG", "on error");
-                                }
-
-                                @Override
-                                public void onComplete() {
-                                    Log.e("TAG", "on complete");
-                                }
-                            });
-
-        System.out.println("exit of request");
-    }*/
-
     //-----------------------
     //UPDATE UI
     //-----------------------
-    private void disposeWhenDestroy() {
-        if(this.disposable != null && !this.disposable.isDisposed()) {
-            this.disposable.dispose();
-        }
-    }
-
     private void updateUiWhenStartingRequest() {
         bar.setVisibility(View.VISIBLE);
     }
-
-    /*private void updateUiWithRestaurants(List<RestaurantsResults> results) {
-        System.out.println("enter update ui");
-        swipeRefreshLayout.setRefreshing(false);
-        restaurantsResultsList.clear();
-        restaurantsResultsList.addAll(results);
-        //adapter.notifyDataSetChanged();
-        System.out.println("exit update ui");
-        *//*restaurantList = createRestaurantsList(this.restaurantsResultsList);
-        configureRecyclerView();*//*
-    }*/
 
     private void updateList(List<RestaurantInformations> results) {
 
@@ -320,35 +196,19 @@ public class SecondPageFragment extends Fragment {
         bar.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
     }
-
-    /*private List<Restaurant> createRestaurantsList(List<RestaurantsResults> results) {
-        System.out.println("enter create resto list");
-        List<Restaurant> list = new ArrayList<>();
-        for (int i = 0; i < results.size(); i++) {
-            name = results.get(i).getName();
-            adress = results.get(i).getVicinity();
-            pictureUrl = results.get(i).getPhotos().get(0).getPhotoReference();
-            //Restaurant restaurant = executeRequestForRestaurantInformations(results.get(i).getPlaceId(), name, adress, pictureUrl);
-           // list.add(restaurant);
-            System.out.println("list size = " + list.size());
-            *//*System.out.println("rest name = " + restaurant.getName());
-            System.out.println("resto adress = " + restaurant.getAdress());
-            System.out.println("rest horaires = " + restaurant.getOpeningHours());*//*
-        }
-
-        System.out.println("exit create resto list");
-        System.out.println("list size = " + list.size());
-        return list;
-    }*/
-
-
-    /*private void createAndAddRestaurantToList(String name, String adress, String closingHours, String distance, String pictureUrl) {
-        Restaurant restaurant = new Restaurant(name, adress, closingHours, distance, pictureUrl);
-        //restaurantList.add(restaurant);
+    //-------------------------------------
+    //LAUNCH ACTIVITIES
+    //--------------------------------------
+    private void launchRestaurantDetailsActivity(Bundle bundle) {
+        Intent restaurantDetailActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
+        restaurantDetailActivity.putExtras(bundle);
+        startActivity(restaurantDetailActivity);
     }
 
-
-    private void updateUiWithDouble(RestaurantInformations restaurantInformations) {
-        System.out.println("infos = " + restaurantInformations.getName() + " = " + restaurantInformations.getWebsite());
-    }*/
+    //-----------------------------------------
+    private void disposeWhenDestroy() {
+        if(this.disposable != null && !this.disposable.isDisposed()) {
+            this.disposable.dispose();
+        }
+    }
 }

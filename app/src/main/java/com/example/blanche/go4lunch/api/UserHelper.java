@@ -35,12 +35,11 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
     }
 
-    // --- GET ---
-
     public static Query getAllUsers(){
         return UserHelper.getUsersCollection()
                 .limit(50);
     }
+
 
 
 

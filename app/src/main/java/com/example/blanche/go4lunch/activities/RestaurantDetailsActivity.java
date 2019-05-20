@@ -3,6 +3,8 @@ package com.example.blanche.go4lunch.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
@@ -22,7 +26,10 @@ import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterDetails;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
 import com.example.blanche.go4lunch.api.UserHelper;
+import com.example.blanche.go4lunch.models.RestaurantInformationObject;
+import com.example.blanche.go4lunch.models.RestaurantInformations;
 import com.example.blanche.go4lunch.models.User;
+import com.example.blanche.go4lunch.utils.RestaurantStreams;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -48,20 +55,18 @@ import javax.annotation.Nullable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
+
+import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 
 public class RestaurantDetailsActivity extends BaseActivity {
 
-    public static final String RESTAURANT_NAME = "name";
-    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
-    public static final String RESTAURANT_PHOTO = "photo";
-    public static final String RESTAURANT_PHONE_NUMBER = "number";
-    public static final String RESTAURANT_WEBSITE = "website";
     public static final String RESTAURANT_ID = "idRestaurant";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String TIME_WHEN_SAVED = "time";
     public static final String RESTAURANT_WEBSITE_URL = "url";
-    public static final String KEY = "key";
     private int keyActivity;
     boolean isButtonClicked;
     private User currentUser;
@@ -72,9 +77,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private String phoneNumber;
     private String restaurantId;
     private SharedPreferences preferences;
-    private Toolbar toolbar;
-    private ActionBar actionBar;
+    private Disposable disposable;
     private RecyclerViewAdapterThirdFragment adapter;
+    @BindView(R.id.textview_hasnt_chose_yet) TextView textViewDidntChose;
     @BindView(R.id.details_page_recycler_view)
     RecyclerView recyclerView;
     /*@BindView(R.id.details_page_swipe_container)
@@ -90,6 +95,10 @@ public class RestaurantDetailsActivity extends BaseActivity {
     ImageView imageView;
     @BindView(R.id.textview_for_recyclerview) TextView textView;
     @BindView(R.id.type_of_food_and_adress) TextView typeOfFoodAndAdress;
+    @BindView(R.id.textview_call) TextView textviewCall;
+    @BindView(R.id.textview_website) TextView textviewWebsite;
+    @BindView(R.id.bar)
+    ProgressBar bar;
     private List<String> users;
 
     @Override
@@ -98,36 +107,28 @@ public class RestaurantDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_restaurant_details);
         ButterKnife.bind(this);
         System.out.println("on create details");
+        //get the preferences
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-
         keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
-        getCurrentUserDataFromFireBase();
-        //get the data from your lunch (first fragment) [0] or from second fragment [1], or from navigation drawer
+
+        //get the data from map fragment 0
+        // from list fragment 1
+        // or from navigation drawer 2
         if (keyActivity == 0) {
-            name = preferences.getString(RESTAURANT_NAME, null);
-            adress = preferences.getString(TYPE_OF_FOOD_AND_ADRESS, null);
-            photoId = preferences.getString(RESTAURANT_PHOTO, null);
             restaurantId = preferences.getString(RESTAURANT_ID, null);
-            preferences.edit().putString(KEY, "0").apply();
-        } else if(keyActivity == 1) {
-            name = getIntent().getExtras().getString(RESTAURANT_NAME);
-            adress = getIntent().getExtras().getString(TYPE_OF_FOOD_AND_ADRESS);
-            photoId = getIntent().getExtras().getString(RESTAURANT_PHOTO);
-            website = getIntent().getExtras().getString(RESTAURANT_WEBSITE);
-            System.out.println("website = " + website);
-            phoneNumber = getIntent().getExtras().getString(RESTAURANT_PHONE_NUMBER);
+            requestForInformations(restaurantId);
+        } else if (keyActivity == 2) {
+            button.setVisibility(View.GONE);
+            getCurrentUserDataFromFireBase();
+        }else {
             restaurantId = getIntent().getExtras().getString(RESTAURANT_ID);
-            System.out.println("id in third = " + restaurantId);
+            requestForInformations(restaurantId);
         }
 
 
-        //configureToolbar();
         if (keyActivity == 0 || keyActivity == 1) {
-            displayRestaurantInformations();
+            configureRecyclerView();
         }
-
-        configureRecyclerView();
-        System.out.println("users = " + users.size());
     }
 
     @Override
@@ -139,25 +140,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //-----------------------
     //CONFIGURATION
     //--------------------------------
-
-    /*protected void configureToolbar() {
-        //toolbar = findViewById(R.id.toolbar);
-        toolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
-        int keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
-        String name = null;
-        if (keyActivity == 0) {
-        } else if(keyActivity == 1) {
-            name = preferences.getString(RESTAURANT_NAME, null);
-        } else {
-            name = getIntent().getExtras().getString(RESTAURANT_NAME);
-        }
-
-        actionBar.setTitle(name);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-    }*/
-
     private void configureRecyclerView() {
         users = new ArrayList<>();
         Query query = UserHelper.getUsersCollection().whereEqualTo("restaurantId", restaurantId);
@@ -171,9 +153,13 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                                           for (DocumentSnapshot doc : queryDocumentSnapshots) {
                                               if (doc.get("restaurantId") != null) {
-                                                  users.add(doc.getString("chosenRestaurant"));
-                                                  System.out.println("users in function = " + users);
-                                                  textView.setVisibility(View.GONE);
+                                                  System.out.println("doc uid = " + doc.getString("uid"));
+                                                  System.out.println("user uid = " + getCurrentUser().getUid());
+                                                  if (!doc.getString("uid").equals(getCurrentUser().getUid())) {
+                                                      users.add(doc.getString("chosenRestaurant"));
+                                                      System.out.println("users in function = " + users);
+                                                      textView.setVisibility(View.GONE);
+                                                  }
                                               }
                                           }
                                       }
@@ -192,22 +178,42 @@ public class RestaurantDetailsActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-   /* private void configureSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //refresh the page, request the api
-            }
-        });
-    }*/
-
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .setLifecycleOwner(this)
                 .build();
     }
+    //--------------------------
+    //REQUEST
+    //-----------------------------
+    private void requestForInformations(String placeId) {
+        bar.setVisibility(View.VISIBLE);
+        disposable =
+                RestaurantStreams.streamFetchRestaurantInfos(placeId, "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
+                        .subscribeWith(new DisposableObserver<RestaurantInformationObject>() {
 
+                            @Override
+                            public void onNext(RestaurantInformationObject restaurantInformationObject) {
+                                RestaurantInformations infos = restaurantInformationObject.getResult();
+                                website = infos.getWebsite();
+                                name = infos.getName();
+                                adress = infos.getVicinity();
+                                phoneNumber = infos.getFormattedPhoneNumber();
+                                photoId = infos.getPhotos().get(0).getPhotoReference();
+                                displayRestaurantInformations();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+                            }
+                        });
+    }
     //--------------------------
     //ACTIONS
     //-----------------------------
@@ -252,7 +258,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @OnClick(R.id.call_button)
     public void callRestaurant(View v) {
         //get the restaurant number, and displays the call tool of the phone
-        Toast.makeText(this, "Not implemented yet, but soon, you'll be able to call the restaurant now! :)", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        startActivity(intent);
     }
 
     @OnClick(R.id.like_button)
@@ -275,13 +283,19 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //UPDATE UI
     //------------------------
     private void displayRestaurantInformations() {
+        bar.setVisibility(View.GONE);
         //if key activity == 0, it means this is coming from the navigation drawer
-        System.out.println("coming here?");
         if (name != null && adress != null && photoId != null) {
-            System.out.println("and here?");
             String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4";
             setRestaurantInformations(name, adress, url);
+            displayButton(phoneNumber, callButton, textviewCall, R.drawable.ic_phone_disabled);
+            displayButton(website, websiteButton, textviewWebsite, R.drawable.ic_website_disabled);
+            if (keyActivity == 0 || keyActivity == 1) {
+                getCurrentUserDataFromFireBase();
+            }
         }
+
+
     }
 
     private void displayColorButton(User user) {
@@ -296,6 +310,14 @@ public class RestaurantDetailsActivity extends BaseActivity {
         }
     }
 
+    private void displayButton(String info, ImageButton imageButton, TextView textView, int drawable) {
+        if (info == null) {
+            imageButton.setEnabled(false);
+            textView.setTextColor(Color.parseColor("#bcbcbc"));
+            imageButton.setBackgroundResource(drawable);
+        }
+    }
+
     private void getCurrentUserDataFromFireBase() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -304,16 +326,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
                 if (keyActivity == 0 || keyActivity == 1) {
                     if (currentUser.isHasChosenRestaurant()) {
                         displayColorButton(currentUser);
-
                     }
                 } else if (keyActivity == 2) {
                     if (currentUser.isHasChosenRestaurant()) {
-                        button.setVisibility(View.GONE);
-                        name = currentUser.getChosenRestaurant();
-                        adress = currentUser.getChosenRestaurantAdress();
-                        photoId = currentUser.getChosenRestaurantPhotoId();
-                        System.out.println("name = " + name + " adress = " + adress + " photo = " + photoId);
-                        displayRestaurantInformations();
+                        restaurantId = currentUser.getRestaurantId();
+                        requestForInformations(currentUser.getRestaurantId());
+                        configureRecyclerView();
                     }
                 }
             }
