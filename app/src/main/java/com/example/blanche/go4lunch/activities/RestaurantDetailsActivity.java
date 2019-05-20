@@ -58,6 +58,7 @@ import butterknife.OnClick;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
+import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 
 public class RestaurantDetailsActivity extends BaseActivity {
@@ -135,6 +136,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         preferences.edit().putInt(KEY_ACTIVITY, -1).apply();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disposeWhenDestroy(disposable);
     }
 
     //-----------------------
@@ -242,16 +249,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
             }*/
         } else {
             //unclick button
-            if (preferences.getInt(KEY_ACTIVITY, -1) != 0) {
-                //update the name of the restaurant in firebase
-                UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, restaurantId);
-                //change button color
-                button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                //display message to user
-                Toast.makeText(this, "Want to eat somewhere else?", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
-            }
+            //update the name of the restaurant in firebase
+            UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, restaurantId);
+            //change button color
+            button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            //display message to user
+            Toast.makeText(this, "Want to eat somewhere else?", Toast.LENGTH_SHORT).show();
         }
     }
 

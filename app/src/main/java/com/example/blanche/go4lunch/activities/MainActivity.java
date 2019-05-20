@@ -67,13 +67,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final String KEY_FRAGMENT = "keyFragment";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String KEY_ACTIVITY = "keyActivity";
-    /*public static final String CURRENT_USER_NAME = "currentUserName";
-    public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
-    public static final String CURRENT_USER_URL_PICTURE = "currentUserUrlPicture";*/
     public static final String CURRENT_USER_UID = "currentUserUid";
-    public static final String RESTAURANT_NAME = "name";
-    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
-    public static final String RESTAURANT_PHOTO = "photo";
     public static final long DAY_IN_MILLIS = 24*60*60*1000;
     public static final String TIME_WHEN_SAVED = "time";
 

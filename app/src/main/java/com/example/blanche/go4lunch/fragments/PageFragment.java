@@ -72,6 +72,8 @@ import butterknife.ButterKnife;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
+import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -101,6 +103,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     private DatabaseReference database;
     private ValueEventListener listener;
     private Marker marker;
+    private String latLong;
 
     public PageFragment() {
         // Required empty public constructor
@@ -140,17 +143,24 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     public void onStart() {
         super.onStart();
         System.out.println("on start map");
+    }
 
+    @Override
+    public void onResume() {
+        System.out.println("on resume map");
+        super.onResume();
+        updateMarkersForAListOfRestaurant(restaurantsResultsList);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        disposeWhenDestroy();
+        disposeWhenDestroy(disposable);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        System.out.println("on map ready");
         map = googleMap;
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -178,23 +188,19 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        System.out.println("on marker clicked");
         int tag = (Integer) marker.getTag();
+        //if this is the user marker
         if (tag == -1) {
             marker.setTitle(preferences.getString(CURRENT_USER_NAME, null));
             marker.setSnippet(preferences.getString(CURRENT_USER_MAIL_ADRESS, null));
         } else {
-            String restaurantName = restaurantsResultsList.get(tag).getName();
-            String restaurantAdress = restaurantsResultsList.get(tag).getVicinity();
-            String restaurantPhoto = restaurantsResultsList.get(tag).getPhotos().get(0).getPhotoReference();
             String restaurantId = restaurantsResultsList.get(tag).getPlaceId();
-            preferences.edit().putString(RESTAURANT_NAME, restaurantName).apply();
-            preferences.edit().putString(TYPE_OF_FOOD_AND_ADRESS, restaurantAdress).apply();
-            preferences.edit().putString(RESTAURANT_PHOTO, restaurantPhoto).apply();
             preferences.edit().putString(RESTAURANT_ID, restaurantId).apply();
             preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
             launchDetailsActivity();
         }
-        return false;
+        return true;
     }
 
     //-----------------------
@@ -252,6 +258,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //SHOW LOCATION
     //----------------------------
     private void showMyLocation() {
+        System.out.println("show my location");
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = getEnabledLocationProvider();
         if (locationProvider == null) {
@@ -275,7 +282,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         if (myLocation != null) {
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
-            String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
+            latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
             System.out.println("position = " + latLong);
 
             executeHttpRequestForRestaurant(latLong);
@@ -337,6 +344,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //HTTP REQUEST
     //----------------------
     public void executeHttpRequestForRestaurant(String latlng) {
+        System.out.println("coming here?");
         bar.setVisibility(View.VISIBLE);
         disposable =
                 RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
@@ -361,36 +369,38 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                         });
     }
 
-    private void disposeWhenDestroy() {
-        if(this.disposable != null && !this.disposable.isDisposed()) {
-            this.disposable.dispose();
-        }
-    }
+
 
     //------------------------
     //UPDATE UI
     //------------------------
     private void updateUiWithRestaurants(List<RestaurantsResults> results) {
+        System.out.println("    and here");
         restaurantsResultsList.clear();
         restaurantsResultsList.addAll(results);
 
-        restaurantsNames = new ArrayList<>();
+        //restaurantsNames = new ArrayList<>();
+        updateMarkersForAListOfRestaurant(restaurantsResultsList);
+        bar.setVisibility(View.GONE);
+    }
 
-        for (int i = 0; i < restaurantsResultsList.size(); i++) {
-            Double lat = restaurantsResultsList.get(i).getGeometry().getLocation().getLat();
-            Double longitude = restaurantsResultsList.get(i).getGeometry().getLocation().getLng();
-            restaurantsNames.add(restaurantsResultsList.get(i).getName());
 
+
+    private void updateMarkersForAListOfRestaurant(List<RestaurantsResults> list) {
+        for (int i = 0; i < list.size(); i++) {
+            Double lat = list.get(i).getGeometry().getLocation().getLat();
+            Double longitude = list.get(i).getGeometry().getLocation().getLng();
             LatLng restaurantLocation = new LatLng(lat, longitude);
+
             marker = map.addMarker(new MarkerOptions()
                     .position(restaurantLocation)
-                    .title(restaurantsResultsList.get(i).getName())
+                    .title(list.get(i).getName())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
             marker.setTag(i);
 
             int finalI = i;
             UserHelper.getUsersCollection()
-                    .whereEqualTo("restaurantId", restaurantsResultsList.get(i).getPlaceId())
+                    .whereEqualTo("restaurantId", list.get(i).getPlaceId())
                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -412,9 +422,11 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                         }
                     });
         }
-        bar.setVisibility(View.GONE);
     }
 
+    //-------------------------
+    //METHODS THAT LAUNCH ACTIVITIES
+    //---------------------------------
     private void launchDetailsActivity() {
         Intent yourLunchActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);

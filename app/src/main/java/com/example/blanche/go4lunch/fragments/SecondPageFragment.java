@@ -37,6 +37,8 @@ import butterknife.ButterKnife;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
+import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -101,7 +103,7 @@ public class SecondPageFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        disposeWhenDestroy();
+        disposeWhenDestroy(disposable);
         System.out.println("on destroy fragment");
     }
 
@@ -206,9 +208,4 @@ public class SecondPageFragment extends Fragment {
     }
 
     //-----------------------------------------
-    private void disposeWhenDestroy() {
-        if(this.disposable != null && !this.disposable.isDisposed()) {
-            this.disposable.dispose();
-        }
-    }
 }
