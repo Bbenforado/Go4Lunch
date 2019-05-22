@@ -28,8 +28,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
+import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
@@ -44,6 +46,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -54,8 +58,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -104,6 +111,11 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     private ValueEventListener listener;
     private Marker marker;
     private String latLong;
+    private boolean isAlreadySavedInDatabase;
+
+    List<String> idList;
+    FirebaseFirestore firestoreRootRef;
+    CollectionReference itemsRef;
 
     public PageFragment() {
         // Required empty public constructor
@@ -355,6 +367,38 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                                 Log.e("TAG", "on next");
                                 //updateUI
                                 updateUiWithRestaurants(restaurantObject.getResults());
+                                for (int i = 0; i < restaurantObject.getResults().size(); i++) {
+                                    //get restaurants, check uid if uid is not in database, create restaurants
+                                    String id = restaurantObject.getResults().get(i).getPlaceId();
+
+                                    idList = new ArrayList<>();
+
+                                    firestoreRootRef = FirebaseFirestore.getInstance();
+                                    itemsRef = firestoreRootRef.collection("restaurantPlaces");
+
+                                    readData(new MyCallback() {
+                                        @Override
+                                        public void onCallback(List<String> list) {
+                                            Log.e("TAG", list.toString());
+                                            if (!list.contains(id)) {
+                                                RestaurantPlaceHelper.createRestaurantPlace(id);
+                                            }
+                                        }
+                                    });
+
+
+                                    /*System.out.println("bool here is " + isAlreadySavedInDatabase);
+                                    if (!isAlreadySavedInDatabase) {
+                                        System.out.println("boolean = " + isAlreadySavedInDatabase);
+                                        RestaurantPlaceHelper.createRestaurantPlace(id);
+                                    }*/
+
+
+                                    //si cet id se trouve dans base de donnees, on ne cree pas de restaurant
+                                    //checkIfAlreadySavedInDatabase(id);
+
+
+                                }
                             }
 
                             @Override
@@ -369,7 +413,9 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                         });
     }
 
-
+    /*private void checkIfAlreadySavedInDatabase(String id) {
+        RestaurantPlaceHelper.getRestaurantPlaceCollection().whereEqualTo("uid", id);
+    }*/
 
     //------------------------
     //UPDATE UI
@@ -431,5 +477,26 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         Intent yourLunchActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
     }
+
+    private void readData(MyCallback myCallback) {
+        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        String id = document.getString("uid");
+                        idList.add(id);
+                    }
+                    myCallback.onCallback(idList);
+                } else {
+                    Log.d("TAG", "Error");
+                }
+            }
+        });
+    }
+
+
+
+
 
 }

@@ -76,7 +76,7 @@
                     android:id="@+id/number_of_workmates"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(2)"
+                    android:text="(0)"
                     android:textSize="9dp"
                     android:layout_alignParentRight="true"/>
 
@@ -97,23 +97,28 @@
                     android:textSize="9sp"/>
 
                 <ImageView
+                    android:id="@+id/star_one"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
                     android:layout_alignParentRight="true"
-                    />
+                    android:visibility="gone"/>
                 <ImageView
+                    android:id="@+id/star_two"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="20dp"/>
+                    android:layout_marginRight="13dp"
+                    android:visibility="gone"/>
                 <ImageView
+                    android:id="@+id/star_three"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="40dp"/>
+                    android:layout_marginRight="26dp"
+                    android:visibility="gone"/>
 
             </RelativeLayout>
 

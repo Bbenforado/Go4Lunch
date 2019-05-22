@@ -122,7 +122,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onResume() {
         System.out.println("on resume");
         super.onResume();
-        updateUiWhenResuming();
+        if (isCurrentUserLogged()) {
+            updateUiWhenResuming();
+        }
     }
 
     //----------------------

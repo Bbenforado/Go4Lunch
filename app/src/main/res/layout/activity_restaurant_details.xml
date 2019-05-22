@@ -104,26 +104,32 @@
 
 
                         <ImageView
+                            android:id="@+id/star_one"
                             android:layout_width="15dp"
                             android:layout_height="15dp"
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="10dp"
-                            android:tint="@android:color/white"/>
+                            android:tint="@android:color/white"
+                            android:visibility="gone"/>
                         <ImageView
+                            android:id="@+id/star_two"
                             android:layout_width="15dp"
                             android:layout_height="15dp"
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="5dp"
-                            android:tint="@android:color/white"/>
+                            android:tint="@android:color/white"
+                            android:visibility="gone"/>
                         <ImageView
+                            android:id="@+id/star_three"
                             android:layout_width="15dp"
                             android:layout_height="15dp"
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="5dp"
-                            android:tint="@android:color/white"/>
+                            android:tint="@android:color/white"
+                            android:visibility="gone"/>
 
                     </LinearLayout>
 

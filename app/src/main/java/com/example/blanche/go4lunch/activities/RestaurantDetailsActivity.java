@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -25,29 +26,39 @@ import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterDetails;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
+import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantInformationObject;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
+import com.example.blanche.go4lunch.models.RestaurantPlace;
 import com.example.blanche.go4lunch.models.User;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.annotation.Nullable;
@@ -60,6 +71,7 @@ import io.reactivex.observers.DisposableObserver;
 
 import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
+import static com.example.blanche.go4lunch.utils.Utils.setStars;
 
 public class RestaurantDetailsActivity extends BaseActivity {
 
@@ -83,8 +95,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @BindView(R.id.textview_hasnt_chose_yet) TextView textViewDidntChose;
     @BindView(R.id.details_page_recycler_view)
     RecyclerView recyclerView;
-    /*@BindView(R.id.details_page_swipe_container)
-    SwipeRefreshLayout swipeRefreshLayout;*/
     @BindView(R.id.floating_action_button)
     FloatingActionButton button;
     @BindView(R.id.call_button) ImageButton callButton;
@@ -98,9 +108,17 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @BindView(R.id.type_of_food_and_adress) TextView typeOfFoodAndAdress;
     @BindView(R.id.textview_call) TextView textviewCall;
     @BindView(R.id.textview_website) TextView textviewWebsite;
+    @BindView(R.id.textview_like) TextView textviewLike;
     @BindView(R.id.bar)
     ProgressBar bar;
+    @BindView(R.id.star_one) ImageView starOne;
+    @BindView(R.id.star_two) ImageView starTwo;
+    @BindView(R.id.star_three) ImageView starThree;
     private List<String> users;
+    private boolean isOpen;
+
+    FirebaseFirestore firestoreRootRef;
+    CollectionReference itemsRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,8 +142,10 @@ public class RestaurantDetailsActivity extends BaseActivity {
         }else {
             restaurantId = getIntent().getExtras().getString(RESTAURANT_ID);
             requestForInformations(restaurantId);
-        }
 
+        }
+        setStars(restaurantId, starOne, starTwo, starThree);
+        displayLikeButton();
 
         if (keyActivity == 0 || keyActivity == 1) {
             configureRecyclerView();
@@ -204,6 +224,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                 adress = infos.getVicinity();
                                 phoneNumber = infos.getFormattedPhoneNumber();
                                 photoId = infos.getPhotos().get(0).getPhotoReference();
+                                isOpen = infos.getOpeningHours().getOpenNow();
                                 displayRestaurantInformations();
                             }
 
@@ -240,9 +261,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                 //we display toast message to user
                 Toast.makeText(this, "You are going to eat at " + name + " !", Toast.LENGTH_SHORT).show();
-            /*} else {
-                Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
-            }*/
         } else {
             //unclick button
             //update the name of the restaurant in firebase
@@ -265,7 +283,56 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @OnClick(R.id.like_button)
     public void likeRestaurant(View v) {
         //add +1 to the restaurant and save it in firebase
-        Toast.makeText(this, "Not implemented yet, but soon you'll be able to like the restaurant! <3", Toast.LENGTH_LONG).show();
+        RestaurantPlaceHelper.getRestaurantPlace(restaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                RestaurantPlace restaurantPlace = documentSnapshot.toObject(RestaurantPlace.class);
+
+                List<String> users = new ArrayList<>();
+                if (restaurantPlace.getUsersWhoLiked() != null) {
+                    users = restaurantPlace.getUsersWhoLiked();
+                }
+                users.add(getCurrentUser().getUid());
+                System.out.println("array = " + users);
+                RestaurantPlaceHelper.updateUserWhoLikeList(restaurantId, users).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("success");
+                    }
+                });
+
+                System.out.println("updated list");
+                int like = restaurantPlace.getLike();
+                int finalLike = like + 1;
+                System.out.println("like = " + like);
+                System.out.println("final like  = " + finalLike);
+                System.out.println("restaurant id = " + restaurantId);
+                RestaurantPlaceHelper.updateRestaurantLike(restaurantId, finalLike).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        System.out.println("updated!!");
+                    }
+                });
+                Toast.makeText(getApplicationContext(), "You liked this restaurant!", Toast.LENGTH_SHORT).show();
+                displayButton(null, likeButton, textviewLike, R.drawable.ic_like_disabled);
+            }
+        });
+    }
+
+    private void displayLikeButton() {
+        RestaurantPlaceHelper.getRestaurantPlace(restaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                RestaurantPlace restaurantPlace = documentSnapshot.toObject(RestaurantPlace.class);
+                if (!restaurantPlace.getUsersWhoLiked().contains(getCurrentUser().getUid())) {
+                    likeButton.setEnabled(true);
+                    textviewLike.setTextColor(Color.parseColor("#000000"));
+                    likeButton.setBackgroundResource(R.drawable.ic_like);
+                } else {
+                    displayButton(null, likeButton, textviewLike, R.drawable.ic_like_disabled);
+                }
+            }
+        });
     }
 
     @OnClick(R.id.website_button)
@@ -323,8 +390,14 @@ public class RestaurantDetailsActivity extends BaseActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 currentUser = documentSnapshot.toObject(User.class);
                 if (keyActivity == 0 || keyActivity == 1) {
-                    if (currentUser.isHasChosenRestaurant()) {
-                        displayColorButton(currentUser);
+                    //if restaurant is open, we display the button, color depending on if user chose this place to eat or not
+                    if (isOpen) {
+                        if (currentUser.isHasChosenRestaurant()) {
+                            displayColorButton(currentUser);
+                        }
+                    } else {
+                        //if it s close, user can't chose the restaurant
+                        button.setVisibility(View.GONE);
                     }
                 } else if (keyActivity == 2) {
                     if (currentUser.isHasChosenRestaurant()) {
@@ -355,5 +428,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                 .into(imageView);
 
     }
+
 
 }

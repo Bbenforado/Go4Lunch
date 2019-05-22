@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,9 +17,11 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
+import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
+import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.models.OpeningHours;
 import com.example.blanche.go4lunch.models.Restaurant;
 import com.example.blanche.go4lunch.models.RestaurantInformationObject;
@@ -27,11 +30,27 @@ import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+
+import javax.annotation.Nullable;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.disposables.Disposable;
@@ -47,11 +66,6 @@ public class SecondPageFragment extends Fragment {
 
     public static final String KEY_POSITION = "position";
     public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String RESTAURANT_NAME = "name";
-    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
-    public static final String RESTAURANT_PHONE_NUMBER = "number";
-    public static final String RESTAURANT_WEBSITE = "website";
-    public static final String RESTAURANT_PHOTO = "photo";
     public static final String RESTAURANT_ID = "idRestaurant";
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
@@ -62,6 +76,11 @@ public class SecondPageFragment extends Fragment {
     private List<Restaurant> restaurantList;
     private List<RestaurantInformations> restaurantInformationsList;
     private RecyclerViewAdapter adapter;
+    boolean isAlreadySavedInDatabase;
+    List<String> list;
+    List<String> idList;
+    FirebaseFirestore firestoreRootRef;
+    CollectionReference itemsRef;
     @BindView(R.id.bar)
     ProgressBar bar;
     @BindView(R.id.fragment_second_page_recycler_view)
@@ -91,8 +110,8 @@ public class SecondPageFragment extends Fragment {
 
         configureRecyclerView();
         //this.restaurantsResultsList = new ArrayList<>();
-       // this.restaurantList = new ArrayList<>();
-       // executeHttpRequestForRestaurant(coordinates);
+        // this.restaurantList = new ArrayList<>();
+        // executeHttpRequestForRestaurant(coordinates);
         request(coordinates);
         configureOnClickRecyclerView();
         configureSwipeRefreshLayout();
@@ -112,13 +131,9 @@ public class SecondPageFragment extends Fragment {
     //-------------------
     private void configureRecyclerView() {
         System.out.println("enter in configure");
-
-        //this.restaurantsResultsList = new ArrayList<>();
         this.restaurantInformationsList = new ArrayList<>();
         this.restaurantList = new ArrayList<>();
         this.adapter = new RecyclerViewAdapter(this.restaurantInformationsList, Glide.with(this));
-        //this.adapter = new RecyclerViewAdapter(this.restaurantList, Glide.with(this));
-        //this.adapter = new RecyclerViewAdapter(this.restaurantsResultsList, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         System.out.println("exit configure");
@@ -129,7 +144,6 @@ public class SecondPageFragment extends Fragment {
             @Override
             public void onRefresh() {
                 //refresh the page, request the api
-                //executeHttpRequestForRestaurant(coordinates);
                 request(coordinates);
                 bar.setVisibility(View.GONE);
             }
@@ -144,13 +158,7 @@ public class SecondPageFragment extends Fragment {
                         //put in bundle informations about restaurant
                         preferences.edit().putInt(KEY_ACTIVITY, 1).apply();
                         Bundle bundle = new Bundle();
-                        bundle.putString(RESTAURANT_NAME, restaurantInformationsList.get(position).getName());
-                        bundle.putString(TYPE_OF_FOOD_AND_ADRESS, restaurantInformationsList.get(position).getVicinity());
-                        bundle.putString(RESTAURANT_PHOTO, restaurantInformationsList.get(position).getPhotos().get(0).getPhotoReference());
-                        bundle.putString(RESTAURANT_PHONE_NUMBER, restaurantInformationsList.get(position).getFormattedPhoneNumber());
-                        bundle.putString(RESTAURANT_WEBSITE, restaurantInformationsList.get(position).getWebsite());
                         bundle.putString(RESTAURANT_ID, restaurantInformationsList.get(position).getPlaceId());
-                        System.out.println("id in second frag = " + restaurantInformationsList.get(position).getPlaceId());
                         launchRestaurantDetailsActivity(bundle);
                     }
                 });
@@ -169,6 +177,27 @@ public class SecondPageFragment extends Fragment {
                             @Override
                             public void onNext(List<RestaurantInformations> restaurantInformationsList) {
                                 updateList(restaurantInformationsList);
+                                for (int i = 0; i < restaurantInformationsList.size(); i++) {
+                                    System.out.println("coming here?");
+                                    //get restaurants, check uid if uid is not in database, create restaurants
+
+                                    String id = restaurantInformationsList.get(i).getPlaceId();
+
+                                    idList = new ArrayList<>();
+
+                                    firestoreRootRef = FirebaseFirestore.getInstance();
+                                    itemsRef = firestoreRootRef.collection("restaurantPlaces");
+
+                                    readData(new MyCallback() {
+                                        @Override
+                                        public void onCallback(List<String> list) {
+                                            Log.e("TAG", list.toString());
+                                            if (!list.contains(id)) {
+                                                RestaurantPlaceHelper.createRestaurantPlace(id);
+                                            }
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
@@ -183,6 +212,7 @@ public class SecondPageFragment extends Fragment {
                         });
     }
 
+
     //-----------------------
     //UPDATE UI
     //-----------------------
@@ -191,13 +221,13 @@ public class SecondPageFragment extends Fragment {
     }
 
     private void updateList(List<RestaurantInformations> results) {
-
         swipeRefreshLayout.setRefreshing(false);
         restaurantInformationsList.clear();
         restaurantInformationsList.addAll(results);
         bar.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
     }
+
     //-------------------------------------
     //LAUNCH ACTIVITIES
     //--------------------------------------
@@ -208,4 +238,21 @@ public class SecondPageFragment extends Fragment {
     }
 
     //-----------------------------------------
+
+    private void readData(MyCallback myCallback) {
+        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        String id = document.getString("uid");
+                        idList.add(id);
+                    }
+                    myCallback.onCallback(idList);
+                } else {
+                    Log.d("TAG", "Error");
+                }
+            }
+        });
+    }
 }
