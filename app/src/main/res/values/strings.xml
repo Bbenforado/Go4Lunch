@@ -12,8 +12,6 @@
 
     <string name="call">Call</string>
     <string name="website">Website</string>
-    <string name="delete_account">Delete account</string>
-    <string name="change_user_name">Change user name</string>
     <string name="your_lunch">Your lunch</string>
     <string name="settings">Settings</string>
     <string name="log_out">Log out</string>
@@ -30,6 +28,18 @@
     <string name="workmate_has_chose">is eating at</string>
     <string name="workmate_didnt_chose_yet">hasn\'t decided yet</string>
     <string name="opening_hours">No opening hours specified</string>
+    <string name="no_one_eat_here">No one is going to eat here for the moment...</string>
+    <string name="user_didnt_chose_restaurant">You haven\'t decided yet</string>
+    <string name="notifications_settings">Notifications settings</string>
+    <string name="account_settings">Account settings</string>
+    <string name="change_username_button_text">Change username</string>
+    <string name="delete_account_button_text">Delete account</string>
+    <string name="enable_notif">Enable notifications</string>
+    <string name="change_notif_hours">Change notifications hour</string>
+    <string name="toast_text_when_user_chose_restaurant">You are going to eat at </string>
+    <string name="toast_text_when_user_uncheck_chose_button">Want to eat somewhere else?</string>
+    <string name="user_like_restaurant">You liked this restaurant!</string>
+    <string name="restaurant_is_closed">Closed now</string>
 
 
     <!-- FACEBOOK PURPOSE -->

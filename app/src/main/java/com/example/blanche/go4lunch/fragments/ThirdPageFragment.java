@@ -1,6 +1,7 @@
 package com.example.blanche.go4lunch.fragments;
 
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -73,6 +75,7 @@ public class ThirdPageFragment extends Fragment {
         ButterKnife.bind(this, result);
         preferences = getActivity().getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         configureRecyclerView();
+        configureOnClickRecyclerView();
         return result;
     }
 
@@ -108,6 +111,8 @@ public class ThirdPageFragment extends Fragment {
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         //LAUNCH RESTAURANT ACTIVITY
                         //which displays picture of restaurant and some informations
+                        //launchRestaurantDetailsActivity();
+                        System.out.println("item pos = " + position);
                     }
                 });
     }
@@ -117,6 +122,15 @@ public class ThirdPageFragment extends Fragment {
                 .setQuery(query, User.class)
                 .setLifecycleOwner(this)
                 .build();
+    }
+
+    //-------------------------------------
+    //LAUNCH ACTIVITIES
+    //--------------------------------------
+    private void launchRestaurantDetailsActivity(Bundle bundle) {
+        Intent restaurantDetailActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
+        restaurantDetailActivity.putExtras(bundle);
+        startActivity(restaurantDetailActivity);
     }
 
 

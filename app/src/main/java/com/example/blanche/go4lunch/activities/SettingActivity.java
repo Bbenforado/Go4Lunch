@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 public class SettingActivity extends BaseActivity {
 
     public static final String APP_PREFERENCES = "appPreferences";
+    public static final String SWITCH_BUTTON_STATE = "switchButtonState";
     private SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
@@ -44,6 +47,8 @@ public class SettingActivity extends BaseActivity {
     @BindView(R.id.button_delete_account)
     Button deleteButton;
     @BindView(R.id.button_username) Button changeUsernameButton;
+    @BindView(R.id.switch_button)
+    Switch switchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,7 @@ public class SettingActivity extends BaseActivity {
 
         ButterKnife.bind(this);
         configureToolbar();
+        configureSwitchButton();
         updateUIWithUserInfos();
     }
 
@@ -68,6 +74,30 @@ public class SettingActivity extends BaseActivity {
     //---------------------
     //ACTIONS
     //-----------------------
+    private void configureSwitchButton() {
+        displaySwitchButtonState();
+        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    preferences.edit().putInt(SWITCH_BUTTON_STATE, 0).apply();
+                    UserHelper.updateNotificationBoolean(getCurrentUser().getUid(), true);
+                } else {
+                    preferences.edit().putInt(SWITCH_BUTTON_STATE, 1).apply();
+                    UserHelper.updateNotificationBoolean(getCurrentUser().getUid(), false);
+                }
+            }
+        });
+    }
+
+    private void displaySwitchButtonState() {
+        if (preferences.getInt(SWITCH_BUTTON_STATE, -1) == 0) {
+            switchButton.setChecked(true);
+        } else {
+            switchButton.setChecked(false);
+        }
+    }
+
     @OnClick(R.id.button_delete_account)
     public void deleteUserInFirebase() {
         new AlertDialog.Builder(this)

@@ -191,7 +191,6 @@ public class SecondPageFragment extends Fragment {
                                     readData(new MyCallback() {
                                         @Override
                                         public void onCallback(List<String> list) {
-                                            Log.e("TAG", list.toString());
                                             if (!list.contains(id)) {
                                                 RestaurantPlaceHelper.createRestaurantPlace(id);
                                             }

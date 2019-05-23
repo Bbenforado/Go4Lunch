@@ -20,8 +20,8 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String username, String urlPicture) {
-        User userToCreate = new User(uid, username, urlPicture);
+    public static Task<Void> createUser(String uid, String username, String urlPicture, boolean isNotificationEnabled) {
+        User userToCreate = new User(uid, username, urlPicture, isNotificationEnabled);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
     /*public static Task<Void> createUser(String uid, String username) {
@@ -52,6 +52,10 @@ public class UserHelper {
 
     public static Task<Void> updateUserChosenRestaurant(String uid, Boolean hasChosenRestaurant, String restaurantName, String adress, String number, String website, String photoId, String restaurantId) {
         return UserHelper.getUsersCollection().document(uid).update("hasChosenRestaurant", hasChosenRestaurant, "chosenRestaurant", restaurantName, "chosenRestaurantAdress", adress, "chosenRestaurantPhoneNumber", number, "chosenRestaurantWebsite", website, "chosenRestaurantPhotoId", photoId, "restaurantId", restaurantId);
+    }
+
+    public static Task<Void> updateNotificationBoolean(String uid, boolean isNotificationEnabled) {
+        return UserHelper.getUsersCollection().document(uid).update("hasEnableNotifications", isNotificationEnabled);
     }
 
     // --- DELETE ---

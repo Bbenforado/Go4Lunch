@@ -74,7 +74,7 @@
                             android:id="@+id/textview_hasnt_chose_yet"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="You haven't decided yet"
+                            android:text="@string/user_didnt_chose_restaurant"
                             android:layout_centerInParent="true"
                             android:visibility="gone"/>
                     <ProgressBar
@@ -232,8 +232,8 @@
                     android:id="@+id/textview_for_recyclerview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No one is going to eat here for the moment..."
-                    android:textSize="11dp"
+                    android:text="@string/no_one_eat_here"
+                    android:textSize="12sp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_centerHorizontal="true"/>

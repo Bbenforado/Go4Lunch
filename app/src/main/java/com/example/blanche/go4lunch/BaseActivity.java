@@ -102,7 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
+    /*protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
         System.out.println("request = " + requestCode);
         System.out.println("result = " + resultCode);
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
@@ -125,6 +125,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Toast.makeText(this, "you cancelled operation", Toast.LENGTH_SHORT).show();
             }
         }
-    }
+    }*/
 
 }

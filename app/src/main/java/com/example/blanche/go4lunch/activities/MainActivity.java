@@ -47,6 +47,8 @@ import com.example.blanche.go4lunch.fragments.ThirdPageFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
@@ -70,6 +72,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final String CURRENT_USER_UID = "currentUserUid";
     public static final long DAY_IN_MILLIS = 24*60*60*1000;
     public static final String TIME_WHEN_SAVED = "time";
+    int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
@@ -79,6 +82,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private Toolbar toolbar;
     private ActionBar actionBar;
     private BottomNavigationView.OnNavigationItemSelectedListener listener;
+    PageFragment pageFragment;
 
 
     @Override
@@ -105,17 +109,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onStart() {
         super.onStart();
-        /*if (isCurrentUserLogged()) {
-            if (preferences.getString(KEY_FRAGMENT, null) != null) {
-                if (preferences.getString(KEY_FRAGMENT, null) == "first") {
-                    showFragment(new PageFragment());
-                } else if (preferences.getString(KEY_FRAGMENT, null).equals("second")) {
-                    showFragment(new SecondPageFragment());
-                } else if (preferences.getString(KEY_FRAGMENT, null) == "third") {
-                    showFragment(new ThirdPageFragment());
-                }
-            }
-        }*/
     }
 
     @Override
@@ -140,12 +133,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         ButterKnife.bind(this);
         configureToolbar();
         checkTime();
-        //preferences.edit().putString(KEY_FRAGMENT, null).apply();
+        preferences.edit().putString(KEY_FRAGMENT, null).apply();
         preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
         configureNavigationView();
         configureDrawerLayout();
         setListener();
-
         showFragment(new PageFragment());
     }
 
@@ -185,7 +177,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void configureDrawerLayout() {
-        System.out.println("conf drawer layout");
         drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -202,14 +193,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_map:
-                        showFragment(new PageFragment());
+                        pageFragment = new PageFragment();
+                        showFragment(pageFragment);
+                        //showFragment(new PageFragment());
                         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-                        //preferences.edit().putString(KEY_FRAGMENT, "first").apply();
+                        preferences.edit().putString(KEY_FRAGMENT, "first").apply();
                         return true;
                     case R.id.navigation_list:
                         showFragment(new SecondPageFragment());
                         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-                        //preferences.edit().putString(KEY_FRAGMENT, "second").apply();
+                        preferences.edit().putString(KEY_FRAGMENT, "second").apply();
                         return true;
                     case R.id.navigation_workmates:
                         showFragment(new ThirdPageFragment());
@@ -248,7 +241,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //METHODS
     //--------------------------
     private void showFragment(Fragment fragment) {
-        System.out.println("show frag");
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content, fragment)
@@ -259,7 +251,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //AUTHENTICATION METHODS
     //-----------------------------
     private void startSignInActivity() {
-        System.out.println("ok here");
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -278,17 +269,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        System.out.println("request here = " + requestCode);
-        System.out.println("result here = " + resultCode);
         handleResponseAfterSignIn(requestCode, resultCode, data);
         handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
     }
 
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
-        System.out.println("request code = " + requestCode);
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
-            System.out.println("result = " + resultCode);
             if (resultCode == RESULT_OK) {//SUCCESS
                 //launch main activity
                 Toast.makeText(this, R.string.succeed_auth_message, Toast.LENGTH_SHORT).show();
@@ -310,14 +297,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     private void createUserInFirestore(){
-        System.out.println("we are coming here");
         if (getCurrentUser() != null){
 
             String urlPicture = (getCurrentUser().getPhotoUrl() != null) ? getCurrentUser().getPhotoUrl().toString() : null;
             String username = getCurrentUser().getDisplayName();
             String uid = getCurrentUser().getUid();
 
-            UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, username, urlPicture, true).addOnFailureListener(this.onFailureListener());
 
         }
     }
@@ -345,7 +331,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //METHODS
     //------------------
     private void checkTime() {
-        System.out.println("check time");
         //retrieve the date saved when user saved place he s going to eat
         long timeWhenSaved = preferences.getLong(TIME_WHEN_SAVED, 0);
 
@@ -389,5 +374,37 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     userNameTextview.setText(currentUser.getUsername());
                 }
             });
+    }
+
+    protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                /*String placeId = place.getId();
+                Bundle bundle = new Bundle();
+                bundle.putString(RESTAURANT_ID, placeId);
+                System.out.println("id in base = " + placeId);
+                Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
+                yourLunchActivity.putExtras(bundle);
+                startActivity(yourLunchActivity);*/
+
+                if (preferences.getString(KEY_FRAGMENT, null) == "first") {
+                    //updateMap();
+                    //pageFragment.updateMap(place.getLatLng());
+                    System.out.println("map");
+                } else if (preferences.getString(KEY_FRAGMENT, null) == "second") {
+                    //updateList();
+                    System.out.println("list");
+                }
+
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Toast.makeText(this, "error " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+
+            } else if (requestCode == RESULT_CANCELED) {
+                Toast.makeText(this, "you cancelled operation", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

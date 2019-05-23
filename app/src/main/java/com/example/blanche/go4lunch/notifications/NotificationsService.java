@@ -35,12 +35,18 @@ public class NotificationsService extends FirebaseMessagingService {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User user = documentSnapshot.toObject(User.class);
-                    if (user.isHasChosenRestaurant()) {
-                        String restaurant = user.getChosenRestaurant();
-                        String finalMessage = message + " " + restaurant + "!";
-                        sendNotification(finalMessage);
-                    } else {
-                        sendNotification("You didn't chose your restaurant yet!");
+                    System.out.println("coming here");
+                    System.out.println("uid = " + user.getUid());
+                    System.out.println("boolean state = " + user.isHasEnableNotifications());
+                    if (user.isHasEnableNotifications()) {
+                        System.out.println("and here");
+                        if (user.isHasChosenRestaurant()) {
+                            String restaurant = user.getChosenRestaurant();
+                            String finalMessage = message + " " + restaurant + "!";
+                            sendNotification(finalMessage);
+                        } else {
+                            sendNotification("You didn't chose your restaurant yet!");
+                        }
                     }
                 }
             });

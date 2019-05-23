@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.List;
+import java.util.Map;
 
 public class RestaurantPlaceHelper {
 
@@ -50,4 +51,17 @@ public class RestaurantPlaceHelper {
         return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked", users);
     }
 
+    public static Task<Void> updateUserWhoLiked2(String uid, List<Map<String, Integer>> list) {
+        return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", list);
+    }
+
+
+
+    /*public static Task<Void> updateUserWhoLiked2(String uid, Map<List<String>, List<Integer>> map) {
+        return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", map);
+    }*/
+
+    /*public static Task<Void> updateUserWhoLiked2(String uid, Map<String, Integer> map) {
+        return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", map);
+    }*/
 }

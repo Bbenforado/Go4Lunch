@@ -22,4 +22,16 @@
     <string name="opening_hours">Horaires non disponibles</string>
     <string name="workmate_has_chose">mange à</string>
     <string name="workmate_didnt_chose_yet">n\'a pas encore choisi</string>
+    <string name="account_settings">Paramètres du compte</string>
+    <string name="change_notif_hours">Modifier l\'heure des notifications</string>
+    <string name="change_username_button_text">Modifier le nom d\'utilisateur</string>
+    <string name="delete_account_button_text">Supprimer le compte</string>
+    <string name="enable_notif">Activer les notifications</string>
+    <string name="no_one_eat_here">Personne ne mange ici pour le moment...</string>
+    <string name="notifications_settings">Paramètres des notifications</string>
+    <string name="user_didnt_chose_restaurant">Tu n\'as pas encore choisi où tu allais manger</string>
+    <string name="toast_text_when_user_chose_restaurant">"Tu vas manger à "</string>
+    <string name="toast_text_when_user_uncheck_chose_button">Tu veux manger autre part?</string>
+    <string name="user_like_restaurant">Tu as aimé ce restaurant!</string>
+    <string name="restaurant_is_closed">Fermé</string>
 </resources>

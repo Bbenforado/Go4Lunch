@@ -36,6 +36,7 @@ import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,6 +52,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -94,6 +96,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     Disposable disposable;
     List<String> restaurantsNames;
     private List<RestaurantsResults> restaurantsResultsList;
+
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
@@ -333,7 +336,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
     @Override
     public void onLocationChanged(Location location) {
-        //executeHttpRequestForRestaurant(location.toString());
     }
 
     @Override
@@ -356,7 +358,6 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
     //HTTP REQUEST
     //----------------------
     public void executeHttpRequestForRestaurant(String latlng) {
-        System.out.println("coming here?");
         bar.setVisibility(View.VISIBLE);
         disposable =
                 RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
@@ -379,25 +380,11 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                                     readData(new MyCallback() {
                                         @Override
                                         public void onCallback(List<String> list) {
-                                            Log.e("TAG", list.toString());
                                             if (!list.contains(id)) {
                                                 RestaurantPlaceHelper.createRestaurantPlace(id);
                                             }
                                         }
                                     });
-
-
-                                    /*System.out.println("bool here is " + isAlreadySavedInDatabase);
-                                    if (!isAlreadySavedInDatabase) {
-                                        System.out.println("boolean = " + isAlreadySavedInDatabase);
-                                        RestaurantPlaceHelper.createRestaurantPlace(id);
-                                    }*/
-
-
-                                    //si cet id se trouve dans base de donnees, on ne cree pas de restaurant
-                                    //checkIfAlreadySavedInDatabase(id);
-
-
                                 }
                             }
 
@@ -413,9 +400,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                         });
     }
 
-    /*private void checkIfAlreadySavedInDatabase(String id) {
-        RestaurantPlaceHelper.getRestaurantPlaceCollection().whereEqualTo("uid", id);
-    }*/
+
 
     //------------------------
     //UPDATE UI
@@ -494,6 +479,20 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             }
         });
     }
+
+    /*public void updateMap(LatLng latLng) {
+        System.out.println("coming here??");
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+        float zoomLevel = 16.0f;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
+
+        Marker marker;
+        marker = map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("You are here"));
+        marker.setTag(-1);
+        marker.showInfoWindow();
+    }*/
 
 
 

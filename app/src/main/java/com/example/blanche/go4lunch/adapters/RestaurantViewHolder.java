@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,7 +41,6 @@ import butterknife.ButterKnife;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 
-import static com.example.blanche.go4lunch.utils.Utils.setStars;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
@@ -101,7 +101,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                         break;
                 }
             } else {
-                horairesTextView.setText("Closed now");
+                horairesTextView.setText(itemView.getContext().getString(R.string.restaurant_is_closed));
+                horairesTextView.setTextColor(Color.parseColor("#ba0018"));
             }
         } else {
             horairesTextView.setText(R.string.opening_hours);
@@ -136,7 +137,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     }
                 });
 
-        setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
+        //setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
 
     }
     private void setDistance(double lat, double lng) {

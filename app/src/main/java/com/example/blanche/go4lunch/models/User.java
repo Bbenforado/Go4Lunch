@@ -13,6 +13,8 @@ public class User {
     private String chosenRestaurantPhoneNumber;
     private String chosenRestaurantPhotoId;
     private String restaurantId;
+    //private boolean isNotificationEnabled;
+    private boolean hasEnableNotifications;
 
     public String getChosenRestaurantPhotoId() {
         return chosenRestaurantPhotoId;
@@ -45,10 +47,11 @@ public class User {
         this.chosenRestaurant = chosenRestaurant;
     }
 
-    public User(String uid, String username, String urlPicture) {
+    public User(String uid, String username, String urlPicture, boolean isNotificationEnabled) {
         this.uid = uid;
         this.username = username;
         this.urlPicture = urlPicture;
+        this.hasEnableNotifications = isNotificationEnabled;
     }
 
     public User(String uid, String username) {
@@ -92,6 +95,10 @@ public class User {
 
     public String getChosenRestaurantPhoneNumber() {
         return chosenRestaurantPhoneNumber;
+    }
+
+    public boolean isHasEnableNotifications() {
+        return hasEnableNotifications;
     }
 
     // --- SETTERS ---
