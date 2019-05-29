@@ -13,7 +13,6 @@ public class User {
     private String chosenRestaurantPhoneNumber;
     private String chosenRestaurantPhotoId;
     private String restaurantId;
-    //private boolean isNotificationEnabled;
     private boolean hasEnableNotifications;
 
     public String getChosenRestaurantPhotoId() {

@@ -29,6 +29,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.blanche.go4lunch.BuildConfig;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.example.blanche.go4lunch.BaseActivity;
@@ -67,14 +69,11 @@ public class MainActivity extends BaseActivity {
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
-    private DrawerLayout drawerLayout;
-    /*private NavigationView navigationView;
-    private Toolbar toolbar;
-    private ActionBar actionBar;*/
     private BottomNavigationView.OnNavigationItemSelectedListener listener;
     private PageFragment pageFragment;
     private SecondPageFragment secondPageFragment;
     private ThirdPageFragment thirdPageFragment;
+    private String apikey;
 
 
     @Override
@@ -93,17 +92,14 @@ public class MainActivity extends BaseActivity {
     public void onBackPressed() {
         AutoCompleteTextView autoCompleteTextView = findViewById(R.id.autocomplete_textview);
         CardView cardView = findViewById(R.id.idCardView);
-        drawerLayout = findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         if (pageFragment.isVisible() || secondPageFragment.isVisible()) {
             if (cardView.getVisibility() == View.VISIBLE) {
-                System.out.println("come here");
                 cardView.setVisibility(View.GONE);
                 autoCompleteTextView.getText().clear();
             } else if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                System.out.println("hu");
                 drawerLayout.closeDrawer(GravityCompat.START);
             } else {
-                System.out.println("here");
                 super.onBackPressed();
             }
         } else if (thirdPageFragment.isVisible()) {
@@ -114,7 +110,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
 
     @Override
     protected void onStart() {
@@ -130,127 +125,27 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
-
-    // --------------------
-    //
-    // --------------------
-    /*public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
-        return true;
-    }*/
-
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_item:
-                *//*List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
-                Intent intent = new Autocomplete.IntentBuilder(
-                        AutocompleteActivityMode.OVERLAY, fields)
-                        .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                        .build(this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);*//*
-
-                *//*cardView.setVisibility(View.VISIBLE);
-                getNamesListMapFrag();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>
-                        (this, R.layout.autocomplete_textview, namesListMapFrag);
-                autoCompleteTextView.setThreshold(1);
-                autoCompleteTextView.setAdapter(arrayAdapter);
-                autoCompleteTextView.addTextChangedListener(this);*//*
-
-                *//*AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                        getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-                autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                    @Override
-                    public void onPlaceSelected(@NonNull Place place) {
-
-                    }
-
-                    @Override
-                    public void onError(@NonNull Status status) {
-
-                    }
-                });*//*
-
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }*/
-
-
-
-
-
     //----------------------
     //CONFIGURATION
     //----------------------------
     private void configureActivity() {
+        ButterKnife.bind(this);
+        apikey = BuildConfig.ApiKey;
+
         // Initialize Places.
-        Places.initialize(getApplicationContext(), "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4");
-        // Create a new Places client instance.
+        Places.initialize(getApplicationContext(), apikey);
         PlacesClient placesClient = Places.createClient(this);
 
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
-        ButterKnife.bind(this);
-        //configureToolbar();
         checkTime();
         preferences.edit().putString(KEY_FRAGMENT, null).apply();
         preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
-        //configureNavigationView();
-        //configureDrawerLayout();
         setListener();
         secondPageFragment = new SecondPageFragment();
         thirdPageFragment = new ThirdPageFragment();
         pageFragment = new PageFragment();
         showFragment(pageFragment);
     }
-
-    /*protected void configureToolbar() {
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
-        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-    }*/
-    /*private void configureNavigationView() {
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        displayUserInfoInNavigationDrawer();
-    }*/
-
-    /*private void displayUserInfoInNavigationDrawer() {
-        View headerLayout = navigationView.getHeaderView(0);
-        ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
-        TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
-        TextView userMail = headerLayout.findViewById(R.id.user_mail);
-        if (isCurrentUserLogged()) {
-            if (getCurrentUser().getPhotoUrl() != null) {
-                Glide.with(this)
-                        .load(getCurrentUser().getPhotoUrl().toString())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(profilePictureImageview);
-            }
-            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User currentUser = documentSnapshot.toObject(User.class);
-                    userNameTextview.setText(currentUser.getUsername());
-                }
-            });
-            userMail.setText(getCurrentUser().getEmail());
-        }
-    }
-
-    private void configureDrawerLayout() {
-        drawerLayout = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-    }*/
 
     //---------------------------
     //ACTIONS
@@ -281,27 +176,6 @@ public class MainActivity extends BaseActivity {
         };
         bottomNavigationView.setOnNavigationItemSelectedListener(listener);
     }
-
-    /*@Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.lunch:
-                checkIfCurrentUserChoseRestaurant();
-                break;
-            case R.id.settings:
-                //OPEN SETTING ACTIVITY WITH DELETE ACCOUNT BUTTON
-                launchSettingActivity();
-                break;
-            case R.id.log_out:
-                signOutUser();
-                break;
-            default:
-                break;
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }*/
 
     //-----------------------
     //METHODS
@@ -336,7 +210,6 @@ public class MainActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         handleResponseAfterSignIn(requestCode, resultCode, data);
-        //handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
     }
 
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
@@ -360,8 +233,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
-
     private void createUserInFirestore(){
         if (getCurrentUser() != null){
 
@@ -374,25 +245,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    /*private void signOutUser() {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
-    }*/
-    //------------------
-    //METHODS TO LAUNCH ACTIVITIES
-    //-----------------------------------
-    /*private void launchSettingActivity() {
-        Intent settingActivity = new Intent(this, SettingActivity.class);
-        startActivity(settingActivity);
-    }
-
-    private void launchYourLunchActivity() {
-        preferences.edit().putInt(KEY_ACTIVITY, 2).apply();
-        Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
-        startActivity(yourLunchActivity);
-    }
-*/
     //------------------
     //METHODS
     //------------------
@@ -416,61 +268,4 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    /*private void checkIfCurrentUserChoseRestaurant() {
-        UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                User currentUser = documentSnapshot.toObject(User.class);
-                if (currentUser.isHasChosenRestaurant()) {
-                    launchYourLunchActivity();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You haven't chose where you are going to eat yet! Check some restaurants and make a choice :)", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }*/
-
-    /*private void updateUiWhenResuming() {
-        View headerLayout = navigationView.getHeaderView(0);
-        TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
-            UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User currentUser = documentSnapshot.toObject(User.class);
-                    userNameTextview.setText(currentUser.getUsername());
-                }
-            });
-    }*/
-
-    /*protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                *//*String placeId = place.getId();
-                Bundle bundle = new Bundle();
-                bundle.putString(RESTAURANT_ID, placeId);
-                System.out.println("id in base = " + placeId);
-                Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
-                yourLunchActivity.putExtras(bundle);
-                startActivity(yourLunchActivity);*//*
-
-                if (preferences.getString(KEY_FRAGMENT, null) == "first") {
-                    //updateMap();
-                    //pageFragment.updateMap(place.getLatLng());
-                    System.out.println("map");
-                } else if (preferences.getString(KEY_FRAGMENT, null) == "second") {
-                    //updateList();
-                    System.out.println("list");
-                }
-
-
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Toast.makeText(this, "error " + status.getStatusMessage(), Toast.LENGTH_SHORT).show();
-
-            } else if (requestCode == RESULT_CANCELED) {
-                Toast.makeText(this, "you cancelled operation", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }*/
 }

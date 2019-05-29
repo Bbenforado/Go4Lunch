@@ -39,31 +39,15 @@ public class RestaurantInformations {
         return placeId;
     }
 
-    public void setPlaceId(String placeId) {
-        this.placeId = placeId;
-    }
-
     public String getFormattedPhoneNumber() {
         return formattedPhoneNumber;
-    }
-
-    public void setFormattedPhoneNumber(String formattedPhoneNumber) {
-        this.formattedPhoneNumber = formattedPhoneNumber;
     }
     public String getVicinity() {
         return vicinity;
     }
 
-    public void setVicinity(String vicinity) {
-        this.vicinity = vicinity;
-    }
-
     public Geometry getGeometry() {
         return geometry;
-    }
-
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
     }
 
     public String getName() {
@@ -78,31 +62,10 @@ public class RestaurantInformations {
         return openingHours;
     }
 
-    public void setOpeningHours(OpeningHours openingHours) {
-        this.openingHours = openingHours;
-    }
-
     public List<Photo> getPhotos() {
         return photos;
     }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-    }
-
-    public Double getRating() {
-        return rating;
-    }
-
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
-
     public String getWebsite() {
         return website;
-    }
-
-    public void setWebsite(String website) {
-        this.website = website;
     }
 }

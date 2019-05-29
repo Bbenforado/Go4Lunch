@@ -35,17 +35,13 @@ public class NotificationsService extends FirebaseMessagingService {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User user = documentSnapshot.toObject(User.class);
-                    System.out.println("coming here");
-                    System.out.println("uid = " + user.getUid());
-                    System.out.println("boolean state = " + user.isHasEnableNotifications());
                     if (user.isHasEnableNotifications()) {
-                        System.out.println("and here");
                         if (user.isHasChosenRestaurant()) {
                             String restaurant = user.getChosenRestaurant();
                             String finalMessage = message + " " + restaurant + "!";
                             sendNotification(finalMessage);
                         } else {
-                            sendNotification("You didn't chose your restaurant yet!");
+                            sendNotification(getApplicationContext().getString(R.string.you_didnt_chose_restaurant));
                         }
                     }
                 }
@@ -59,7 +55,7 @@ public class NotificationsService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle("It's almost time!");
+        inboxStyle.setBigContentTitle(getApplicationContext().getString(R.string.notif_title));
         inboxStyle.addLine(message);
 
         String channelId = "fcm_default_channel";
@@ -68,7 +64,6 @@ public class NotificationsService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_lunch)
                 .setContentTitle("Go4Lunch")
-                .setContentText("something here")
                 .setAutoCancel(true)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentIntent(pendingIntent)

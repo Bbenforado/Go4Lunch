@@ -24,10 +24,6 @@ public class UserHelper {
         User userToCreate = new User(uid, username, urlPicture, isNotificationEnabled);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
-    /*public static Task<Void> createUser(String uid, String username) {
-        User userToCreate = new User(uid, username);
-        return UserHelper.getUsersCollection().document(uid).set(userToCreate);
-    }*/
 
     // --- GET ---
 
@@ -39,10 +35,6 @@ public class UserHelper {
         return UserHelper.getUsersCollection()
                 .limit(50);
     }
-
-
-
-
 
     // --- UPDATE ---
 

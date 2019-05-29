@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Go4Lunch</string>
-    <string name="change_user_name">Changer de nom d\'utilisateur</string>
-    <string name="delete_account">Supprimer le compte</string>
     <string name="list_view">Liste</string>
     <string name="log_out">Déconnection</string>
     <string name="map_view">Carte</string>
@@ -18,7 +16,6 @@
     <string name="unknown_error_auth_message">Erreur inconnue</string>
     <string name="no_internet_auth_message">Connection internet non disponible</string>
     <string name="toolbar_title_for_restaurant_details_activity">Détails du restaurant</string>
-    <string name="message_workmates">mange à</string>
     <string name="opening_hours">Horaires non disponibles</string>
     <string name="workmate_has_chose">mange à</string>
     <string name="workmate_didnt_chose_yet">n\'a pas encore choisi</string>
@@ -29,9 +26,25 @@
     <string name="enable_notif">Activer les notifications</string>
     <string name="no_one_eat_here">Personne ne mange ici pour le moment...</string>
     <string name="notifications_settings">Paramètres des notifications</string>
-    <string name="user_didnt_chose_restaurant">Tu n\'as pas encore choisi où tu allais manger</string>
+    <string name="user_didnt_chose_restaurant">Tu n\'as pas encore décidé</string>
     <string name="toast_text_when_user_chose_restaurant">"Tu vas manger à "</string>
     <string name="toast_text_when_user_uncheck_chose_button">Tu veux manger autre part?</string>
     <string name="user_like_restaurant">Tu as aimé ce restaurant!</string>
     <string name="restaurant_is_closed">Fermé</string>
+    <string name="dialog_cancel">Annuler</string>
+    <string name="dialog_change_username">Entre ton nouveau nom d\'utilisateur:</string>
+    <string name="dialog_delete_account">Es-tu sûr(e) de vouloir supprimer ton compte?</string>
+    <string name="dialog_negativ_button">Non</string>
+    <string name="dialog_ok">Ok</string>
+    <string name="dialog_positiv_button">Oui</string>
+    <string name="username_updated">Ton nom d\'utilisateur a été mis à jour!</string>
+    <string name="location_not_found">Position non trouvée! :(</string>
+    <string name="no_location_provider">Pas de fournisseur de localisation disponible!</string>
+    <string name="no_restaurant_chose">Tu n\'as pas encore choisi où tu allais manger, fais un choix! :)</string>
+    <string name="permission_denied">Permission refusée</string>
+    <string name="permission_granted">Permission acceptée</string>
+    <string name="user_location_marker_title">Tu es ici</string>
+    <string name="this_user_didnt_chose_restaurant">Cet utilisateur n\'a pas encore choisi de restaurant</string>
+    <string name="notif_title">C\'est presque l\'heure!</string>
+    <string name="you_didnt_chose_restaurant">Tu n\'as pas encore choisi de restaurant!</string>
 </resources>

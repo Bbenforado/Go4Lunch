@@ -63,8 +63,6 @@ public class Utils {
         starTwo.setVisibility(View.GONE);
         starThree.setVisibility(View.GONE);
 
-        System.out.println("id is = " + id);
-
         RestaurantPlaceHelper.getRestaurantPlace(id).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -87,21 +85,15 @@ public class Utils {
 
 
     public static OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin, Activity activity) {
-        System.out.println("and enter here?");
-        System.out.println("origin = " + origin);
         return new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                System.out.println("origine here is  = " + origin);
-                System.out.println("sign out task = " + SIGN_OUT_TASK);
                 switch (origin) {
                     case SIGN_OUT_TASK:
-                        System.out.println("here?? please");
                         activity.finish();
                         //startSignInActivity();
                         break;
                     case DELETE_USER_TASK:
-                        System.out.println("and here?");
                         //finishAffinity();
                         //BaseActivity.this.finish();
                         System.exit(0);

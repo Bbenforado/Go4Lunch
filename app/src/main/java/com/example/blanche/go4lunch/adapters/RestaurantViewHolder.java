@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
@@ -40,7 +41,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.typeAndAdress) TextView typeAndAdress;
     @BindView(R.id.workmates_images) ImageView workmatesImage;
     @BindView(R.id.number_of_workmates) TextView numberTextView;
-    @BindView(R.id.horaires) TextView horairesTextView;
+    @BindView(R.id.horaires) TextView openingHoursTextView;
     @BindView(R.id.star_one) ImageView starOne;
     @BindView(R.id.star_two) ImageView starTwo;
     @BindView(R.id.star_three) ImageView starThree;
@@ -49,6 +50,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     private static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     private static final String APP_PREFERENCES = "appPreferences";
     private String userLatlng;
+    private String apikey;
 
     public RestaurantViewHolder(View itemView) {
         super(itemView);
@@ -61,46 +63,47 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         textViewName.setText(restaurantInformations.getName());
         typeAndAdress.setText(restaurantInformations.getVicinity());
         Calendar calendar = Calendar.getInstance();
-        horairesTextView.setTextColor(Color.parseColor("#808080"));
+        openingHoursTextView.setTextColor(Color.parseColor("#808080"));
         if (restaurantInformations.getOpeningHours() != null) {
             if (restaurantInformations.getOpeningHours().getOpenNow()) {
 
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 switch (day) {
                     case Calendar.MONDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(0));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(0));
                         break;
                     case Calendar.TUESDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(1));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(1));
                         break;
                     case Calendar.WEDNESDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(2));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(2));
                         break;
                     case Calendar.THURSDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(3));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(3));
                         break;
                     case Calendar.FRIDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(4));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(4));
                         break;
                     case Calendar.SATURDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(5));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(5));
                         break;
                     case Calendar.SUNDAY:
-                        horairesTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(6));
+                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(6));
                         break;
                     default:
                         break;
                 }
             } else if (!restaurantInformations.getOpeningHours().getOpenNow()){
-                horairesTextView.setText(itemView.getContext().getString(R.string.restaurant_is_closed));
-                horairesTextView.setTextColor(Color.parseColor("#ba0018"));
+                openingHoursTextView.setText(itemView.getContext().getString(R.string.restaurant_is_closed));
+                openingHoursTextView.setTextColor(Color.parseColor("#ba0018"));
             }
         } else {
-            horairesTextView.setText(R.string.opening_hours);
+            openingHoursTextView.setText(R.string.opening_hours);
         }
         if (restaurantInformations.getPhotos() != null) {
             String url = restaurantInformations.getPhotos().get(0).getPhotoReference();
-            String finalUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + url + "&key=AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4";
+            apikey = BuildConfig.ApiKey;
+            String finalUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + url + "&key=" + apikey;
             glide.load(finalUrl).apply(RequestOptions.noTransformation()).into(imageView);
         }
         double lat = restaurantInformations.getGeometry().getLocation().getLat();

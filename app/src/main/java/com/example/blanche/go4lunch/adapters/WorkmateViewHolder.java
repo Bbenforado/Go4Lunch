@@ -24,7 +24,7 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
     ImageView imageView;
     @BindView(R.id.text)
     TextView textView;
-    Resources res;
+    private Resources res;
 
     public WorkmateViewHolder(View itemView) {
         super(itemView);

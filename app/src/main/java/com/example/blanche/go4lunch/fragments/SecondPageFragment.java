@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
+import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
@@ -88,26 +89,29 @@ public class SecondPageFragment extends BaseFragment {
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
     private static final String KEY_SEARCH = "keySearch";
-    List<RestaurantInformations> restaurantInformationsListForSearch;
+    private List<RestaurantInformations> restaurantInformationsListForSearch;
     private String coordinates;
-    SharedPreferences preferences;
+    private SharedPreferences preferences;
     private Disposable disposable;
-    private List<RestaurantsResults> restaurantsResultsList;
+    //private List<RestaurantsResults> restaurantsResultsList;
     private List<Restaurant> restaurantList;
     private List<RestaurantInformations> restaurantInformationsList;
     private RecyclerViewAdapter adapter;
-    List<String> namesList;
-    List<String> idList;
-    FirebaseFirestore firestoreRootRef;
-    CollectionReference itemsRef;
+    private List<String> namesList;
+    private List<String> idList;
+    private FirebaseFirestore firestoreRootRef;
+    private CollectionReference itemsRef;
+    private String apikey;
+
+    //-----------------------
+    //BIND VIEWS
+    //------------------------
     @BindView(R.id.bar)
     ProgressBar bar;
     @BindView(R.id.fragment_second_page_recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.fragment_second_page_swipe_container)
     SwipeRefreshLayout swipeRefreshLayout;
-    private Toolbar toolbar;
-    private ActionBar actionBar;
     @BindView(R.id.nav_view)
     NavigationView navigationView;
     @BindView(R.id.drawer_layout)
@@ -120,6 +124,9 @@ public class SecondPageFragment extends BaseFragment {
     CardView cardView;
 
 
+    //-------------------
+    //CONSTRUCTOR
+    //----------------------
     public SecondPageFragment() {
         // Required empty public constructor
     }
@@ -132,22 +139,24 @@ public class SecondPageFragment extends BaseFragment {
         return fragment;
     }
 
+    //---------------------
+    //
+    //---------------------
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View result = inflater.inflate(R.layout.fragment_second_page, container, false);
         ButterKnife.bind(this, result);
+        apikey = BuildConfig.ApiKey;
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         coordinates = preferences.getString(LATITUDE_AND_LONGITUDE, null);
 
         setHasOptionsMenu(true);
-        toolbar = result.findViewById(R.id.toolbar);
+        Toolbar toolbar = result.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
-        actionBar = activity.getSupportActionBar();
+        ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-
-        System.out.println("on create key = " + preferences.getString(KEY_SEARCH, null));
 
         configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
         configureDrawerLayout(drawerLayout, toolbar, getActivity());
@@ -164,7 +173,6 @@ public class SecondPageFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         disposeWhenDestroy(disposable);
-        System.out.println("on destroy fragment");
     }
 
     @Override
@@ -192,7 +200,6 @@ public class SecondPageFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_item:
-                //autoCompleteTextView.setVisibility(View.VISIBLE);
                 cardView.setVisibility(View.VISIBLE);
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -268,6 +275,13 @@ public class SecondPageFragment extends BaseFragment {
                 });
     }
 
+    private void configureRecyclerViewForSearch() {
+        this.adapter = new RecyclerViewAdapter(this.restaurantInformationsListForSearch, Glide.with(this));
+        this.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        preferences.edit().putString(KEY_SEARCH, "search").apply();
+    }
+
     //-------------------------
     //ACTIONS
     //--------------------------
@@ -277,12 +291,12 @@ public class SecondPageFragment extends BaseFragment {
     }
 
     //---------------------
-    //HTTP REQUEST
+    //REQUEST
     //-------------------------
     private void request(String latlng) {
         updateUiWhenStartingRequest();
         disposable =
-                RestaurantStreams.streamFetchPlaceInfo(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
+                RestaurantStreams.streamFetchPlaceInfo(latlng, 1500, "restaurant", apikey)
                         .subscribeWith(new DisposableObserver<List<RestaurantInformations>>() {
 
                             @Override
@@ -292,7 +306,6 @@ public class SecondPageFragment extends BaseFragment {
                                 for (int i = 0; i < restaurantInformationsList.size(); i++) {
                                     namesList.add(restaurantInformationsList.get(i).getName());
                                     //get restaurants, check uid if uid is not in database, create restaurants
-
                                     String id = restaurantInformationsList.get(i).getPlaceId();
 
                                     idList = new ArrayList<>();
@@ -347,13 +360,6 @@ public class SecondPageFragment extends BaseFragment {
             }
         }
         configureRecyclerViewForSearch();
-    }
-
-    private void configureRecyclerViewForSearch() {
-        this.adapter = new RecyclerViewAdapter(this.restaurantInformationsListForSearch, Glide.with(this));
-        this.recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        preferences.edit().putString(KEY_SEARCH, "search").apply();
     }
 
     //-------------------------------------

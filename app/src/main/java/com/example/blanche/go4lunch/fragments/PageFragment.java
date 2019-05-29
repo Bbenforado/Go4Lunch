@@ -34,6 +34,8 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
+
+import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
@@ -54,14 +56,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,24 +82,30 @@ import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
-    @BindView(R.id.bar)
-    ProgressBar bar;
-    SharedPreferences preferences;
-    Disposable disposable;
+
+    private SharedPreferences preferences;
+    private Disposable disposable;
     private List<RestaurantsResults> restaurantsResultsList;
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String RESTAURANT_ID = "idRestaurant";
     public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String RESTAURANT_NAMES_LIST_MAP_FRAG = "namesMapFrag";
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
     public static final String KEY_FOR_SEARCH = "keyForSearch";
-    private DatabaseReference database;
-    private ValueEventListener listener;
+    //private ValueEventListener listener;
     private Marker marker;
-    private List<String> namesList;
+    //private List<String> namesList;
+    private List<String> idList;
+    private FirebaseFirestore firestoreRootRef;
+    private CollectionReference itemsRef;
+    private List<RestaurantsResults> restaurantsResultsListForSearch;
+    private String apikey;
+
+    //-----------------
+    //BIND VIEWS
+    //------------------
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.autocomplete_textview)
@@ -108,22 +114,27 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     CardView cardView;
     @BindView(R.id.clear_text_button)
     ImageButton clearTextButton;
-    List<String> idList;
-    FirebaseFirestore firestoreRootRef;
-    CollectionReference itemsRef;
-    List<RestaurantsResults> restaurantsResultsListForSearch;
+    @BindView(R.id.bar)
+    ProgressBar bar;
 
+
+    //-----------------
+    //CONSTRUCTOR
+    //--------------------
     public PageFragment() {
         // Required empty public constructor
     }
 
+    //-----------------------
+    //
+    //-------------------------
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        System.out.println("on create map");
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
         ButterKnife.bind(this, rootView);
+        apikey = BuildConfig.ApiKey;
         setHasOptionsMenu(true);
         Toolbar toolbar = rootView.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -133,12 +144,12 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
 
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
+        preferences.edit().putString(KEY_FOR_SEARCH, null).apply();
 
         configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
         configureDrawerLayout(drawerLayout, toolbar, getActivity());
 
-        database = FirebaseDatabase.getInstance().getReference();
-
+        //DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
         restaurantsResultsList = new ArrayList<>();
 
@@ -157,7 +168,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search_item:
-                //autoCompleteTextView.setVisibility(View.VISIBLE);
                 cardView.setVisibility(View.VISIBLE);
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -187,42 +197,10 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         }
     }
 
-
-
-    private void updateUiWhileUserIsTyping(CharSequence charSequence) {
-        restaurantsResultsListForSearch = new ArrayList<>();
-        for (int i = 0; i < restaurantsResultsList.size(); i++) {
-            if (restaurantsResultsList.get(i).getName().toLowerCase().contains(charSequence)) {
-                restaurantsResultsListForSearch.add(restaurantsResultsList.get(i));
-            }
-        }
-        configureMapForSearch();
-    }
-
-    private void configureMapForSearch() {
-        map.clear();
-        for (int i = 0; i < restaurantsResultsListForSearch.size(); i++) {
-            Double lat = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLat();
-            Double longitude = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLng();
-            LatLng restaurantLocation = new LatLng(lat, longitude);
-
-            marker = map.addMarker(new MarkerOptions()
-                    .position(restaurantLocation)
-                    .title(restaurantsResultsListForSearch.get(i).getName())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
-            marker.setTag(i);
-            preferences.edit().putString(KEY_FOR_SEARCH, "search").apply();
-        }
-
-    }
-
     @Override
     public void onResume() {
-        System.out.println("on resume map");
         super.onResume();
         updateMarkersForAListOfRestaurant(restaurantsResultsList);
-        /*if (autoCompleteTextView.getVisibility() == View.VISIBLE) {
-            autoCompleteTextView.setVisibility(View.GONE);*/
         if (cardView.getVisibility() == View.VISIBLE) {
             cardView.setVisibility(View.GONE);
             autoCompleteTextView.getText().clear();
@@ -238,7 +216,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        System.out.println("on map ready");
         map = googleMap;
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -254,23 +231,14 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             map.setMyLocationEnabled(true);
         }
         catch (SecurityException e) {
-            Toast.makeText(getContext(), "Show my location error: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
             e.printStackTrace();
             return;
         }
-
         map.setOnMarkerClickListener(this);
-
-    }
-
-    public void backPressed() {
-        Toast.makeText(getContext(), "first", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        System.out.println("on marker clicked");
         int tag = (Integer) marker.getTag();
         //if this is the user marker
         if (tag == -1) {
@@ -298,6 +266,24 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         return true;
     }
 
+    //--------------------
+    //CONFIGURATION
+    //----------------------
+    private void configureMapForSearch() {
+        map.clear();
+        for (int i = 0; i < restaurantsResultsListForSearch.size(); i++) {
+            Double lat = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLat();
+            Double longitude = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLng();
+            LatLng restaurantLocation = new LatLng(lat, longitude);
+
+            marker = map.addMarker(new MarkerOptions()
+                    .position(restaurantLocation)
+                    .title(restaurantsResultsListForSearch.get(i).getName())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
+            marker.setTag(i);
+            preferences.edit().putString(KEY_FOR_SEARCH, "search").apply();
+        }
+    }
 
     //-----------------------
     //PERMISSIONS
@@ -317,7 +303,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             }
         }
         showMyLocation();
-
     }
 
     @Override
@@ -328,10 +313,10 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
                 if (grantResults.length > 1
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                 &&grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getContext(), "Permission granted! :)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getContext().getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
                     showMyLocation();
                 } else {
-                    Toast.makeText(getContext(), "Permission denied! :(", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getContext().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
@@ -344,7 +329,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         String bestProvider = locationManager.getBestProvider(criteria, true);
         boolean enabled = locationManager.isProviderEnabled(bestProvider);
         if (!enabled) {
-            Toast.makeText(getContext(), "No location provider enabled!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getContext().getString(R.string.no_location_provider), Toast.LENGTH_SHORT).show();
             return null;
         }
         return bestProvider;
@@ -354,7 +339,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     //SHOW LOCATION
     //----------------------------
     private void showMyLocation() {
-        System.out.println("show my location");
         LocationManager locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         String locationProvider = getEnabledLocationProvider();
         if (locationProvider == null) {
@@ -369,8 +353,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             myLocation = locationManager.getLastKnownLocation(locationProvider);
         }
         catch (SecurityException e) {
-            Toast.makeText(getContext(), "Show my location error: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
             e.printStackTrace();
             return;
         }
@@ -400,7 +382,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             Marker marker;
             marker = map.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title("You are here"));
+                    .title(getContext().getString(R.string.user_location_marker_title)));
             marker.setTag(-1);
             marker.showInfoWindow();
 
@@ -411,7 +393,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             currentMarker.showInfoWindow();*/
 
         } else {
-            Toast.makeText(getContext(), "Location not found!:(", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getContext().getString(R.string.location_not_found), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -433,15 +415,13 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     public void onProviderDisabled(String s) {
 
     }
-
-
     //------------------
-    //HTTP REQUEST
+    //REQUEST
     //----------------------
     public void executeHttpRequestForRestaurant(String latlng) {
         bar.setVisibility(View.VISIBLE);
         disposable =
-                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
+                RestaurantStreams.streamFetchRestaurants(latlng, 1500, "restaurant", apikey)
                         .subscribeWith(new DisposableObserver<RestaurantObject>() {
 
                             @Override
@@ -453,11 +433,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
                                 for (int i = 0; i < restaurantObject.getResults().size(); i++) {
                                     //get restaurants, check uid if uid is not in database, create restaurants
                                     String id = restaurantObject.getResults().get(i).getPlaceId();
-
-
                                     //namesList.add(restaurantObject.getResults().get(i).getName());
-
-
                                     idList = new ArrayList<>();
 
                                     firestoreRootRef = FirebaseFirestore.getInstance();
@@ -504,6 +480,15 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         bar.setVisibility(View.GONE);
     }
 
+    private void updateUiWhileUserIsTyping(CharSequence charSequence) {
+        restaurantsResultsListForSearch = new ArrayList<>();
+        for (int i = 0; i < restaurantsResultsList.size(); i++) {
+            if (restaurantsResultsList.get(i).getName().toLowerCase().contains(charSequence)) {
+                restaurantsResultsListForSearch.add(restaurantsResultsList.get(i));
+            }
+        }
+        configureMapForSearch();
+    }
 
     private void updateMarkersForAListOfRestaurant(List<RestaurantsResults> list) {
         for (int i = 0; i < list.size(); i++) {
@@ -551,6 +536,9 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         startActivity(yourLunchActivity);
     }
 
+    //-------------------
+    //GET DATA
+    //-------------------
     private void readData(MyCallback myCallback) {
         itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -567,4 +555,8 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             }
         });
     }
+
+    //---------------------
+    //METHODS
+    //----------------------
 }

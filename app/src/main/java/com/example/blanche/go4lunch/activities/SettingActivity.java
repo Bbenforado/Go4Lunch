@@ -1,11 +1,9 @@
 package com.example.blanche.go4lunch.activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
@@ -41,6 +39,9 @@ public class SettingActivity extends BaseActivity {
     private SharedPreferences preferences;
     private Toolbar toolbar;
     private ActionBar actionBar;
+    //----------------------
+    //BIND VIEWS
+    //----------------------
     @BindView(R.id.profile_picture_settings)
     ImageView imageView;
     @BindView(R.id.user_name_settings)
@@ -104,11 +105,10 @@ public class SettingActivity extends BaseActivity {
     @OnClick(R.id.button_delete_account)
     public void deleteUserInFirebase() {
         new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to delete your account?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setMessage(R.string.dialog_delete_account)
+                .setPositiveButton(R.string.dialog_positiv_button, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        System.out.println("user id = " + getCurrentUser().getUid());
 
                         UserHelper.deleteUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -119,7 +119,7 @@ public class SettingActivity extends BaseActivity {
                         });
                     }
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.dialog_negativ_button, null)
                 .show();
     }
 
@@ -127,22 +127,22 @@ public class SettingActivity extends BaseActivity {
     public void changeUsername() {
         final EditText editText = new EditText(this);
         new AlertDialog.Builder(this)
-                .setMessage("Enter your new name:")
+                .setMessage(R.string.dialog_change_username)
                 .setView(editText)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         userNameTextview.setText(editText.getText());
                         UserHelper.updateUsername(editText.getText().toString(), getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(getApplicationContext(), "Updated!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), R.string.username_updated, Toast.LENGTH_SHORT).show();
 
                             }
                         });
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.dialog_cancel, null)
                 .show();
     }
 

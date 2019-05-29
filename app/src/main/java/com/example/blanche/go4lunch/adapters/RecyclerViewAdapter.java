@@ -17,22 +17,8 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RestaurantViewHolder> {
 
-    /*private List<RestaurantsResults> restaurantsResultsList;
-    private List<Restaurant> restaurantList;*/
     private List<RestaurantInformations> restaurantInformationsList;
     private RequestManager glide;
-
-    //WHEN USE NEARBY
-    /*public RecyclerViewAdapter(List<RestaurantsResults> restaurantsResultsList, RequestManager glide) {
-        this.restaurantsResultsList = restaurantsResultsList;
-        this.glide = glide;
-    }*/
-
-    //WHEN USE NEARBY AND DETAILS API
-    /*public RecyclerViewAdapter (List<Restaurant> restaurantList, RequestManager glide) {
-        this.restaurantList = restaurantList;
-        this.glide = glide;
-    }*/
 
     public RecyclerViewAdapter(List<RestaurantInformations> restaurantInformationsList, RequestManager glide) {
         this.restaurantInformationsList = restaurantInformationsList;

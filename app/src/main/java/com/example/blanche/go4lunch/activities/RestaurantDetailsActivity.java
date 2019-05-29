@@ -1,27 +1,21 @@
 package com.example.blanche.go4lunch.activities;
 
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -29,8 +23,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.BaseActivity;
+import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.R;
-import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterDetails;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
 import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -40,22 +34,9 @@ import com.example.blanche.go4lunch.models.RestaurantPlace;
 import com.example.blanche.go4lunch.models.User;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -101,6 +82,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private RecyclerViewAdapterThirdFragment adapter;
     private List<String> users;
     private boolean isOpen;
+    private String apikey;
 
     //-------------------
     //BIND VIEWS
@@ -128,12 +110,11 @@ public class RestaurantDetailsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant_details);
         ButterKnife.bind(this);
+        apikey = BuildConfig.ApiKey;
         System.out.println("on create details");
         //get the preferences
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
-
-        System.out.println("key activity = " + keyActivity);
 
         //get the data from map fragment 0
         // from list fragment 1
@@ -154,8 +135,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
             requestForInformations(restaurantId);
             setStars(restaurantId, starOne, starTwo, starThree);
         }
-        //setStars(restaurantId, starOne, starTwo, starThree);
-        //displayLikeButton();
 
         if (keyActivity == 0 || keyActivity == 1) {
             configureRecyclerView();
@@ -199,7 +178,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                       }
                                   });
 
-
         adapter = new RecyclerViewAdapterThirdFragment(generateOptionsForAdapter(query),
                         Glide.with(this));
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -224,7 +202,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private void requestForInformations(String placeId) {
         bar.setVisibility(View.VISIBLE);
         disposable =
-                RestaurantStreams.streamFetchRestaurantInfos(placeId, "AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4")
+                RestaurantStreams.streamFetchRestaurantInfos(placeId, apikey)
                         .subscribeWith(new DisposableObserver<RestaurantInformationObject>() {
 
                             @Override
@@ -266,7 +244,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
         if (isButtonClicked) {
             //change the color of the button
             button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
-
             //we save at what time the user chose the restaurant
             saveTimeWhenChoseRestaurant();
             //we update the name of the restaurant in firebase
@@ -302,12 +279,11 @@ public class RestaurantDetailsActivity extends BaseActivity {
         ratingBar.setNumStars(3);
         ratingBar.setStepSize(1);
 
-        dialog.setMessage("How much?")
+        dialog.setMessage("Rate restaurant:")
                 .setView(dialogLayout)
                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(v.getContext(), "Rating is " + ratingBar.getRating(), Toast.LENGTH_SHORT).show();
                         RestaurantPlaceHelper.getRestaurantPlace(restaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -320,7 +296,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                 if (restaurantPlace.getUsersWhoLiked2() != null) {
 
                                     boolean contains = false;
-                                    System.out.println("list is not empty");
                                     //we get the list
                                     list = restaurantPlace.getUsersWhoLiked2();
                                     //we get the size of the list
@@ -328,12 +303,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                                     //boucle sur la taille
                                     for (int i = 0; i<size; i++) {
-
-                                        System.out.println("bool = " + contains);
                                         //check if one entry of the list contains the users id
                                         if (restaurantPlace.getUsersWhoLiked2().get(i).containsKey(getCurrentUser().getUid())) {
                                             contains = true;
-                                            System.out.println("it contains");
                                             Map<String, Integer> userRate = new HashMap<>();
                                             int rating = (int) ratingBar.getRating();
                                             userRate.put(getCurrentUser().getUid(), rating);
@@ -353,7 +325,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                     }
                                     //if the user never rated the restaurant
                                     if (!contains) {
-                                        System.out.println("it doesn't contains");
                                         //we create a map
                                         Map<String, Integer> userRate = new HashMap<>();
                                         int rating = (int) ratingBar.getRating();
@@ -370,7 +341,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                     }
                                     //else if the list is empty
                                 } else {
-                                    System.out.println("list is empty");
                                     //we create the map
                                     Map<String, Integer> userRate = new HashMap<>();
                                     int rating = (int) ratingBar.getRating();
@@ -385,15 +355,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                         }
                                     });
                                 }
-
                                 //get the list of rates
                                 //int size = restaurantPlace.getUsersWhoLiked2().size();
                                 int size = list.size();
                                 for (int i = 0; i<size; i++) {
                                     Map<String, Integer> map = list.get(i);
                                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                                        System.out.println(i + " hashMap");
-                                        System.out.println("key: " + entry.getKey() + " value: " + entry.getValue());
                                         listOfRates.add(entry.getValue());
                                     }
                                 }
@@ -402,12 +369,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                 float result = 0;
                                 for (int j = 0; j<listOfRates.size(); j++) {
                                     result = result + listOfRates.get(j);
-                                    System.out.println("result = " + result);
                                 }
-
-                                System.out.println("result now = " + result);
                                 float finalRate = result/numberOfRates;
-                                System.out.println("final rate = " + finalRate);
                                 RestaurantPlaceHelper.updateRestaurantLike(restaurantId, finalRate).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -440,7 +403,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
     private void displayRestaurantInformations() {
         bar.setVisibility(View.GONE);
         if (name != null && adress != null && photoId != null) {
-            String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=AIzaSyA6Jk5Xl1MbXbYcfWywZ0vwUY2Ux4KLta4";
+            String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=" + apikey;
             setRestaurantInformations(name, adress, url);
             displayButton(phoneNumber, callButton, textviewCall, R.drawable.ic_phone_disabled);
             displayButton(website, websiteButton, textviewWebsite, R.drawable.ic_website_disabled);

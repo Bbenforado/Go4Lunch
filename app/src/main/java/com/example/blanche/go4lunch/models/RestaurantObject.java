@@ -14,8 +14,4 @@ public class RestaurantObject {
     public List<RestaurantsResults> getResults() {
         return results;
     }
-
-    public void setResults(List<RestaurantsResults> results) {
-        this.results = results;
-    }
 }

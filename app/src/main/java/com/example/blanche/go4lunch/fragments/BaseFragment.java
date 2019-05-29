@@ -40,7 +40,6 @@ public class BaseFragment extends Fragment {
     public static final String KEY_ACTIVITY = "keyActivity";
 
     public void configureDrawerLayout(DrawerLayout drawerLayout, Toolbar toolbar, Activity activity) {
-        //drawerLayout = activity.findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(activity, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -51,6 +50,7 @@ public class BaseFragment extends Fragment {
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
         TextView userMail = headerLayout.findViewById(R.id.user_mail);
+
         if (isCurrentUserLogged()) {
             if (getCurrentUser().getPhotoUrl() != null) {
                 Glide.with(context)
@@ -69,8 +69,6 @@ public class BaseFragment extends Fragment {
         }
     }
 
-
-
     public void configureNavigationView(NavigationView navigationView, Activity activity, DrawerLayout drawerLayout, Context context,
                                                SharedPreferences preferences, final String key) {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -82,11 +80,9 @@ public class BaseFragment extends Fragment {
                         checkIfCurrentUserChoseRestaurant(context, preferences, key);
                         break;
                     case R.id.settings:
-                        //OPEN SETTING ACTIVITY WITH DELETE ACCOUNT BUTTON
                         launchSettingActivity(context);
                         break;
                     case R.id.log_out:
-                        System.out.println("context = " + context + ", activity = " + activity);
                         signOutUser(context, SIGN_OUT_TASK, activity);
                         break;
                     default:
@@ -108,14 +104,13 @@ public class BaseFragment extends Fragment {
                 if (currentUser.isHasChosenRestaurant()) {
                     launchYourLunchActivity(preferences, key, context);
                 } else {
-                    Toast.makeText(context, "You haven't chose where you are going to eat yet! Check some restaurants and make a choice :)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(R.string.no_restaurant_chose), Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     public void launchYourLunchActivity(SharedPreferences preferences, final String key, Context context) {
-        System.out.println("come here?");
         preferences.edit().putInt(KEY_ACTIVITY, 2).apply();
         Intent yourLunchActivity = new Intent(context, RestaurantDetailsActivity.class);
         context.startActivity(yourLunchActivity);
@@ -127,13 +122,8 @@ public class BaseFragment extends Fragment {
     }
 
     public void signOutUser(Context context, final int signOutTask, Activity activity) {
-        System.out.println("hello");
         AuthUI.getInstance()
                 .signOut(context)
                 .addOnSuccessListener(updateUIAfterRESTRequestsCompleted(signOutTask, activity));
     }
-
-
-
-
 }
