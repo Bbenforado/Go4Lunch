@@ -15,29 +15,22 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.blanche.go4lunch.models.User;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
-
-
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -47,10 +40,6 @@ import com.example.blanche.go4lunch.fragments.ThirdPageFragment;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -58,10 +47,13 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnTextChanged;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity {
 
     public static final int RC_SIGN_IN = 123;
     public static final int SIGN_OUT_TASK = 10;
@@ -70,19 +62,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String CURRENT_USER_UID = "currentUserUid";
-    public static final long DAY_IN_MILLIS = 24*60*60*1000;
+    public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
     public static final String TIME_WHEN_SAVED = "time";
-    int AUTOCOMPLETE_REQUEST_CODE = 1;
-
     private SharedPreferences preferences;
     @BindView(R.id.navigation)
     BottomNavigationView bottomNavigationView;
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
+    /*private NavigationView navigationView;
     private Toolbar toolbar;
-    private ActionBar actionBar;
+    private ActionBar actionBar;*/
     private BottomNavigationView.OnNavigationItemSelectedListener listener;
-    PageFragment pageFragment;
+    private PageFragment pageFragment;
+    private SecondPageFragment secondPageFragment;
+    private ThirdPageFragment thirdPageFragment;
 
 
     @Override
@@ -99,12 +91,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        AutoCompleteTextView autoCompleteTextView = findViewById(R.id.autocomplete_textview);
+        CardView cardView = findViewById(R.id.idCardView);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        if (pageFragment.isVisible() || secondPageFragment.isVisible()) {
+            if (cardView.getVisibility() == View.VISIBLE) {
+                System.out.println("come here");
+                cardView.setVisibility(View.GONE);
+                autoCompleteTextView.getText().clear();
+            } else if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                System.out.println("hu");
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                System.out.println("here");
+                super.onBackPressed();
+            }
+        } else if (thirdPageFragment.isVisible()) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
+
 
     @Override
     protected void onStart() {
@@ -116,9 +126,65 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         System.out.println("on resume");
         super.onResume();
         if (isCurrentUserLogged()) {
-            updateUiWhenResuming();
+            //updateUiWhenResuming();
         }
     }
+
+
+
+    // --------------------
+    //
+    // --------------------
+    /*public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        return true;
+    }*/
+
+    /*@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_item:
+                *//*List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+                Intent intent = new Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.OVERLAY, fields)
+                        .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                        .build(this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);*//*
+
+                *//*cardView.setVisibility(View.VISIBLE);
+                getNamesListMapFrag();
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>
+                        (this, R.layout.autocomplete_textview, namesListMapFrag);
+                autoCompleteTextView.setThreshold(1);
+                autoCompleteTextView.setAdapter(arrayAdapter);
+                autoCompleteTextView.addTextChangedListener(this);*//*
+
+                *//*AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+                autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+
+                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                    @Override
+                    public void onPlaceSelected(@NonNull Place place) {
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Status status) {
+
+                    }
+                });*//*
+
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }*/
+
+
+
+
 
     //----------------------
     //CONFIGURATION
@@ -131,29 +197,32 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         ButterKnife.bind(this);
-        configureToolbar();
+        //configureToolbar();
         checkTime();
         preferences.edit().putString(KEY_FRAGMENT, null).apply();
         preferences.edit().putString(CURRENT_USER_UID, getCurrentUser().getUid()).apply();
-        configureNavigationView();
-        configureDrawerLayout();
+        //configureNavigationView();
+        //configureDrawerLayout();
         setListener();
-        showFragment(new PageFragment());
+        secondPageFragment = new SecondPageFragment();
+        thirdPageFragment = new ThirdPageFragment();
+        pageFragment = new PageFragment();
+        showFragment(pageFragment);
     }
 
-    protected void configureToolbar() {
+    /*protected void configureToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
-    }
-    private void configureNavigationView() {
+    }*/
+    /*private void configureNavigationView() {
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         displayUserInfoInNavigationDrawer();
-    }
+    }*/
 
-    private void displayUserInfoInNavigationDrawer() {
+    /*private void displayUserInfoInNavigationDrawer() {
         View headerLayout = navigationView.getHeaderView(0);
         ImageView profilePictureImageview = headerLayout.findViewById(R.id.profile_picture);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
@@ -181,7 +250,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-    }
+    }*/
 
     //---------------------------
     //ACTIONS
@@ -195,19 +264,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     case R.id.navigation_map:
                         pageFragment = new PageFragment();
                         showFragment(pageFragment);
-                        //showFragment(new PageFragment());
-                        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
                         preferences.edit().putString(KEY_FRAGMENT, "first").apply();
                         return true;
                     case R.id.navigation_list:
-                        showFragment(new SecondPageFragment());
-                        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
+                        secondPageFragment = new SecondPageFragment();
+                        showFragment(secondPageFragment);
                         preferences.edit().putString(KEY_FRAGMENT, "second").apply();
                         return true;
                     case R.id.navigation_workmates:
-                        showFragment(new ThirdPageFragment());
-                        actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
-                        //preferences.edit().putString(KEY_FRAGMENT, "third").apply();
+                        thirdPageFragment = new ThirdPageFragment();
+                        showFragment(thirdPageFragment);
                         return true;
                 }
                 return false;
@@ -216,7 +282,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         bottomNavigationView.setOnNavigationItemSelectedListener(listener);
     }
 
-    @Override
+    /*@Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         switch (id) {
@@ -235,7 +301,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
+    }*/
 
     //-----------------------
     //METHODS
@@ -270,7 +336,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         handleResponseAfterSignIn(requestCode, resultCode, data);
-        handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
+        //handleResponseAfterAutocompleteSearch(requestCode, resultCode, data);
     }
 
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
@@ -308,15 +374,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    private void signOutUser() {
+    /*private void signOutUser() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
-    }
+    }*/
     //------------------
     //METHODS TO LAUNCH ACTIVITIES
     //-----------------------------------
-    private void launchSettingActivity() {
+    /*private void launchSettingActivity() {
         Intent settingActivity = new Intent(this, SettingActivity.class);
         startActivity(settingActivity);
     }
@@ -326,7 +392,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
     }
-
+*/
     //------------------
     //METHODS
     //------------------
@@ -350,7 +416,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    private void checkIfCurrentUserChoseRestaurant() {
+    /*private void checkIfCurrentUserChoseRestaurant() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -362,9 +428,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 }
             }
         });
-    }
+    }*/
 
-    private void updateUiWhenResuming() {
+    /*private void updateUiWhenResuming() {
         View headerLayout = navigationView.getHeaderView(0);
         TextView userNameTextview = headerLayout.findViewById(R.id.user_name);
             UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -374,19 +440,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     userNameTextview.setText(currentUser.getUsername());
                 }
             });
-    }
+    }*/
 
-    protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
+    /*protected void handleResponseAfterAutocompleteSearch(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                /*String placeId = place.getId();
+                *//*String placeId = place.getId();
                 Bundle bundle = new Bundle();
                 bundle.putString(RESTAURANT_ID, placeId);
                 System.out.println("id in base = " + placeId);
                 Intent yourLunchActivity = new Intent(this, RestaurantDetailsActivity.class);
                 yourLunchActivity.putExtras(bundle);
-                startActivity(yourLunchActivity);*/
+                startActivity(yourLunchActivity);*//*
 
                 if (preferences.getString(KEY_FRAGMENT, null) == "first") {
                     //updateMap();
@@ -406,5 +472,5 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 Toast.makeText(this, "you cancelled operation", Toast.LENGTH_SHORT).show();
             }
         }
-    }
+    }*/
 }

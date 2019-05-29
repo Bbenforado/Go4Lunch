@@ -29,7 +29,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.example.blanche.go4lunch.utils.Utils.DELETE_USER_TASK;
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
+import static com.example.blanche.go4lunch.utils.Utils.updateUIAfterRESTRequestsCompleted;
 
 public class SettingActivity extends BaseActivity {
 
@@ -150,7 +153,7 @@ public class SettingActivity extends BaseActivity {
         if (getCurrentUser() != null) {
             AuthUI.getInstance()
                     .delete(this)
-                    .addOnSuccessListener(this, updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
+                    .addOnSuccessListener(this, updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK, this));
         }
     }
 

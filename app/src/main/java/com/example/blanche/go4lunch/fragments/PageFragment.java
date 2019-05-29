@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.fragments;
 
 
 import android.Manifest;
+import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,22 +13,27 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.Double4;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
+import android.support.v7.widget.Toolbar;
 import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
@@ -36,89 +42,76 @@ import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantObject;
 import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
-
 import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
+public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
     @BindView(R.id.bar)
     ProgressBar bar;
     SharedPreferences preferences;
     Disposable disposable;
-    List<String> restaurantsNames;
     private List<RestaurantsResults> restaurantsResultsList;
-
     public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
     public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
-    public static final String RESTAURANT_NAME = "name";
-    public static final String TYPE_OF_FOOD_AND_ADRESS = "typeAndAdress";
     public static final String RESTAURANT_ID = "idRestaurant";
-    public static final String RESTAURANT_PHONE_NUMBER = "number";
-    public static final String RESTAURANT_WEBSITE = "website";
-    public static final String RESTAURANT_PHOTO = "photo";
     public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String KEY = "key";
+    public static final String RESTAURANT_NAMES_LIST_MAP_FRAG = "namesMapFrag";
     public static final String CURRENT_USER_NAME = "currentUserName";
     public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
+    public static final String KEY_FOR_SEARCH = "keyForSearch";
     private DatabaseReference database;
     private ValueEventListener listener;
     private Marker marker;
-    private String latLong;
-    private boolean isAlreadySavedInDatabase;
-
+    private List<String> namesList;
+    @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
+    @BindView(R.id.autocomplete_textview)
+    AutoCompleteTextView autoCompleteTextView;
+    @BindView(R.id.idCardView)
+    CardView cardView;
+    @BindView(R.id.clear_text_button)
+    ImageButton clearTextButton;
     List<String> idList;
     FirebaseFirestore firestoreRootRef;
     CollectionReference itemsRef;
+    List<RestaurantsResults> restaurantsResultsListForSearch;
 
     public PageFragment() {
         // Required empty public constructor
@@ -131,33 +124,96 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
         ButterKnife.bind(this, rootView);
+        setHasOptionsMenu(true);
+        Toolbar toolbar = rootView.findViewById(R.id.toolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
+
+        preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
+
+        configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
+        configureDrawerLayout(drawerLayout, toolbar, getActivity());
+
         database = FirebaseDatabase.getInstance().getReference();
 
 
         restaurantsResultsList = new ArrayList<>();
-        preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        preferences.edit().putString(LATITUDE_AND_LONGITUDE, null).apply();
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         return rootView;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        System.out.println("on destroy map");
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_toolbar, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        System.out.println("on stop map");
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_item:
+                //autoCompleteTextView.setVisibility(View.VISIBLE);
+                cardView.setVisibility(View.VISIBLE);
+                autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        if (autoCompleteTextView.getText() != null) {
+                            clearTextButton.setVisibility(View.VISIBLE);
+                        } else {
+                            clearTextButton.setVisibility(View.GONE);
+                        }
+                        updateUiWhileUserIsTyping(charSequence);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+
+                    }
+                });
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        System.out.println("on start map");
+
+
+    private void updateUiWhileUserIsTyping(CharSequence charSequence) {
+        restaurantsResultsListForSearch = new ArrayList<>();
+        for (int i = 0; i < restaurantsResultsList.size(); i++) {
+            if (restaurantsResultsList.get(i).getName().toLowerCase().contains(charSequence)) {
+                restaurantsResultsListForSearch.add(restaurantsResultsList.get(i));
+            }
+        }
+        configureMapForSearch();
+    }
+
+    private void configureMapForSearch() {
+        map.clear();
+        for (int i = 0; i < restaurantsResultsListForSearch.size(); i++) {
+            Double lat = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLat();
+            Double longitude = restaurantsResultsListForSearch.get(i).getGeometry().getLocation().getLng();
+            LatLng restaurantLocation = new LatLng(lat, longitude);
+
+            marker = map.addMarker(new MarkerOptions()
+                    .position(restaurantLocation)
+                    .title(restaurantsResultsListForSearch.get(i).getName())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_ic)));
+            marker.setTag(i);
+            preferences.edit().putString(KEY_FOR_SEARCH, "search").apply();
+        }
+
     }
 
     @Override
@@ -165,6 +221,13 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         System.out.println("on resume map");
         super.onResume();
         updateMarkersForAListOfRestaurant(restaurantsResultsList);
+        /*if (autoCompleteTextView.getVisibility() == View.VISIBLE) {
+            autoCompleteTextView.setVisibility(View.GONE);*/
+        if (cardView.getVisibility() == View.VISIBLE) {
+            cardView.setVisibility(View.GONE);
+            autoCompleteTextView.getText().clear();
+            clearTextButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -201,6 +264,10 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
 
     }
 
+    public void backPressed() {
+        Toast.makeText(getContext(), "first", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         System.out.println("on marker clicked");
@@ -209,6 +276,19 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         if (tag == -1) {
             marker.setTitle(preferences.getString(CURRENT_USER_NAME, null));
             marker.setSnippet(preferences.getString(CURRENT_USER_MAIL_ADRESS, null));
+        } else if (preferences.getString(KEY_FOR_SEARCH, null) != null) {
+            if (preferences.getString(KEY_FOR_SEARCH, null).equals("search")) {
+                String restaurantId = restaurantsResultsListForSearch.get(tag).getPlaceId();
+                preferences.edit().putString(RESTAURANT_ID, restaurantId).apply();
+                preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
+                launchDetailsActivity();
+                preferences.edit().putString(KEY_FOR_SEARCH, null).apply();
+            } else {
+                String restaurantId = restaurantsResultsList.get(tag).getPlaceId();
+                preferences.edit().putString(RESTAURANT_ID, restaurantId).apply();
+                preferences.edit().putInt(KEY_ACTIVITY, 0).apply();
+                launchDetailsActivity();
+            }
         } else {
             String restaurantId = restaurantsResultsList.get(tag).getPlaceId();
             preferences.edit().putString(RESTAURANT_ID, restaurantId).apply();
@@ -217,6 +297,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         }
         return true;
     }
+
 
     //-----------------------
     //PERMISSIONS
@@ -297,7 +378,7 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
         if (myLocation != null) {
             LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
-            latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
+            String latLong = myLocation.getLatitude() + "," + myLocation.getLongitude();
             System.out.println("position = " + latLong);
 
             executeHttpRequestForRestaurant(latLong);
@@ -368,9 +449,14 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                                 Log.e("TAG", "on next");
                                 //updateUI
                                 updateUiWithRestaurants(restaurantObject.getResults());
+                                //namesList = new ArrayList<>();
                                 for (int i = 0; i < restaurantObject.getResults().size(); i++) {
                                     //get restaurants, check uid if uid is not in database, create restaurants
                                     String id = restaurantObject.getResults().get(i).getPlaceId();
+
+
+                                    //namesList.add(restaurantObject.getResults().get(i).getName());
+
 
                                     idList = new ArrayList<>();
 
@@ -400,21 +486,23 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
                         });
     }
 
-
+    //-------------------------
+    //ACTIONS
+    //--------------------------
+    @OnClick(R.id.clear_text_button)
+    public void clearText() {
+        autoCompleteTextView.getText().clear();
+    }
 
     //------------------------
     //UPDATE UI
     //------------------------
     private void updateUiWithRestaurants(List<RestaurantsResults> results) {
-        System.out.println("    and here");
         restaurantsResultsList.clear();
         restaurantsResultsList.addAll(results);
-
-        //restaurantsNames = new ArrayList<>();
         updateMarkersForAListOfRestaurant(restaurantsResultsList);
         bar.setVisibility(View.GONE);
     }
-
 
 
     private void updateMarkersForAListOfRestaurant(List<RestaurantsResults> list) {
@@ -479,23 +567,4 @@ public class PageFragment extends Fragment implements GoogleMap.OnMarkerClickLis
             }
         });
     }
-
-    /*public void updateMap(LatLng latLng) {
-        System.out.println("coming here??");
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-        float zoomLevel = 16.0f;
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
-
-        Marker marker;
-        marker = map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("You are here"));
-        marker.setTag(-1);
-        marker.showInfoWindow();
-    }*/
-
-
-
-
-
 }

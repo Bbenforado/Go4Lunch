@@ -9,7 +9,7 @@ import java.util.Map;
 public class RestaurantPlace {
 
     int maxLike;
-    int like;
+    float like;
     String uid;
     List<String> usersWhoLiked;
     List<Map<String, Integer> > usersWhoLiked2;
@@ -29,7 +29,7 @@ public class RestaurantPlace {
         this.like = like;
     }
 
-    public int getLike() {
+    public float getLike() {
         return like;
     }
 

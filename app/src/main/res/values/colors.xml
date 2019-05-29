@@ -3,6 +3,7 @@
     <color name="colorPrimary">#60718c</color>
     <color name="colorPrimaryDark">#4b5a72</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="default_color_for_stars">#ced8e8</color>
 
 
 </resources>

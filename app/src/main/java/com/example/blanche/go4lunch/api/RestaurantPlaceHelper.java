@@ -42,7 +42,7 @@ public class RestaurantPlaceHelper {
 
     // --- UPDATE ---
 
-    public static Task<Void> updateRestaurantLike(String uid, int like) {
+    public static Task<Void> updateRestaurantLike(String uid, float like) {
         return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("like", like);
 
     }
@@ -54,14 +54,4 @@ public class RestaurantPlaceHelper {
     public static Task<Void> updateUserWhoLiked2(String uid, List<Map<String, Integer>> list) {
         return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", list);
     }
-
-
-
-    /*public static Task<Void> updateUserWhoLiked2(String uid, Map<List<String>, List<Integer>> map) {
-        return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", map);
-    }*/
-
-    /*public static Task<Void> updateUserWhoLiked2(String uid, Map<String, Integer> map) {
-        return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).update("usersWhoLiked2", map);
-    }*/
 }

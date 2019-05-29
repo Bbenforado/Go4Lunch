@@ -1,13 +1,6 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="7dip">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
         <ImageView
             android:id="@+id/fragment_page_item_image"
@@ -123,9 +116,6 @@
             </RelativeLayout>
 
         </RelativeLayout>
-
-
-    </RelativeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
@@ -136,4 +126,5 @@
         android:layout_marginRight="0dp" />
 
 
-</LinearLayout>
+    </RelativeLayout>
+

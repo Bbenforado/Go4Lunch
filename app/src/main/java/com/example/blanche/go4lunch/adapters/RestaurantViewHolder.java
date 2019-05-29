@@ -3,7 +3,6 @@ package com.example.blanche.go4lunch.adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -12,38 +11,27 @@ import android.widget.TextView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
-import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
-import com.example.blanche.go4lunch.models.Restaurant;
-import com.example.blanche.go4lunch.models.RestaurantInformationObject;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
-import com.example.blanche.go4lunch.models.RestaurantPlace;
-import com.example.blanche.go4lunch.models.RestaurantsResults;
-import com.example.blanche.go4lunch.utils.RestaurantStreams;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
+
+import static com.example.blanche.go4lunch.utils.Utils.setStars;
 
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
+    //------------------------
+    //BIND VIEWS
+    //-------------------------
     @BindView(R.id.fragment_page_item_image)
     ImageView imageView;
     @BindView(R.id.restaurant_name)
@@ -56,15 +44,16 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.star_one) ImageView starOne;
     @BindView(R.id.star_two) ImageView starTwo;
     @BindView(R.id.star_three) ImageView starThree;
-    public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
-    public static final String APP_PREFERENCES = "appPreferences";
-    SharedPreferences preferences;
-    String userLatlng;
+
+    //---------------
+    private static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
+    private static final String APP_PREFERENCES = "appPreferences";
+    private String userLatlng;
 
     public RestaurantViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        preferences = itemView.getContext().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences preferences = itemView.getContext().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         userLatlng = preferences.getString(LATITUDE_AND_LONGITUDE, null);
     }
 
@@ -72,8 +61,10 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         textViewName.setText(restaurantInformations.getName());
         typeAndAdress.setText(restaurantInformations.getVicinity());
         Calendar calendar = Calendar.getInstance();
+        horairesTextView.setTextColor(Color.parseColor("#808080"));
         if (restaurantInformations.getOpeningHours() != null) {
             if (restaurantInformations.getOpeningHours().getOpenNow()) {
+
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 switch (day) {
                     case Calendar.MONDAY:
@@ -100,7 +91,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     default:
                         break;
                 }
-            } else {
+            } else if (!restaurantInformations.getOpeningHours().getOpenNow()){
                 horairesTextView.setText(itemView.getContext().getString(R.string.restaurant_is_closed));
                 horairesTextView.setTextColor(Color.parseColor("#ba0018"));
             }
@@ -137,7 +128,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     }
                 });
 
-        //setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
+        setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
 
     }
     private void setDistance(double lat, double lng) {
