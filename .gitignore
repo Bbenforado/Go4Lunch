@@ -9,3 +9,5 @@
 /build
 /captures
 .externalNativeBuild
+AndroidManifest.xml
+google-services.json
