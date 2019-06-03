@@ -13,6 +13,12 @@
             android:id="@+id/settings"
             android:title="@string/settings"
             android:icon="@drawable/ic_settings"/>
+
+        <item
+            android:id="@+id/chat"
+            android:title="Chat"
+            android:icon="@drawable/ic_chat_bubble"/>
+
         <item
             android:id="@+id/log_out"
             android:title="@string/log_out"

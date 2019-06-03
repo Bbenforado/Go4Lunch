@@ -46,6 +46,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
+import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -66,6 +68,7 @@ public class ThirdPageFragment extends BaseFragment {
     private List<User> userList;
     private FirebaseFirestore firestoreRootRef;
     private CollectionReference itemsRef;
+    private boolean userlogged;
 
     //------------------
     //BIND VIEWS
@@ -110,6 +113,8 @@ public class ThirdPageFragment extends BaseFragment {
         activity.setSupportActionBar(toolbar);
         ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
+        System.out.println("user = " + isCurrentUserLogged());
+
 
         configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
         configureDrawerLayout(drawerLayout, toolbar, getActivity());
@@ -165,20 +170,22 @@ public class ThirdPageFragment extends BaseFragment {
     //GET DATA
     //----------------------
     private void readData(UserCallback callback) {
-        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (DocumentSnapshot document : task.getResult()) {
-                        User user = document.toObject(User.class);
-                        userList.add(user);
+        if (getCurrentUser() != null) {
+            itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            User user = document.toObject(User.class);
+                            userList.add(user);
+                        }
+                        callback.onCallback(userList);
+                    } else {
+                        Log.d("TAG", "Error");
                     }
-                    callback.onCallback(userList);
-                } else {
-                    Log.d("TAG", "Error");
                 }
-            }
-        });
+            });
+        }
     }
 
 

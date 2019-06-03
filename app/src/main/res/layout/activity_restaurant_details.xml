@@ -110,8 +110,7 @@
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="10dp"
-                            android:tint="@android:color/white"
-                            android:visibility="gone"/>
+                            android:tint="@android:color/white"/>
                         <ImageView
                             android:id="@+id/star_two"
                             android:layout_width="15dp"
@@ -119,8 +118,7 @@
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="5dp"
-                            android:tint="@android:color/white"
-                            android:visibility="gone"/>
+                            android:tint="@android:color/white"/>
                         <ImageView
                             android:id="@+id/star_three"
                             android:layout_width="15dp"
@@ -128,8 +126,7 @@
                             android:src="@drawable/ic_star"
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="5dp"
-                            android:tint="@android:color/white"
-                            android:visibility="gone"/>
+                            android:tint="@android:color/white"/>
 
                     </LinearLayout>
 

@@ -59,9 +59,9 @@ public class Utils {
     //UPDATE INTERFACE
     //---------------------
     public static void setStars(String id, ImageView starOne, ImageView starTwo, ImageView starThree) {
-        starOne.setVisibility(View.GONE);
-        starTwo.setVisibility(View.GONE);
-        starThree.setVisibility(View.GONE);
+        starOne.setImageResource(R.drawable.ic_star);
+        starTwo.setImageResource(R.drawable.ic_star);
+        starThree.setImageResource(R.drawable.ic_star);
 
         RestaurantPlaceHelper.getRestaurantPlace(id).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -69,14 +69,20 @@ public class Utils {
                 RestaurantPlace restaurantPlace = documentSnapshot.toObject(RestaurantPlace.class);
                 if (restaurantPlace.getLike() != 0) {
                     float like = restaurantPlace.getLike();
-                    if (like >= 1) {
-                        starOne.setVisibility(View.VISIBLE);
+                    if (like == 0.5) {
+                        starOne.setImageResource(R.drawable.ic_star_half_colored);
+                    } else if (like >= 1) {
+                        starOne.setImageResource(R.drawable.ic_colored_star);
                     }
-                    if (like >= 2) {
-                        starTwo.setVisibility(View.VISIBLE);
+                    if (like == 1.5) {
+                        starTwo.setImageResource(R.drawable.ic_star_half_colored);
+                    } else if (like >= 2){
+                        starTwo.setImageResource(R.drawable.ic_colored_star);
                     }
-                    if (like == 3) {
-                        starThree.setVisibility(View.VISIBLE);
+                    if (like == 2.5) {
+                        starThree.setImageResource(R.drawable.ic_star_half_colored);
+                    } else if (like == 3) {
+                        starThree.setImageResource(R.drawable.ic_colored_star);
                     }
                 }
             }
@@ -105,5 +111,44 @@ public class Utils {
         };
     }
 
+    public static double meterDistanceBetweenPoints(float lat_a, float lng_a, float lat_b, float lng_b) {
+        float pk = (float) (180.f/Math.PI);
 
+        float a1 = lat_a / pk;
+        float a2 = lng_a / pk;
+        float b1 = lat_b / pk;
+        float b2 = lng_b / pk;
+
+        double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
+        double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
+        double t3 = Math.sin(a1) * Math.sin(b1);
+        double tt = Math.acos(t1 + t2 + t3);
+
+        return 6366000 * tt;
+    }
+
+    public static String getDistance(double lat, double lng, String userLatlng) {
+        String[] values = userLatlng.split(",");
+        double userLat = Double.parseDouble(values[0]);
+        double userLng = Double.parseDouble(values[1]);
+        float userL = (float)userLat;
+        float userLg = (float)userLng;
+        float restaurantLat = (float)lat;
+        float restaurantLng = (float)lng;
+
+        double restaurantLocation = meterDistanceBetweenPoints(userL, userLg, restaurantLat, restaurantLng);
+        String distanceBetween = Double.toString(restaurantLocation);
+
+        String[] meters = distanceBetween.split("\\.");
+
+        return meters[0] + " m";
+    }
+
+    public static String getFormattedOpeningHours(String openingHoursSentence, String string) {
+        String formattedOpeningHours = openingHoursSentence;
+        if (formattedOpeningHours.startsWith(string)) {
+            formattedOpeningHours = formattedOpeningHours.substring(string.length());
+        }
+        return formattedOpeningHours;
+    }
 }

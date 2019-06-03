@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.RequestManager;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.models.User;
+import com.example.blanche.go4lunch.utils.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -41,6 +42,7 @@ public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<U
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position, @NonNull User model) {
+        System.out.println("user here = " + Utils.isCurrentUserLogged());
         holder.updateWithUsers(context, model, this.glide);
     }
 

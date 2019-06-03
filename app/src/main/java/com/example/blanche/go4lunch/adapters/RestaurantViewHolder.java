@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.example.blanche.go4lunch.utils.Utils.getDistance;
+import static com.example.blanche.go4lunch.utils.Utils.getFormattedOpeningHours;
 import static com.example.blanche.go4lunch.utils.Utils.setStars;
 
 
@@ -66,29 +68,37 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         openingHoursTextView.setTextColor(Color.parseColor("#808080"));
         if (restaurantInformations.getOpeningHours() != null) {
             if (restaurantInformations.getOpeningHours().getOpenNow()) {
-
+                String opening = null;
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 switch (day) {
+
                     case Calendar.MONDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(0));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(0);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Monday: "));
                         break;
                     case Calendar.TUESDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(1));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(1);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Tuesday: "));
                         break;
                     case Calendar.WEDNESDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(2));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(2);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Wednesday: "));
                         break;
                     case Calendar.THURSDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(3));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(3);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Thursday: "));
                         break;
                     case Calendar.FRIDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(4));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(4);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Friday: "));
                         break;
                     case Calendar.SATURDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(5));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(5);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Saturday: "));
                         break;
                     case Calendar.SUNDAY:
-                        openingHoursTextView.setText(restaurantInformations.getOpeningHours().getWeekdayText().get(6));
+                        opening = restaurantInformations.getOpeningHours().getWeekdayText().get(6);
+                        openingHoursTextView.setText(getFormattedOpeningHours(opening, "Sunday: "));
                         break;
                     default:
                         break;
@@ -109,7 +119,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         double lat = restaurantInformations.getGeometry().getLocation().getLat();
         double lng = restaurantInformations.getGeometry().getLocation().getLng();
 
-        setDistance(lat, lng);
+        //setDistance(lat, lng, userLatlng, distance);
+        distance.setText(getDistance(lat, lng, userLatlng));
 
         UserHelper.getUsersCollection()
                 .whereEqualTo("restaurantId", restaurantInformations.getPlaceId())
@@ -134,39 +145,9 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
 
     }
-    private void setDistance(double lat, double lng) {
-        String[] values = userLatlng.split(",");
-        double userLat = Double.parseDouble(values[0]);
-        double userLng = Double.parseDouble(values[1]);
-        float userL = (float)userLat;
-        float userLg = (float)userLng;
-        float restaurantLat = (float)lat;
-        float restaurantLng = (float)lng;
 
-        double restaurantLocation = meterDistanceBetweenPoints(userL, userLg, restaurantLat, restaurantLng);
-        String distanceBetween = Double.toString(restaurantLocation);
 
-        String[] meters = distanceBetween.split("\\.");
-        String finalString = meters[0] + " m";
 
-        distance.setText(finalString);
-    }
-
-    private double meterDistanceBetweenPoints(float lat_a, float lng_a, float lat_b, float lng_b) {
-        float pk = (float) (180.f/Math.PI);
-
-        float a1 = lat_a / pk;
-        float a2 = lng_a / pk;
-        float b1 = lat_b / pk;
-        float b2 = lng_b / pk;
-
-        double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
-        double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
-        double t3 = Math.sin(a1) * Math.sin(b1);
-        double tt = Math.acos(t1 + t2 + t3);
-
-        return 6366000 * tt;
-    }
 
 
 

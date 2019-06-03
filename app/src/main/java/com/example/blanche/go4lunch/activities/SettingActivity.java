@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.activities;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -21,8 +22,11 @@ import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,8 +41,6 @@ public class SettingActivity extends BaseActivity {
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String SWITCH_BUTTON_STATE = "switchButtonState";
     private SharedPreferences preferences;
-    private Toolbar toolbar;
-    private ActionBar actionBar;
     //----------------------
     //BIND VIEWS
     //----------------------
@@ -68,9 +70,10 @@ public class SettingActivity extends BaseActivity {
 
 
     private void configureToolbar() {
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(R.string.settings);
 
     }
@@ -85,10 +88,32 @@ public class SettingActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     preferences.edit().putInt(SWITCH_BUTTON_STATE, 0).apply();
-                    UserHelper.updateNotificationBoolean(getCurrentUser().getUid(), true);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic("restaurant")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String message = getApplicationContext().getString(R.string.enable_notif_toast_message);
+                                    if (!task.isSuccessful()) {
+                                        message = getApplicationContext().getString(R.string.error_occurred);
+                                    }
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                 } else {
                     preferences.edit().putInt(SWITCH_BUTTON_STATE, 1).apply();
-                    UserHelper.updateNotificationBoolean(getCurrentUser().getUid(), false);
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("restaurant")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String message = getApplicationContext().getString(R.string.disable_notif_toast_message);
+                                    if (!task.isSuccessful()) {
+                                        message = getApplicationContext().getString(R.string.error_occurred);
+                                    }
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                 }
             }
         });

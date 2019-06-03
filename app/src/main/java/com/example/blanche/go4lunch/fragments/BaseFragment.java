@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.fragments;
 
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.activities.ChatActivity;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.activities.SettingActivity;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -85,6 +87,8 @@ public class BaseFragment extends Fragment {
                     case R.id.log_out:
                         signOutUser(context, SIGN_OUT_TASK, activity);
                         break;
+                    case R.id.chat:
+                        launchChatActivity(context);
                     default:
                         break;
                 }
@@ -119,6 +123,11 @@ public class BaseFragment extends Fragment {
     public void launchSettingActivity(Context context) {
         Intent settingActivity = new Intent(context, SettingActivity.class);
         context.startActivity(settingActivity);
+    }
+
+    public void launchChatActivity(Context context) {
+        Intent chatActivity = new Intent(context, ChatActivity.class);
+        context.startActivity(chatActivity);
     }
 
     public void signOutUser(Context context, final int signOutTask, Activity activity) {

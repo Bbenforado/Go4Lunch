@@ -53,27 +53,32 @@ import butterknife.OnTextChanged;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
+import static com.example.blanche.go4lunch.utils.Utils.getDistance;
 import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
+import static com.example.blanche.go4lunch.utils.Utils.meterDistanceBetweenPoints;
 
 public class MainActivity extends BaseActivity {
 
     public static final int RC_SIGN_IN = 123;
-    public static final int SIGN_OUT_TASK = 10;
-    public static final int DELETE_USER_TASK = 20;
+    /*public static final int SIGN_OUT_TASK = 10;
+    public static final int DELETE_USER_TASK = 20;*/
     public static final String KEY_FRAGMENT = "keyFragment";
     public static final String APP_PREFERENCES = "appPreferences";
-    public static final String KEY_ACTIVITY = "keyActivity";
+    /*public static final String KEY_ACTIVITY = "keyActivity";*/
     public static final String CURRENT_USER_UID = "currentUserUid";
     public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
     public static final String TIME_WHEN_SAVED = "time";
-    private SharedPreferences preferences;
-    @BindView(R.id.navigation)
-    BottomNavigationView bottomNavigationView;
-    private BottomNavigationView.OnNavigationItemSelectedListener listener;
     private PageFragment pageFragment;
     private SecondPageFragment secondPageFragment;
     private ThirdPageFragment thirdPageFragment;
-    private String apikey;
+    private SharedPreferences preferences;
+
+    //------------------
+    //BIND VIEW
+    //--------------------
+    @BindView(R.id.navigation)
+    BottomNavigationView bottomNavigationView;
+
 
 
     @Override
@@ -130,7 +135,7 @@ public class MainActivity extends BaseActivity {
     //----------------------------
     private void configureActivity() {
         ButterKnife.bind(this);
-        apikey = BuildConfig.ApiKey;
+        String apikey = BuildConfig.ApiKey;
 
         // Initialize Places.
         Places.initialize(getApplicationContext(), apikey);
@@ -151,7 +156,7 @@ public class MainActivity extends BaseActivity {
     //ACTIONS
     //---------------------------
     private void setListener() {
-        listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        BottomNavigationView.OnNavigationItemSelectedListener listener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

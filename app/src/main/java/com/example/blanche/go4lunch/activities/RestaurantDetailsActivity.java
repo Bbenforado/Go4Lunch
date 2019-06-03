@@ -136,7 +136,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
             setStars(restaurantId, starOne, starTwo, starThree);
         }
 
-        if (keyActivity == 0 || keyActivity == 1) {
+        if (keyActivity == 0 || keyActivity == 1 || keyActivity == 3) {
             configureRecyclerView();
         }
     }
@@ -170,8 +170,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                           for (DocumentSnapshot doc : queryDocumentSnapshots) {
                                               if (doc.get("restaurantId") != null) {
                                                       users.add(doc.getString("chosenRestaurant"));
-                                                  System.out.println("it s here");
-                                                      System.out.println("users in function = " + users);
                                                       textView.setVisibility(View.GONE);
                                               }
                                           }
@@ -279,9 +277,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
         ratingBar.setNumStars(3);
         ratingBar.setStepSize(1);
 
-        dialog.setMessage("Rate restaurant:")
+        dialog.setMessage(getString(R.string.rate_restaurant))
                 .setView(dialogLayout)
-                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.dialog_ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         RestaurantPlaceHelper.getRestaurantPlace(restaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -356,7 +354,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                     });
                                 }
                                 //get the list of rates
-                                //int size = restaurantPlace.getUsersWhoLiked2().size();
                                 int size = list.size();
                                 for (int i = 0; i<size; i++) {
                                     Map<String, Integer> map = list.get(i);
@@ -364,7 +361,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                         listOfRates.add(entry.getValue());
                                     }
                                 }
-                                //calcul the rate and save it here
+                                //calculate the rate and save it here
                                 int numberOfRates = listOfRates.size();
                                 float result = 0;
                                 for (int j = 0; j<listOfRates.size(); j++) {
@@ -407,7 +404,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
             setRestaurantInformations(name, adress, url);
             displayButton(phoneNumber, callButton, textviewCall, R.drawable.ic_phone_disabled);
             displayButton(website, websiteButton, textviewWebsite, R.drawable.ic_website_disabled);
-            if (keyActivity == 0 || keyActivity == 1) {
+            if (keyActivity == 0 || keyActivity == 1 || keyActivity == 3) {
                 getCurrentUserDataFromFireBase();
             }
         }
@@ -451,7 +448,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 currentUser = documentSnapshot.toObject(User.class);
 
-                if (keyActivity == 0 || keyActivity == 1) {
+                if (keyActivity == 0 || keyActivity == 1 || keyActivity == 3) {
                     //if restaurant is open, we display the button, color depending on if user chose this place to eat or not
                     if (isOpen) {
                         if (currentUser.isHasChosenRestaurant()) {

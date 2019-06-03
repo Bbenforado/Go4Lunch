@@ -24,18 +24,17 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
     ImageView imageView;
     @BindView(R.id.text)
     TextView textView;
-    private Resources res;
 
     public WorkmateViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
-        res = itemView.getResources();
     }
 
     public void updateWithUsers(Context context, User user, RequestManager glide) {
         if (user.getUid().equals(getCurrentUser().getUid())) {
-            setUserInfo(user,context.getString(R.string.toast_text_when_user_chose_restaurant), context.getString(R.string.user_didnt_chose_restaurant), glide);
-        } else {
+            String finalString = context.getString(R.string.toast_text_when_user_chose_restaurant) + " " + user.getChosenRestaurant();
+            setUserInfo(user, finalString, context.getString(R.string.user_didnt_chose_restaurant), glide);
+            } else {
             String userHasChose = user.getUsername() + " " + context.getString(R.string.workmate_has_chose) + " " + user.getChosenRestaurant();
             String userDidntChose = user.getUsername() + " " + context.getString(R.string.workmate_didnt_chose_yet);
             setUserInfo(user, userHasChose, userDidntChose, glide);
@@ -44,11 +43,9 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
 
     private void setUserInfo(User user, String userIsEatingAt, String userHasntChoseYet, RequestManager glide) {
         if (user.isHasChosenRestaurant()) {
-            String finalString = userIsEatingAt + " " + user.getChosenRestaurant();
-            textView.setText(finalString);
+            textView.setText(userIsEatingAt);
         } else {
-            String finalString = userHasntChoseYet;
-            textView.setText(finalString);
+            textView.setText(userHasntChoseYet);
             textView.setTextColor(Color.parseColor("#bcbcbc"));
         }
         if (user.getUrlPicture() != null) {

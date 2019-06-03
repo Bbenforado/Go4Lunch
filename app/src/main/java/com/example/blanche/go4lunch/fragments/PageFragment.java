@@ -2,6 +2,7 @@ package com.example.blanche.go4lunch.fragments;
 
 
 import android.Manifest;
+import android.graphics.Point;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -82,7 +83,6 @@ import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback, LocationListener {
 
     private GoogleMap map;
-
     private SharedPreferences preferences;
     private Disposable disposable;
     private List<RestaurantsResults> restaurantsResultsList;
@@ -169,6 +169,9 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         switch (item.getItemId()) {
             case R.id.search_item:
                 cardView.setVisibility(View.VISIBLE);
+
+
+
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -368,14 +371,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
             preferences.edit().putString(LATITUDE_AND_LONGITUDE, latLong).apply();
 
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-
-            /*CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng)
-                    .zoom(15)
-                    .bearing(90)
-                    .tilt(40)
-                    .build();
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
             float zoomLevel = 16.0f;
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
 
@@ -385,12 +380,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
                     .title(getContext().getString(R.string.user_location_marker_title)));
             marker.setTag(-1);
             marker.showInfoWindow();
-
-            /*MarkerOptions option = new MarkerOptions();
-            option.title("You are here");
-            option.position(latLng);
-            Marker currentMarker = map.addMarker(option);
-            currentMarker.showInfoWindow();*/
 
         } else {
             Toast.makeText(getContext(), getContext().getString(R.string.location_not_found), Toast.LENGTH_LONG).show();

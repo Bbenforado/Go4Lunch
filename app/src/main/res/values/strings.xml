@@ -18,6 +18,7 @@
     <string name="toast_text_when_user_chose_restaurant">You are going to eat at </string>
     <string name="toast_text_when_user_uncheck_chose_button">Want to eat somewhere else?</string>
     <string name="user_like_restaurant">You liked this restaurant!</string>
+    <string name="rate_restaurant">Rate restaurant:</string>
 
     <!-- MENU NAVIGATION DRAWER -->
     <string name="settings">Settings</string>
@@ -39,6 +40,9 @@
     <string name="error_auth_message">Error</string>
     <string name="no_internet_auth_message">No internet</string>
     <string name="unknown_error_auth_message">Unknown error</string>
+
+    <!--FIRST AND SECOND FRAGMENT-->
+    <string name="type_a_restaurant_name">Type a restaurant name</string>
 
     <!-- FIRST FRAGMENT -->
     <string name="permission_granted">Permission granted! :)</string>
@@ -71,13 +75,22 @@
     <string name="dialog_ok">Ok</string>
     <string name="username_updated">Updated!</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="enable_notif_toast_message">You enabled notifications</string>
+    <string name="disable_notif_toast_message">You disabled notifications</string>
+    <string name="error_occurred">An error occurred, try again later</string>
 
     <!-- NOTIFICATIONS -->
     <string name="you_didnt_chose_restaurant">You didn\'t chose your restaurant yet!</string>
     <string name="notif_title">It\'s almost time!</string>
 
+    <!-- CHAT ACTIVITY -->
+    <string name="popup_title_permission_files_access">Cette application a besoin de permission pour fonctionner.</string>
+
+
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2329713414017344</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb2329713414017344</string>
+
+
 </resources>
 
