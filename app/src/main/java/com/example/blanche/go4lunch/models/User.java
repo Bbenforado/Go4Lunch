@@ -14,7 +14,6 @@ public class User {
     private String chosenRestaurantPhotoId;
     private String restaurantId;
     private boolean hasEnableNotifications;
-
     public String getChosenRestaurantPhotoId() {
         return chosenRestaurantPhotoId;
     }
@@ -24,8 +23,6 @@ public class User {
 
     public User() {
     }
-
-
 
     public User(String uid, String username, String urlPicture, boolean hasChosenRestaurant, String chosenRestaurant, String chosenRestaurantAdress, String chosenRestaurantPhoneNumber, String chosenRestaurantWebsite) {
         this.uid = uid;

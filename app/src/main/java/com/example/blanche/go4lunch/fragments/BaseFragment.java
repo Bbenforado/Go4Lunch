@@ -11,6 +11,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+
+import com.example.blanche.go4lunch.callbacks.MyCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.core.view.GravityCompat;
@@ -20,7 +24,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -37,9 +43,12 @@ import com.example.blanche.go4lunch.activities.SettingActivity;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -48,11 +57,14 @@ import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
 import static com.example.blanche.go4lunch.utils.Utils.updateUIAfterRESTRequestsCompleted;
 
+/**
+ * Basic fragment
+ * each fragment of the activity extends BaseFragment
+ */
 public class BaseFragment extends Fragment implements LocationListener {
 
     public static final String KEY_ACTIVITY = "keyActivity";
     @BindView(R.id.toolbar) Toolbar toolbar;
-    public static FusedLocationProviderClient fusedLocationClient;
 
     //------------------
     //CONFIGURATION
@@ -64,7 +76,6 @@ public class BaseFragment extends Fragment implements LocationListener {
     }
 
     public void configureToolbar(View view) {
-        System.out.println("configure toolbar in base");
         toolbar = view.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
@@ -153,6 +164,11 @@ public class BaseFragment extends Fragment implements LocationListener {
     //----------------
     //ACTION
     //--------------------
+    /**
+     * dismiss the cardView with the autocompleteTextView if click on the cross and no text written
+     * @param textView textView display for search
+     * @param cardView
+     */
     public void setClearTextButtonBehavior(AutoCompleteTextView textView, CardView cardView) {
         if (TextUtils.isEmpty(textView.getText())) {
             cardView.setVisibility(View.GONE);
@@ -215,14 +231,19 @@ public class BaseFragment extends Fragment implements LocationListener {
     //-----------------------
     //LOCATION
     //------------------------
+    /**
+     * get the current user location
+     * @param context
+     * @param listener
+     * @param activity
+     * @return the user Location
+     */
     public static Location getUserLocation(Context context, LocationListener listener, Activity activity) {
-        System.out.println("hello");
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String bestProvider = locationManager.getBestProvider(criteria, true);
         boolean enabled = locationManager.isProviderEnabled(bestProvider);
         if (!enabled) {
-            System.out.println("enabled??");
             Toast.makeText(context, context.getString(R.string.no_location_provider), Toast.LENGTH_SHORT).show();
         }
 
@@ -232,20 +253,43 @@ public class BaseFragment extends Fragment implements LocationListener {
         try {
             locationManager.requestLocationUpdates(bestProvider, MIN_TIME_BW_UPDATES,
                     MIN_DISTANCE_CHANGE_FOR_UPDATES, listener);
-            System.out.println("here maybe");
-            System.out.println("provider = " + bestProvider);
             //myLocation = locationManager.getLastKnownLocation(bestProvider);
             myLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-            System.out.println("location location = " + myLocation);
         }
         catch (SecurityException e) {
             e.printStackTrace();
         }
-        System.out.println("location here = " + myLocation);
         return myLocation;
     }
 
+    /**
+     * format a Location to a String format (latitude,longitude)
+     * @param location location of the user
+     * @return
+     */
     public static String formatLocation(Location location) {
             return location.getLatitude() + "," + location.getLongitude();
+    }
+
+    //-----------------
+    /**
+     * get the list of id of restaurants already stored in database to check if the restaurants we got from the request is already stored or not
+     * @param myCallback
+     */
+    public static void readData(MyCallback myCallback, CollectionReference itemsRef, List<String> idList) {
+        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        String id = document.getString("uid");
+                        idList.add(id);
+                    }
+                    myCallback.onCallback(idList);
+                } else {
+                    Log.e("TAG", "Error");
+                }
+            }
+        });
     }
 }

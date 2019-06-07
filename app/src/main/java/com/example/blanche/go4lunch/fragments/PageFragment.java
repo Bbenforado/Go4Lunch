@@ -11,7 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
+
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.cardview.widget.CardView;
@@ -30,7 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.blanche.go4lunch.BuildConfig;
-import com.example.blanche.go4lunch.MyCallback;
+import com.example.blanche.go4lunch.callbacks.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
@@ -46,8 +46,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -69,7 +67,7 @@ import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * PageFragment display the map
  */
 public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
@@ -77,13 +75,13 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     private SharedPreferences preferences;
     private Disposable disposable;
     private List<RestaurantsResults> restaurantsResultsList;
-    public static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
-    public static final String APP_PREFERENCES = "appPreferences";
-    public static final String RESTAURANT_ID = "idRestaurant";
-    public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String CURRENT_USER_NAME = "currentUserName";
-    public static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
-    public static final String KEY_FOR_SEARCH = "keyForSearch";
+    private static final int REQUEST_ID_ACCESS_COURSE_FINE_LOCATION = 100;
+    private static final String APP_PREFERENCES = "appPreferences";
+    private static final String RESTAURANT_ID = "idRestaurant";
+    private static final String KEY_ACTIVITY = "keyActivity";
+    private static final String CURRENT_USER_NAME = "currentUserName";
+    private static final String CURRENT_USER_MAIL_ADRESS = "currentUserMailAdress";
+    private static final String KEY_FOR_SEARCH = "keyForSearch";
     private Marker marker;
     private List<String> idList;
     private FirebaseFirestore firestoreRootRef;
@@ -150,7 +148,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         switch (item.getItemId()) {
             case R.id.search_item:
                 cardView.setVisibility(View.VISIBLE);
-
                 autoCompleteTextView.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -219,6 +216,11 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         map.setOnMarkerClickListener(this);
     }
 
+    /**
+     * if it s the marker of a restaurant, it displays the detail activity of this restaurant
+     * @param marker marker clicked on the map
+     * @return
+     */
     @Override
     public boolean onMarkerClick(Marker marker) {
         int tag = (Integer) marker.getTag();
@@ -251,7 +253,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     //--------------------
     //CONFIGURATION
     //----------------------
-
     /**
      * update the map with markers for restaurants that contains letters entered by user in search
      */
@@ -312,14 +313,11 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     //------------------
     //LOCATION
     //----------------------------
-
     /**
      * get the user location and display markers (marker for the user and markers for the restaurants available) on the map
      */
     private void showMyLocation() {
-        System.out.println("here");
         Location location = getUserLocation(getContext(), this, getActivity());
-        System.out.println("location = " + location.toString());
         //formatLocation(getUserLocation(getContext(), this, getActivity()));
         String userLocation = formatLocation(location);
 
@@ -345,10 +343,9 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     //------------------
     //REQUEST
     //----------------------
-
     /**
      * retrieve restaurants that are close to the users location
-     * @param latlng location of the user
+     * @param latlng location of the user format (latitude,longitude)
      */
     public void executeRequestForRestaurant(String latlng) {
         bar.setVisibility(View.VISIBLE);
@@ -358,7 +355,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
 
                             @Override
                             public void onNext(RestaurantObject restaurantObject) {
-                                Log.e("TAG", "on next");
+                                Log.i("TAG", "on next");
                                 //updateUI
                                 updateUiWithRestaurants(restaurantObject.getResults());
                                 for (int i = 0; i < restaurantObject.getResults().size(); i++) {
@@ -376,7 +373,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
                                                 RestaurantPlaceHelper.createRestaurantPlace(id);
                                             }
                                         }
-                                    });
+                                    }, itemsRef, idList);
                                 }
                             }
 
@@ -387,7 +384,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
 
                             @Override
                             public void onComplete() {
-                                Log.e("TAG", "on complete");
+                                Log.i("TAG", "on complete");
                             }
                         });
     }
@@ -403,7 +400,6 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
     //------------------------
     //UPDATE UI
     //------------------------
-
     /**
      * save restaurants found in a List
      * display markers for this list of restaurants
@@ -489,7 +485,7 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
      * get the list of id of restaurants already stored in database to check if the restaurants we got from the request is already stored or not
      * @param myCallback
      */
-    private void readData(MyCallback myCallback) {
+    /*private void readData(MyCallback myCallback) {
         itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -500,9 +496,9 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
                     }
                     myCallback.onCallback(idList);
                 } else {
-                    Log.d("TAG", "Error");
+                    Log.e("TAG", "Error");
                 }
             }
         });
-    }
+    }*/
 }

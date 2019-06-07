@@ -80,17 +80,17 @@
     <!-- NOTIFICATIONS -->
     <string name="you_didnt_chose_restaurant">You didn\'t chose your restaurant yet!</string>
     <string name="notif_title">It\'s almost time!</string>
+    <string name="end_of_sentence_notif_workmates">are going to eat with you!</string>
 
     <!-- CHAT ACTIVITY -->
     <string name="popup_title_permission_files_access">Cette application a besoin de permission pour fonctionner.</string>
     <string name="type_something">Type something...</string>
     <string name="send">Send</string>
+    <string name="message_missing">You have to write a message too!</string>
 
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2329713414017344</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb2329713414017344</string>
-
-
 
 
 

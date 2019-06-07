@@ -1,13 +1,5 @@
 package com.example.blanche.go4lunch;
 
-import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.blanche.go4lunch.adapters.RestaurantViewHolder;
-import com.example.blanche.go4lunch.fragments.PageFragment;
-
-import org.checkerframework.dataflow.qual.TerminatesExecution;
 import org.junit.Test;
 
 import static com.example.blanche.go4lunch.utils.Utils.getDistance;

@@ -10,8 +10,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.textfield.TextInputEditText;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -34,7 +34,6 @@ import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.ChatAdapter;
 import com.example.blanche.go4lunch.api.MessageHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
-import com.example.blanche.go4lunch.fragments.ImageFragment;
 import com.example.blanche.go4lunch.models.Message;
 import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -127,7 +126,7 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         getMenuInflater().inflate(R.menu.menu_toolbar_chat, menu);
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     //-----------------------
     //CONFIGURATION
     //-----------------------
@@ -164,6 +163,12 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
     // --------------------
     // ACTIONS
     // --------------------
+    /**
+     * display color picker dialog
+     * that allows the user to choose a color for the background of the chat activity
+     * @param item color picker icon
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int defaultColorR;
@@ -206,20 +211,27 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         }
     }
 
+    /**
+     * send the message
+     * user can send message with image or without
+     */
     @OnClick(R.id.activity_chat_send_button)
     public void onClickSendMessage() {
-        // 1 - Check if text field is not empty and current user properly downloaded from Firestore
-        if (!TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null){
+        if (TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null && imageViewPreview.getDrawable() != null) {
+            Toast.makeText(this, getString(R.string.message_missing), Toast.LENGTH_SHORT).show();
+        }
+        //Check if text field is not empty and current user properly downloaded from Firestore
+        if (!TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null) {
 
             if (imageViewPreview.getDrawable() == null) {
-                // 2 - Create a new Message to Firestore
+                //Create a new Message to Firestore
                 MessageHelper.createMessageForChat(editTextMessage.getText().toString(), this.currentChatName, modelCurrentUser).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         System.out.println("error");
                     }
                 });
-                // 3 - Reset text field
+                //Reset text field
                 this.editTextMessage.setText("");
             } else {
                 uploadPhotoInFireBaseAndSendMessage(editTextMessage.getText().toString());
@@ -229,6 +241,9 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         }
     }
 
+    /**
+     * user can pick an image from the phone
+     */
     @OnClick(R.id.activity_chat_add_file_button)
     @AfterPermissionGranted(RC_IMAGE_PERMS)
     public void onClickAddFile() {
@@ -247,6 +262,10 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         });
     }
 
+    /**
+     * store the image in firebase and create the message with image
+     * @param message text written by user
+     */
     private void uploadPhotoInFireBaseAndSendMessage (final String message) {
         //generate unique string
         String uuid = UUID.randomUUID().toString();
@@ -261,7 +280,6 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
                     public void onComplete(@NonNull Task<Uri> task) {
                         Uri uri = task.getResult();
                         String pathImageSavedInFirebase = uri.toString();
-                        //String pathImageSavedInFirebase = taskSnapshot.getMetadata().getReference().getDownloadUrl().toString();
 
                         MessageHelper.createMessageWithImageForChat(pathImageSavedInFirebase, message, currentChatName, modelCurrentUser)
                                 .addOnFailureListener(new OnFailureListener() {
@@ -272,8 +290,6 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
                                 });
                     }
                 });
-
-
             }
         });
     }
@@ -312,7 +328,7 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
 
     @Override
     public void onDataChanged() {
-        // 7 - Show TextView in case RecyclerView is empty
+        //Show TextView in case RecyclerView is empty
         textViewRecyclerViewEmpty.setVisibility(this.chatAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 

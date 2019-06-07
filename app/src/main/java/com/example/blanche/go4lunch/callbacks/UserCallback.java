@@ -1,4 +1,4 @@
-package com.example.blanche.go4lunch;
+package com.example.blanche.go4lunch.callbacks;
 
 import com.example.blanche.go4lunch.models.User;
 

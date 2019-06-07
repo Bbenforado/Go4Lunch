@@ -1,4 +1,4 @@
-package com.example.blanche.go4lunch;
+package com.example.blanche.go4lunch.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;

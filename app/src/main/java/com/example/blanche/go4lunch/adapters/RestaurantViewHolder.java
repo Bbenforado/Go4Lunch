@@ -60,6 +60,12 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         userLatlng = preferences.getString(LATITUDE_AND_LONGITUDE, null);
     }
 
+    /**
+     * display all the restaurant information
+     * name, address, opening hours, distances, photo, number of mates that will eat there, rate
+     * @param restaurantInformations contains information of the restaurant
+     * @param glide to display image
+     */
     public void update(RestaurantInformations restaurantInformations, RequestManager glide) {
         textViewName.setText(restaurantInformations.getName());
         typeAndAdress.setText(restaurantInformations.getVicinity());
@@ -145,7 +151,6 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                         }
                     }
                 });
-
         //SET THE STARS
         setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
     }

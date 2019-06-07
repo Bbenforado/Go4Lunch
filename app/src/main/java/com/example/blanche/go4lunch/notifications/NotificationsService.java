@@ -11,7 +11,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.blanche.go4lunch.MyCallback;
+import com.example.blanche.go4lunch.callbacks.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.MainActivity;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -39,14 +39,16 @@ public class NotificationsService extends FirebaseMessagingService {
     private String restaurantId;
     private List<String> userNames;
 
+    /**
+     * notifications are sent at 12:00
+     * if application is in front, notification displays to the user where he s going to eat, with who and info about where he s going
+     * if application is in back, notification displays to the user a generic message that asks him to open app and check where he s going to eat
+     * @param remoteMessage message from notification from firebase
+     */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        /*Map<String, String> data = remoteMessage.getData();
-        String body = data.get("body");*/
         String messageBody = getString(R.string.toast_text_when_user_chose_restaurant);
-        //sendNotification(body);
-            //String message = remoteMessage.getNotification().getBody();
             UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -62,23 +64,18 @@ public class NotificationsService extends FirebaseMessagingService {
                                 String finalMessage;
                                 if (userNames.size() > 0) {
                                     String listOfUsers = list.toString().replaceAll("[\\[\\]]", "");
-                                    finalMessage = messageBody + " " + restaurant + ", " + adress + ", " + listOfUsers + " are going to eat with you!";
-                                    //sendNotification(finalMessage);
+                                    finalMessage = messageBody + " " + restaurant + ", " + adress + ", " + listOfUsers + getString(R.string.end_of_sentence_notif_workmates);
                                 } else {
                                     finalMessage = messageBody + " " + restaurant + ", " + adress;
-                                    //sendNotification(finalMessage);
                                 }
                                 sendNotification(finalMessage);
                             }
                         });
-
-
                     } else {
                         sendNotification(getApplicationContext().getString(R.string.you_didnt_chose_restaurant));
                     }
                 }
             });
-        //}
     }
 
     private void sendNotification(String message) {
@@ -122,7 +119,6 @@ public class NotificationsService extends FirebaseMessagingService {
                     Log.w("TAG", "Listen failed", e);
                     return;
                 }
-
                 for (DocumentSnapshot doc : queryDocumentSnapshots) {
                     if (doc.get("restaurantId") != null) {
                         userNames.add(doc.getString("username"));
@@ -132,5 +128,4 @@ public class NotificationsService extends FirebaseMessagingService {
             }
         });
     }
-
 }

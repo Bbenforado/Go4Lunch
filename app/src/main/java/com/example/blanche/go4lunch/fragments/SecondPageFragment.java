@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
+
 import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
+
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.cardview.widget.CardView;
@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,7 +28,7 @@ import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.BuildConfig;
-import com.example.blanche.go4lunch.MyCallback;
+import com.example.blanche.go4lunch.callbacks.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
@@ -37,12 +36,9 @@ import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,14 +52,14 @@ import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * SecondPageFragment displays the list of restaurants
  */
 public class SecondPageFragment extends BaseFragment {
 
-    public static final String KEY_POSITION = "position";
-    public static final String KEY_ACTIVITY = "keyActivity";
-    public static final String RESTAURANT_ID = "idRestaurant";
-    public static final String APP_PREFERENCES = "appPreferences";
+    private static final String KEY_POSITION = "position";
+    private static final String KEY_ACTIVITY = "keyActivity";
+    private static final String RESTAURANT_ID = "idRestaurant";
+    private static final String APP_PREFERENCES = "appPreferences";
     private static final String KEY_SEARCH = "keySearch";
     private static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     private List<RestaurantInformations> restaurantInformationsListForSearch;
@@ -206,7 +202,6 @@ public class SecondPageFragment extends BaseFragment {
     //-------------------
     private void configureRecyclerView() {
         this.restaurantInformationsList = new ArrayList<>();
-        //List<Restaurant> restaurantList = new ArrayList<>();
         this.adapter = new RecyclerViewAdapter(this.restaurantInformationsList, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -228,7 +223,7 @@ public class SecondPageFragment extends BaseFragment {
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        //put in bundle informations about restaurant
+                        //put in bundle information about restaurant
                         if (preferences.getString(KEY_SEARCH, null) != null) {
 
                             if (preferences.getString(KEY_SEARCH, null).equals("search")) {
@@ -247,16 +242,6 @@ public class SecondPageFragment extends BaseFragment {
                 });
     }
 
-    /**
-     * update recycler view with search results
-     */
-    private void configureRecyclerViewForSearch() {
-        this.adapter = new RecyclerViewAdapter(this.restaurantInformationsListForSearch, Glide.with(this));
-        this.recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        preferences.edit().putString(KEY_SEARCH, "search").apply();
-    }
-
     //-------------------------
     //ACTIONS
     //--------------------------
@@ -265,11 +250,9 @@ public class SecondPageFragment extends BaseFragment {
         setClearTextButtonBehavior(autoCompleteTextView, cardView);
     }
 
-
     //---------------------
     //REQUEST
     //-------------------------
-
     /**
      * Request to find restaurants available close to the user
      * @param latlng position of the user
@@ -301,7 +284,7 @@ public class SecondPageFragment extends BaseFragment {
                                                 RestaurantPlaceHelper.createRestaurantPlace(id);
                                             }
                                         }
-                                    });
+                                    }, itemsRef, idList);
                                 }
                             }
 
@@ -317,10 +300,18 @@ public class SecondPageFragment extends BaseFragment {
                         });
     }
 
-
     //-----------------------
     //UPDATE UI
     //-----------------------
+    /**
+     * update recycler view with search results
+     */
+    private void configureRecyclerViewForSearch() {
+        this.adapter = new RecyclerViewAdapter(this.restaurantInformationsListForSearch, Glide.with(this));
+        this.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        preferences.edit().putString(KEY_SEARCH, "search").apply();
+    }
 
     /**
      * show progress bar
@@ -355,24 +346,4 @@ public class SecondPageFragment extends BaseFragment {
         restaurantDetailActivity.putExtras(bundle);
         startActivity(restaurantDetailActivity);
     }
-
-    //-----------------------------------------
-
-    private void readData(MyCallback myCallback) {
-        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (DocumentSnapshot document : task.getResult()) {
-                        String id = document.getString("uid");
-                        idList.add(id);
-                    }
-                    myCallback.onCallback(idList);
-                } else {
-                    Log.d("TAG", "Error");
-                }
-            }
-        });
-    }
-
 }

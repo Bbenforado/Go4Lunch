@@ -19,6 +19,9 @@ import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 
 public class WorkmateViewHolder extends RecyclerView.ViewHolder {
 
+    //-----------------
+    //BIND VIEWS
+    //--------------------
     @BindView(R.id.fragment_page_item_image)
     ImageView imageView;
     @BindView(R.id.text)
@@ -40,6 +43,13 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+    /**
+     * display information depending on if user has chose restaurant or not
+     * @param user
+     * @param userIsEatingAt string if user has chose where to eat
+     * @param userHasntChoseYet string if user didn't chose yet
+     * @param glide display image
+     */
     private void setUserInfo(User user, String userIsEatingAt, String userHasntChoseYet, RequestManager glide) {
         if (user.isHasChosenRestaurant()) {
             textView.setText(userIsEatingAt);

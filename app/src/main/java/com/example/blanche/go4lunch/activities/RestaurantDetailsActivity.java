@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
@@ -67,13 +66,12 @@ public class RestaurantDetailsActivity extends BaseActivity {
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String APP_PREFERENCES = "appPreferences";
     public static final String TIME_WHEN_SAVED = "time";
-    public static final String RESTAURANT_WEBSITE_URL = "url";
     public static final String REST_ID = "restId";
     private int keyActivity;
-    boolean isButtonClicked;
+    private boolean isButtonClicked;
     private User currentUser;
     private String name;
-    private String adress;
+    private String address;
     private String photoId;
     private String website;
     private String phoneNumber;
@@ -160,8 +158,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //CONFIGURATION
     //--------------------------------
     private void configureRecyclerView() {
-        System.out.println("configure recycler view");
-        //users = new ArrayList<>();
         Query query = UserHelper.getUsersCollection().whereEqualTo("restaurantId", restaurantId);
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                                       @Override
@@ -191,7 +187,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
     }
 
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
@@ -203,6 +198,11 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //--------------------------
     //REQUEST
     //-----------------------------
+
+    /**
+     * get information about the restaurant
+     * @param placeId the id of the restaurant
+     */
     private void requestForInformations(String placeId) {
         bar.setVisibility(View.VISIBLE);
         disposable =
@@ -214,7 +214,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                 RestaurantInformations infos = restaurantInformationObject.getResult();
                                 website = infos.getWebsite();
                                 name = infos.getName();
-                                adress = infos.getVicinity();
+                                address = infos.getVicinity();
                                 phoneNumber = infos.getFormattedPhoneNumber();
                                 if (infos.getPhotos() != null) {
                                     photoId = infos.getPhotos().get(0).getPhotoReference();
@@ -244,29 +244,20 @@ public class RestaurantDetailsActivity extends BaseActivity {
     public void saveRestaurant() {
         isButtonClicked = !isButtonClicked;
         String userUid = getCurrentUser().getUid();
-        //if true
         if (isButtonClicked) {
             //change the color of the button
             button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryDark)));
             //we save at what time the user chose the restaurant
             saveTimeWhenChoseRestaurant();
-            //we update the name of the restaurant in firebase
-            UserHelper.updateUserChosenRestaurant(userUid, true, name, adress, phoneNumber, website, photoId, restaurantId);
-            //we display toast message to user
+            UserHelper.updateUserChosenRestaurant(userUid, true, name, address, phoneNumber, website, photoId, restaurantId);
             Toast.makeText(this, this.getString(R.string.toast_text_when_user_chose_restaurant) + name + " !", Toast.LENGTH_SHORT).show();
         } else {
             //unclick button
-            //update the name of the restaurant in firebase
             UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, null);
             //change button color
             button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
             //display message to user
             Toast.makeText(this, this.getString(R.string.toast_text_when_user_uncheck_chose_button), Toast.LENGTH_SHORT).show();
-            System.out.println("adapter item = " + adapter.getItemCount());
-            if (adapter.getItemCount() == 0) {
-                System.out.println("here");
-                textView.setVisibility(View.VISIBLE);
-            }
         }
     }
 
@@ -280,7 +271,28 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
     @OnClick(R.id.like_button)
     public void likeRestaurant(View v) {
+        displayDialog();
+    }
 
+    @OnClick(R.id.website_button)
+    public void openRestaurantWebsite(View v) {
+        if (!website.startsWith("http://") && !website.startsWith("https://")) {
+            website = "http://" + website;
+        }
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
+        startActivity(browserIntent);
+    }
+
+    //-------------------
+    //UPDATE UI
+    //------------------------
+
+    /**
+     * display a dialog with a rating bar
+     * save the user s rate
+     * display the new rate
+     */
+    private void displayDialog() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogLayout = inflater.inflate(R.layout.dialog_ratingbar, null);
@@ -300,25 +312,22 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                                 List<Map<String, Integer>> list = new ArrayList<>();
                                 List<Integer> listOfRates = new ArrayList<>();
+                                //we get the rate given by user
+                                int rating = (int) ratingBar.getRating();
 
                                 //if the list already exits
                                 if (restaurantPlace.getUsersWhoLiked2() != null) {
-
                                     boolean contains = false;
                                     //we get the list
                                     list = restaurantPlace.getUsersWhoLiked2();
                                     //we get the size of the list
                                     int size = restaurantPlace.getUsersWhoLiked2().size();
 
-                                    //boucle sur la taille
+                                    //loop on the size
                                     for (int i = 0; i<size; i++) {
                                         //check if one entry of the list contains the users id
                                         if (restaurantPlace.getUsersWhoLiked2().get(i).containsKey(getCurrentUser().getUid())) {
                                             contains = true;
-                                            Map<String, Integer> userRate = new HashMap<>();
-                                            int rating = (int) ratingBar.getRating();
-                                            userRate.put(getCurrentUser().getUid(), rating);
-
                                             //we get the entry with the users id and set the new value to it
                                             list.get(i).put(getCurrentUser().getUid(), rating);
 
@@ -326,43 +335,18 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                             RestaurantPlaceHelper.updateUserWhoLiked2(restaurantId, list).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
-                                                    System.out.println("success");
-
+                                                    Log.i("TAG", "Success");
                                                 }
                                             });
                                         }
                                     }
                                     //if the user never rated the restaurant
                                     if (!contains) {
-                                        //we create a map
-                                        Map<String, Integer> userRate = new HashMap<>();
-                                        int rating = (int) ratingBar.getRating();
-                                        userRate.put(getCurrentUser().getUid(), rating);
-                                        //we add it to the list
-                                        list.add(userRate);
-                                        //we update the list with the new list
-                                        RestaurantPlaceHelper.updateUserWhoLiked2(restaurantId, list).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                System.out.println("success");
-                                            }
-                                        });
+                                        saveUserRateAndUpdateDatabase(rating, list);
                                     }
                                     //else if the list is empty
                                 } else {
-                                    //we create the map
-                                    Map<String, Integer> userRate = new HashMap<>();
-                                    int rating = (int) ratingBar.getRating();
-                                    userRate.put(getCurrentUser().getUid(), rating);
-                                    //we add it to the list
-                                    list.add(userRate);
-                                    //we update the list with new list
-                                    RestaurantPlaceHelper.updateUserWhoLiked2(restaurantId, list).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            System.out.println("success");
-                                        }
-                                    });
+                                    saveUserRateAndUpdateDatabase(rating, list);
                                 }
                                 //get the list of rates
                                 int size = list.size();
@@ -372,47 +356,29 @@ public class RestaurantDetailsActivity extends BaseActivity {
                                         listOfRates.add(entry.getValue());
                                     }
                                 }
-                                //calculate the rate and save it here
-                                int numberOfRates = listOfRates.size();
-                                float result = 0;
-                                for (int j = 0; j<listOfRates.size(); j++) {
-                                    result = result + listOfRates.get(j);
-                                }
-                                float finalRate = result/numberOfRates;
+                                //calculate the final rate and save it here
+                                float finalRate = getFinalRate(listOfRates);
                                 RestaurantPlaceHelper.updateRestaurantLike(restaurantId, finalRate).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        System.out.println("UPDATED!");
+                                        Log.i("TAG", "UPDATED!");
                                         setStars(restaurantId, starOne, starTwo, starThree);
                                     }
                                 });
-
                             }
                         });
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.dialog_cancel), null)
                 .show();
     }
 
-    @OnClick(R.id.website_button)
-    public void openRestaurantWebsite(View v) {
-        //get the website of the restaurant and open it in a webview
-        Bundle bundle = new Bundle();
-        bundle.putString(RESTAURANT_WEBSITE_URL, website);
-        Intent webviewActivity = new Intent(this, WebviewActivity.class);
-        webviewActivity.putExtras(bundle);
-        startActivity(webviewActivity);
-    }
 
-    //-------------------
-    //UPDATE UI
-    //------------------------
     private void displayRestaurantInformations() {
         bar.setVisibility(View.GONE);
-        if (name != null && adress != null && photoId != null) {
+        if (name != null && address != null && photoId != null) {
             String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoId + "&key=" + apikey;
-            setRestaurantInformations(name, adress, url);
+            setRestaurantInformations(name, address, url);
             displayButton(phoneNumber, callButton, textviewCall, R.drawable.ic_phone_disabled);
             displayButton(website, websiteButton, textviewWebsite, R.drawable.ic_website_disabled);
             if (keyActivity == 0 || keyActivity == 1 || keyActivity == 3) {
@@ -421,6 +387,10 @@ public class RestaurantDetailsActivity extends BaseActivity {
         }
     }
 
+    /**
+     * display the color of the choice button depending on user's data
+     * @param user the current user
+     */
     private void displayColorButton(User user) {
         if (user.getChosenRestaurant() != null) {
             if (name.equals(user.getChosenRestaurant())) {
@@ -433,6 +403,13 @@ public class RestaurantDetailsActivity extends BaseActivity {
         }
     }
 
+    /**
+     * set and enable the button depending on information we ve got about the restaurant
+     * @param info number or website of the restaurant
+     * @param imageButton the image button for call or website
+     * @param textView textView below the imageButton
+     * @param drawable the drawable for call or website button
+     */
     private void displayButton(String info, ImageButton imageButton, TextView textView, int drawable) {
         if (info == null) {
             imageButton.setEnabled(false);
@@ -453,6 +430,9 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //--------------------
     //GET DATA
     //----------------------
+    /**
+     * get data from the current user
+     */
     private void getCurrentUserDataFromFireBase() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @SuppressLint("RestrictedApi")
@@ -467,7 +447,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                             displayColorButton(currentUser);
                         }
                     } else {
-                        //if it s close, user can't chose the restaurant
+                        //if it s close, user can't chose the restaurant, so we don't display the button
                         button.setVisibility(View.GONE);
                     }
                 } else if (keyActivity == 2) {
@@ -485,6 +465,46 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //----------------------
     //METHODS
     //--------------------------
+    /**
+     * add the current user's rate to the restaurant's list of rates
+     * @param rating rate given by the current user
+     * @param list the list of map that contains id of user who rated and the rate he gave
+     */
+    private void saveUserRateAndUpdateDatabase(int rating, List<Map<String, Integer>> list) {
+        //we create the map
+        Map<String, Integer> userRate = new HashMap<>();
+        //int rating = (int) ratingBar.getRating();
+        userRate.put(getCurrentUser().getUid(), rating);
+        //we add it to the list
+        list.add(userRate);
+        //we update the list with new list
+        RestaurantPlaceHelper.updateUserWhoLiked2(restaurantId, list).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.i("TAG", "Success");
+            }
+        });
+    }
+
+    /**
+     * get the total rate for a restaurant
+     * @param listRates the list of rates given by users
+     * @return the final rate
+     */
+    private float getFinalRate(List<Integer> listRates) {
+        float result = 0;
+        for (int j = 0; j<listRates.size(); j++) {
+            result = result + listRates.get(j);
+            System.out.println("rate " + j + listRates.get(j));
+        }
+        float finalRate = result/listRates.size();
+        System.out.println("final rate = " + finalRate);
+        return finalRate;
+    }
+
+    /**
+     * save when the user chose a restaurant
+     */
     private void saveTimeWhenChoseRestaurant() {
         TimeZone timeZone = TimeZone.getDefault();
         long timeWhenSaved = Calendar.getInstance().getTimeInMillis();

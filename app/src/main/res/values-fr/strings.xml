@@ -55,4 +55,6 @@
     <string name="popup_title_permission_files_access">App needs permissions to work</string>
     <string name="send">Envoyer</string>
     <string name="type_something">Ecris quelque chose...</string>
+    <string name="message_missing">Tu dois écrire un message!</string>
+    <string name="end_of_sentence_notif_workmates">vont manger avec toi!</string>
 </resources>

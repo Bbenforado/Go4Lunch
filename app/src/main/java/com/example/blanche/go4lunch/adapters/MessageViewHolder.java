@@ -3,7 +3,6 @@ package com.example.blanche.go4lunch.adapters;
 import android.graphics.drawable.Drawable;
 
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -61,21 +60,17 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateWithMessage(Message message, String currentUserId, RequestManager glide) {
-
         // Check if current user is the sender
         Boolean isCurrentUser = message.getUserSender().getUid().equals(currentUserId);
 
         // Update message TextView
         this.textViewMessage.setText(message.getMessage());
-
         // Update date TextView
         String userNameAndDate = verifyUsernameLength(message.getUserSender().getUsername());
-
         if (message.getDateCreated() != null) {
             userNameAndDate = userNameAndDate + ", " + convertDateToHour(message.getDateCreated());
         }
         this.textViewDate.setText(userNameAndDate);
-
 
         // Update profile picture ImageView
         if (message.getUserSender().getUrlPicture() != null) {
@@ -111,7 +106,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void updateDesignDependingUser(Boolean isSender) {
-
         // PROFILE CONTAINER
         RelativeLayout.LayoutParams paramsLayoutHeader = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         paramsLayoutHeader.addRule(isSender ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_LEFT);
@@ -130,7 +124,9 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         this.rootView.requestLayout();
     }
 
-    // ---
+    // --------
+    //
+    //---------------
 
     private String convertDateToHour(Date date) {
         DateFormat dfTime = new SimpleDateFormat("HH:mm");

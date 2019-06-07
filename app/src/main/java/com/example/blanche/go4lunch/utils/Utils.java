@@ -22,6 +22,7 @@ public class Utils {
 
     public static final int SIGN_OUT_TASK = 10;
     public static final int DELETE_USER_TASK = 20;
+
     //----------------------
     //GET USER INFO
     //----------------------
@@ -39,10 +40,9 @@ public class Utils {
         }
     }
 
-    //--------------------
+    //-------------------
     //UPDATE INTERFACE
     //---------------------
-
     /**
      * get the rate of a restaurant and display the stars depending on that rate
      * @param id id of the restaurant
@@ -102,6 +102,9 @@ public class Utils {
         };
     }
 
+    //-------------------
+    //METHODS
+    //---------------------
     /**
      * get the distance between two points in meters
      * @param lat_a lat of point a
@@ -167,7 +170,4 @@ public class Utils {
         }
         return formattedOpeningHours;
     }
-
-
-
 }

@@ -7,6 +7,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -17,7 +19,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.blanche.go4lunch.BaseActivity;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.User;
@@ -69,6 +70,9 @@ public class SettingActivity extends BaseActivity {
     }
 
 
+    //--------------------
+    //CONFIGURATION
+    //--------------------
     private void configureToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -78,9 +82,6 @@ public class SettingActivity extends BaseActivity {
 
     }
 
-    //---------------------
-    //ACTIONS
-    //-----------------------
     private void configureSwitchButton() {
         displaySwitchButtonState();
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -119,14 +120,9 @@ public class SettingActivity extends BaseActivity {
         });
     }
 
-    private void displaySwitchButtonState() {
-        if (preferences.getInt(SWITCH_BUTTON_STATE, -1) == 0) {
-            switchButton.setChecked(true);
-        } else {
-            switchButton.setChecked(false);
-        }
-    }
-
+    //---------------------
+    //ACTIONS
+    //-----------------------
     @OnClick(R.id.button_delete_account)
     public void deleteUserInFirebase() {
         new AlertDialog.Builder(this)
@@ -138,7 +134,7 @@ public class SettingActivity extends BaseActivity {
                         UserHelper.deleteUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                System.out.println("user deleted in database!");
+                                Log.i("TAG", "user deleted in database!");
                                 deleteUser();
                             }
                         });
@@ -162,7 +158,6 @@ public class SettingActivity extends BaseActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(getApplicationContext(), R.string.username_updated, Toast.LENGTH_SHORT).show();
-
                             }
                         });
                     }
@@ -185,6 +180,17 @@ public class SettingActivity extends BaseActivity {
     //------------------
     //UI
     //------------------------
+    /**
+     * display the button s state, depending on if user enabled notifications or not
+     */
+    private void displaySwitchButtonState() {
+        if (preferences.getInt(SWITCH_BUTTON_STATE, -1) == 0) {
+            switchButton.setChecked(true);
+        } else {
+            switchButton.setChecked(false);
+        }
+    }
+
     private void updateUIWithUserInfos() {
         String photoUrl = null;
         if (getCurrentUser().getPhotoUrl() != null) {
@@ -209,7 +215,5 @@ public class SettingActivity extends BaseActivity {
             }
         });
     }
-
-
 
 }

@@ -4,6 +4,7 @@ import com.example.blanche.go4lunch.models.Message;
 import com.example.blanche.go4lunch.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
 public class MessageHelper {
@@ -21,10 +22,8 @@ public class MessageHelper {
     }
 
     public static Task<DocumentReference> createMessageForChat(String textMessage, String chat, User userSender){
-
         // 1 - Create the Message object
         Message message = new Message(textMessage, userSender);
-
         // 2 - Store Message to Firestore
         return ChatHelper.getChatCollection()
                 .document(chat)
@@ -39,4 +38,8 @@ public class MessageHelper {
                 .collection(COLLECTION_NAME)
                 .add(message);
     }
+
+
+    // --- DELETE ---
+
 }

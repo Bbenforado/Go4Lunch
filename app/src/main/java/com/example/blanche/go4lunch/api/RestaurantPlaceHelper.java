@@ -33,11 +33,6 @@ public class RestaurantPlaceHelper {
         return RestaurantPlaceHelper.getRestaurantPlaceCollection().document(uid).get();
     }
 
-    /*public static Query getAllRestaurantPlaces(){
-        return RestaurantPlaceHelper.getRestaurantPlaceCollection()
-                .limit(50);
-    }*/
-
     // --- UPDATE ---
 
     public static Task<Void> updateRestaurantLike(String uid, float like) {

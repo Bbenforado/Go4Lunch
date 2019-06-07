@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.blanche.go4lunch.R;
-import com.example.blanche.go4lunch.UserCallback;
+import com.example.blanche.go4lunch.callbacks.UserCallback;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapterThirdFragment;
 import com.example.blanche.go4lunch.api.UserHelper;
@@ -51,21 +51,15 @@ import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
  */
 public class ThirdPageFragment extends BaseFragment {
 
-    //private static final String COLLECTION_NAME = "users";
-    public static final String KEY_POSITION = "position";
-    /*private static final String KEY_RESTAURANT = "restaurant";
-    public static final String RESTAURANT_NAME = "name";*/
-    public static final String APP_PREFERENCES = "appPreferences";
-    //public static final String CURRENT_USER_UID = "currentUserUid";
-    public static final String REST_ID = "restId";
-    public static final String KEY_ACTIVITY = "keyActivity";
-    //Bundle bundle;
+    private static final String KEY_POSITION = "position";
+    private static final String APP_PREFERENCES = "appPreferences";
+    private static final String REST_ID = "restId";
+    private static final String KEY_ACTIVITY = "keyActivity";
     private SharedPreferences preferences;
     private RecyclerViewAdapterThirdFragment adapter;
     private List<User> userList;
     private FirebaseFirestore firestoreRootRef;
     private CollectionReference itemsRef;
-    private boolean userlogged;
 
     //------------------
     //BIND VIEWS
@@ -111,7 +105,6 @@ public class ThirdPageFragment extends BaseFragment {
         activity.setSupportActionBar(toolbar);
         ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
-
 
         configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences);
         configureDrawerLayout(drawerLayout, getActivity());
@@ -166,6 +159,10 @@ public class ThirdPageFragment extends BaseFragment {
     //-----------------
     //GET DATA
     //----------------------
+    /**
+     * get the list of users and save them in a list
+     * @param callback
+     */
     private void readData(UserCallback callback) {
         if (getCurrentUser() != null) {
             itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -184,7 +181,6 @@ public class ThirdPageFragment extends BaseFragment {
             });
         }
     }
-
 
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<User>()

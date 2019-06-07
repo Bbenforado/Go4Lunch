@@ -14,7 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
-import com.example.blanche.go4lunch.BaseActivity;
+
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.fragments.PageFragment;
@@ -36,11 +36,8 @@ import static com.example.blanche.go4lunch.utils.Utils.isCurrentUserLogged;
 public class MainActivity extends BaseActivity {
 
     public static final int RC_SIGN_IN = 123;
-    /*public static final int SIGN_OUT_TASK = 10;
-    public static final int DELETE_USER_TASK = 20;*/
     public static final String KEY_FRAGMENT = "keyFragment";
     public static final String APP_PREFERENCES = "appPreferences";
-    /*public static final String KEY_ACTIVITY = "keyActivity";*/
     public static final String CURRENT_USER_UID = "currentUserUid";
     public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
     public static final String TIME_WHEN_SAVED = "time";
@@ -92,22 +89,11 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
     //----------------------
     //CONFIGURATION
     //----------------------------
     private void configureActivity() {
         ButterKnife.bind(this);
-
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         checkTime();
         preferences.edit().putString(KEY_FRAGMENT, null).apply();
@@ -210,20 +196,16 @@ public class MainActivity extends BaseActivity {
      */
     private void createUserInFirestore(){
         if (getCurrentUser() != null){
-
             String urlPicture = (getCurrentUser().getPhotoUrl() != null) ? getCurrentUser().getPhotoUrl().toString() : null;
             String username = getCurrentUser().getDisplayName();
             String uid = getCurrentUser().getUid();
-
             UserHelper.createUser(uid, username, urlPicture, true).addOnFailureListener(this.onFailureListener());
-
         }
     }
 
     //------------------
     //METHODS
     //------------------
-
     /**
      * check if it s a new day since last time the user chose a restaurant.
      * If it's a new day, we delete the saved place.
@@ -247,5 +229,4 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
 }
