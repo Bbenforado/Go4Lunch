@@ -1,8 +1,6 @@
 package com.example.blanche.go4lunch.fragments;
 
 
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,11 +10,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,11 +22,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
@@ -40,34 +34,17 @@ import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
 import com.example.blanche.go4lunch.adapters.RecyclerViewAdapter;
 import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
-import com.example.blanche.go4lunch.models.OpeningHours;
-import com.example.blanche.go4lunch.models.Restaurant;
-import com.example.blanche.go4lunch.models.RestaurantInformationObject;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
-import com.example.blanche.go4lunch.models.RestaurantObject;
-import com.example.blanche.go4lunch.models.RestaurantsResults;
 import com.example.blanche.go4lunch.utils.ItemClickSupport;
 import com.example.blanche.go4lunch.utils.RestaurantStreams;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-
-import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -86,15 +63,13 @@ public class SecondPageFragment extends BaseFragment {
     public static final String KEY_POSITION = "position";
     public static final String KEY_ACTIVITY = "keyActivity";
     public static final String RESTAURANT_ID = "idRestaurant";
-    public static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     public static final String APP_PREFERENCES = "appPreferences";
     private static final String KEY_SEARCH = "keySearch";
+    private static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     private List<RestaurantInformations> restaurantInformationsListForSearch;
     private String coordinates;
     private SharedPreferences preferences;
     private Disposable disposable;
-    //private List<RestaurantsResults> restaurantsResultsList;
-    private List<Restaurant> restaurantList;
     private List<RestaurantInformations> restaurantInformationsList;
     private RecyclerViewAdapter adapter;
     private List<String> namesList;
@@ -149,17 +124,14 @@ public class SecondPageFragment extends BaseFragment {
         ButterKnife.bind(this, result);
         apikey = BuildConfig.ApiKey;
         preferences = this.getActivity().getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        coordinates = preferences.getString(LATITUDE_AND_LONGITUDE, null);
+        coordinates = formatLocation(getUserLocation(getContext(), this, getActivity()));
+        preferences.edit().putString(LATITUDE_AND_LONGITUDE, coordinates).apply();
 
         setHasOptionsMenu(true);
-        Toolbar toolbar = result.findViewById(R.id.toolbar);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
-        ActionBar actionBar = activity.getSupportActionBar();
-        actionBar.setTitle(R.string.toolbar_title_for_first_and_second_fragment);
+        configureToolbar(result);
 
-        configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
-        configureDrawerLayout(drawerLayout, toolbar, getActivity());
+        configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences);
+        configureDrawerLayout(drawerLayout, getActivity());
 
         configureRecyclerView();
         request(coordinates);
@@ -234,7 +206,7 @@ public class SecondPageFragment extends BaseFragment {
     //-------------------
     private void configureRecyclerView() {
         this.restaurantInformationsList = new ArrayList<>();
-        this.restaurantList = new ArrayList<>();
+        //List<Restaurant> restaurantList = new ArrayList<>();
         this.adapter = new RecyclerViewAdapter(this.restaurantInformationsList, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -275,6 +247,9 @@ public class SecondPageFragment extends BaseFragment {
                 });
     }
 
+    /**
+     * update recycler view with search results
+     */
     private void configureRecyclerViewForSearch() {
         this.adapter = new RecyclerViewAdapter(this.restaurantInformationsListForSearch, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
@@ -287,12 +262,18 @@ public class SecondPageFragment extends BaseFragment {
     //--------------------------
     @OnClick(R.id.clear_text_button)
     public void clearText() {
-        autoCompleteTextView.getText().clear();
+        setClearTextButtonBehavior(autoCompleteTextView, cardView);
     }
+
 
     //---------------------
     //REQUEST
     //-------------------------
+
+    /**
+     * Request to find restaurants available close to the user
+     * @param latlng position of the user
+     */
     private void request(String latlng) {
         updateUiWhenStartingRequest();
         disposable =
@@ -340,6 +321,10 @@ public class SecondPageFragment extends BaseFragment {
     //-----------------------
     //UPDATE UI
     //-----------------------
+
+    /**
+     * show progress bar
+     */
     private void updateUiWhenStartingRequest() {
         bar.setVisibility(View.VISIBLE);
     }
@@ -389,4 +374,5 @@ public class SecondPageFragment extends BaseFragment {
             }
         });
     }
+
 }

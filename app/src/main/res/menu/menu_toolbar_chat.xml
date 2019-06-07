@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/search_item"
-        android:icon="@drawable/ic_search"
-        android:title="Search"
+        android:icon="@drawable/ic_color_dropper"
+        android:title="settings"
         app:showAsAction="ifRoom|withText"/>
 
 </menu>

@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,6 +32,7 @@ import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantPlace;
 import com.example.blanche.go4lunch.models.User;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,7 +45,7 @@ public class Utils {
     public static final int SIGN_OUT_TASK = 10;
     public static final int DELETE_USER_TASK = 20;
     //----------------------
-    //GET USERS INFOS
+    //GET USER INFO
     //----------------------
     @Nullable
     public static FirebaseUser getCurrentUser(){ return FirebaseAuth.getInstance().getCurrentUser(); }
@@ -58,6 +64,14 @@ public class Utils {
     //--------------------
     //UPDATE INTERFACE
     //---------------------
+
+    /**
+     * get the rate of a restaurant and display the stars depending on that rate
+     * @param id id of the restaurant
+     * @param starOne image of star for rating
+     * @param starTwo image of star for rating
+     * @param starThree image of star for rating
+     */
     public static void setStars(String id, ImageView starOne, ImageView starTwo, ImageView starThree) {
         starOne.setImageResource(R.drawable.ic_star);
         starTwo.setImageResource(R.drawable.ic_star);
@@ -89,7 +103,9 @@ public class Utils {
         });
     }
 
-
+    //---------------------------
+    //ON SUCCESS LISTENER
+    //------------------------------
     public static OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin, Activity activity) {
         return new OnSuccessListener<Void>() {
             @Override
@@ -97,11 +113,8 @@ public class Utils {
                 switch (origin) {
                     case SIGN_OUT_TASK:
                         activity.finish();
-                        //startSignInActivity();
                         break;
                     case DELETE_USER_TASK:
-                        //finishAffinity();
-                        //BaseActivity.this.finish();
                         System.exit(0);
                         break;
                     default:
@@ -111,6 +124,14 @@ public class Utils {
         };
     }
 
+    /**
+     * get the distance between two points in meters
+     * @param lat_a lat of point a
+     * @param lng_a lng of point a
+     * @param lat_b lat of point b
+     * @param lng_b lng of point b
+     * @return the distance between two points in meters (double)
+     */
     public static double meterDistanceBetweenPoints(float lat_a, float lng_a, float lat_b, float lng_b) {
         float pk = (float) (180.f/Math.PI);
 
@@ -127,23 +148,40 @@ public class Utils {
         return 6366000 * tt;
     }
 
+    /**
+     * get the distance between the user and a place, in meters, formatted to have no double
+     * @param lat lat of place
+     * @param lng lng of place
+     * @param userLatlng user position
+     * @return formatted distance between user and a place
+     */
     public static String getDistance(double lat, double lng, String userLatlng) {
-        String[] values = userLatlng.split(",");
-        double userLat = Double.parseDouble(values[0]);
-        double userLng = Double.parseDouble(values[1]);
-        float userL = (float)userLat;
-        float userLg = (float)userLng;
-        float restaurantLat = (float)lat;
-        float restaurantLng = (float)lng;
+        if (userLatlng.contains(",")) {
+            String[] values = userLatlng.split(",");
+            double userLat = Double.parseDouble(values[0]);
+            double userLng = Double.parseDouble(values[1]);
+            float userL = (float) userLat;
+            float userLg = (float) userLng;
+            float restaurantLat = (float) lat;
+            float restaurantLng = (float) lng;
 
-        double restaurantLocation = meterDistanceBetweenPoints(userL, userLg, restaurantLat, restaurantLng);
-        String distanceBetween = Double.toString(restaurantLocation);
+            double restaurantLocation = meterDistanceBetweenPoints(userL, userLg, restaurantLat, restaurantLng);
+            String distanceBetween = Double.toString(restaurantLocation);
 
-        String[] meters = distanceBetween.split("\\.");
+            String[] meters = distanceBetween.split("\\.");
 
-        return meters[0] + " m";
+            return meters[0] + " m";
+        } else {
+            return userLatlng;
+        }
     }
 
+    /**
+     * get the opening hours in a certain format
+     * @param openingHoursSentence Sentence of opening hours
+     * @param string day of week
+     * @return formatted string of opening hours (remove the day of week at the beginning if it s there)
+     */
     public static String getFormattedOpeningHours(String openingHoursSentence, String string) {
         String formattedOpeningHours = openingHoursSentence;
         if (formattedOpeningHours.startsWith(string)) {
@@ -151,4 +189,7 @@ public class Utils {
         }
         return formattedOpeningHours;
     }
+
+
+
 }

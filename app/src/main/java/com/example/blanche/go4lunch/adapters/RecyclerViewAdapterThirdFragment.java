@@ -42,10 +42,11 @@ public class RecyclerViewAdapterThirdFragment extends FirestoreRecyclerAdapter<U
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position, @NonNull User model) {
-        System.out.println("user here = " + Utils.isCurrentUserLogged());
         holder.updateWithUsers(context, model, this.glide);
     }
 
-
-
+    @Override
+    public int getItemCount() {
+        return super.getItemCount();
+    }
 }

@@ -3,7 +3,9 @@ package com.example.blanche.go4lunch.adapters;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -16,6 +18,7 @@ import android.view.View;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.fragments.ImageFragment;
 import com.example.blanche.go4lunch.models.Message;
 
 import java.text.DateFormat;
@@ -69,8 +72,12 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
         this.textViewMessage.setText(message.getMessage());
 
         // Update date TextView
-        if (message.getDateCreated() != null)
-            this.textViewDate.setText(this.convertDateToHour(message.getDateCreated()));
+        String userNameAndDate = verifyUsernameLength(message.getUserSender().getUsername());
+
+        if (message.getDateCreated() != null) {
+            userNameAndDate = userNameAndDate + ", " + convertDateToHour(message.getDateCreated());
+        }
+        this.textViewDate.setText(userNameAndDate);
 
 
         // Update profile picture ImageView
@@ -89,13 +96,18 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
             glide.load(message.getUrlImage())
                     .into(imageViewSent);
             this.imageViewSent.setVisibility(View.VISIBLE);
+            imageViewSent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    System.out.println("click");
+                }
+            });
         } else {
             this.imageViewSent.setVisibility(View.GONE);
         }
 
         //Update Message Bubble Color Background
         textMessageContainer.setBackground(isCurrentUser ? drawableCurrentUser : drawableRemoteUser);
-        //((GradientDrawable) textMessageContainer.getBackground()).setColor(isCurrentUser ? colorCurrentUser : colorRemoteUser);
 
         // Update all views alignment depending is current user or not
         this.updateDesignDependingUser(isCurrentUser);
@@ -126,5 +138,12 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     private String convertDateToHour(Date date) {
         DateFormat dfTime = new SimpleDateFormat("HH:mm");
         return dfTime.format(date);
+    }
+
+    private String verifyUsernameLength(String username) {
+        if (username.length() > 10) {
+            username = username.substring(0, 7) + ".";
+        }
+        return username;
     }
 }

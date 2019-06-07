@@ -157,7 +157,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //CONFIGURATION
     //--------------------------------
     private void configureRecyclerView() {
-        users = new ArrayList<>();
+        System.out.println("configure recycler view");
+        //users = new ArrayList<>();
         Query query = UserHelper.getUsersCollection().whereEqualTo("restaurantId", restaurantId);
         query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                                       @Override
@@ -169,6 +170,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
 
                                           for (DocumentSnapshot doc : queryDocumentSnapshots) {
                                               if (doc.get("restaurantId") != null) {
+                                                  users = new ArrayList<>();
                                                       users.add(doc.getString("chosenRestaurant"));
                                                       textView.setVisibility(View.GONE);
                                               }
@@ -186,6 +188,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
     }
 
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
@@ -251,11 +254,16 @@ public class RestaurantDetailsActivity extends BaseActivity {
         } else {
             //unclick button
             //update the name of the restaurant in firebase
-            UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, restaurantId);
+            UserHelper.updateUserChosenRestaurant(userUid, false, null, null, null, null, null, null);
             //change button color
             button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
             //display message to user
             Toast.makeText(this, this.getString(R.string.toast_text_when_user_uncheck_chose_button), Toast.LENGTH_SHORT).show();
+            System.out.println("adapter item = " + adapter.getItemCount());
+            if (adapter.getItemCount() == 0) {
+                System.out.println("here");
+                textView.setVisibility(View.VISIBLE);
+            }
         }
     }
 

@@ -94,14 +94,14 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
-                    android:tint="@color/grey"
+                    android:tint="@color/gold"
                     android:layout_alignParentRight="true"/>
                 <ImageView
                     android:id="@+id/star_two"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
-                    android:tint="@color/grey"
+                    android:tint="@color/gold"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="13dp"/>
                 <ImageView
@@ -109,7 +109,7 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_star"
-                    android:tint="@color/grey"
+                    android:tint="@color/gold"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="26dp"/>
 

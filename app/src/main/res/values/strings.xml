@@ -36,7 +36,7 @@
     <string name="toolbar_title_for_restaurant_details_activity">Restaurant details</string>
 
     <!-- AUTHENTICATION -->
-    <string name="succeed_auth_message">Welcome! Authentification succeed! :)</string>
+    <string name="succeed_auth_message">Welcome! Authentication succeed! :)</string>
     <string name="error_auth_message">Error</string>
     <string name="no_internet_auth_message">No internet</string>
     <string name="unknown_error_auth_message">Unknown error</string>
@@ -90,6 +90,10 @@
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2329713414017344</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb2329713414017344</string>
+
+
+    <string name="type_something">Type something...</string>
+    <string name="send">Send</string>
 
 
 </resources>

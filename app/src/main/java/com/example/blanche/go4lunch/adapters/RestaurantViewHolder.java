@@ -13,6 +13,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.BuildConfig;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.api.UserHelper;
+import com.example.blanche.go4lunch.models.Location;
 import com.example.blanche.go4lunch.models.RestaurantInformations;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -52,7 +53,6 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     private static final String LATITUDE_AND_LONGITUDE = "latitudeAndLongitude";
     private static final String APP_PREFERENCES = "appPreferences";
     private String userLatlng;
-    private String apikey;
 
     public RestaurantViewHolder(View itemView) {
         super(itemView);
@@ -64,14 +64,15 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     public void update(RestaurantInformations restaurantInformations, RequestManager glide) {
         textViewName.setText(restaurantInformations.getName());
         typeAndAdress.setText(restaurantInformations.getVicinity());
+
+        //SET OPENING HOURS
         Calendar calendar = Calendar.getInstance();
         openingHoursTextView.setTextColor(Color.parseColor("#808080"));
         if (restaurantInformations.getOpeningHours() != null) {
             if (restaurantInformations.getOpeningHours().getOpenNow()) {
-                String opening = null;
+                String opening;
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 switch (day) {
-
                     case Calendar.MONDAY:
                         opening = restaurantInformations.getOpeningHours().getWeekdayText().get(0);
                         openingHoursTextView.setText(getFormattedOpeningHours(opening, "Monday: "));
@@ -110,18 +111,22 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         } else {
             openingHoursTextView.setText(R.string.opening_hours);
         }
+
+        //SET PHOTO
         if (restaurantInformations.getPhotos() != null) {
             String url = restaurantInformations.getPhotos().get(0).getPhotoReference();
-            apikey = BuildConfig.ApiKey;
+            String apikey = BuildConfig.ApiKey;
             String finalUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + url + "&key=" + apikey;
             glide.load(finalUrl).apply(RequestOptions.noTransformation()).into(imageView);
         }
+
+        //SET DISTANCE
         double lat = restaurantInformations.getGeometry().getLocation().getLat();
         double lng = restaurantInformations.getGeometry().getLocation().getLng();
-
-        //setDistance(lat, lng, userLatlng, distance);
         distance.setText(getDistance(lat, lng, userLatlng));
 
+        //GET NUMBER OF WORKMATES WHOSE CHOSE THIS PLACE
+        numberTextView.setText("(0)");
         UserHelper.getUsersCollection()
                 .whereEqualTo("restaurantId", restaurantInformations.getPlaceId())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -142,14 +147,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     }
                 });
 
+        //SET THE STARS
         setStars(restaurantInformations.getPlaceId(), starOne, starTwo, starThree);
-
     }
-
-
-
-
-
-
-
 }

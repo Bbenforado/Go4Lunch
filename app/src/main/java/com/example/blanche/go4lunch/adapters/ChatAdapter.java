@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.adapters;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;

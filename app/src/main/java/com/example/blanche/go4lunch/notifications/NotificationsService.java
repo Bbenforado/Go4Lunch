@@ -49,20 +49,16 @@ public class NotificationsService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-
-        Map<String, String> data = remoteMessage.getData();
-        String body = data.get("body");
-        sendNotification(body);
-        //if (remoteMessage.getNotification() != null) {
-            System.out.println("notif 1");
+        /*Map<String, String> data = remoteMessage.getData();
+        String body = data.get("body");*/
+        String messageBody = getString(R.string.toast_text_when_user_chose_restaurant);
+        //sendNotification(body);
             //String message = remoteMessage.getNotification().getBody();
             UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    System.out.println("notif 2");
                     User user = documentSnapshot.toObject(User.class);
                     if (user.isHasChosenRestaurant()) {
-                        System.out.println("notif 4");
                         userNames = new ArrayList<>();
                         String restaurant = user.getChosenRestaurant();
                         String adress = user.getChosenRestaurantAdress();
@@ -70,25 +66,21 @@ public class NotificationsService extends FirebaseMessagingService {
                         readData(new MyCallback() {
                             @Override
                             public void onCallback(List<String> list) {
-                                System.out.println("notif 5");
+                                String finalMessage;
                                 if (userNames.size() > 0) {
-                                    System.out.println("notif 6");
                                     String listOfUsers = list.toString().replaceAll("[\\[\\]]", "");
-                                    //String finalMessage = message + " " + restaurant + ", " + adress + "\n" + listOfUsers + " are going to eat with you!";
-                                    String finalMessage = body + " " + restaurant + ", " + adress + ", " + listOfUsers + " are going to eat with you!";
-                                    sendNotification(finalMessage);
+                                    finalMessage = messageBody + " " + restaurant + ", " + adress + ", " + listOfUsers + " are going to eat with you!";
+                                    //sendNotification(finalMessage);
                                 } else {
-                                    System.out.println("notif 7");
-                                    //String finalMessage = message + " " + restaurant + ", " + adress;
-                                    String finalMessage = body + " " + restaurant + ", " + adress;
-                                    sendNotification(finalMessage);
+                                    finalMessage = messageBody + " " + restaurant + ", " + adress;
+                                    //sendNotification(finalMessage);
                                 }
+                                sendNotification(finalMessage);
                             }
                         });
 
 
                     } else {
-                        System.out.println("notif 8");
                         sendNotification(getApplicationContext().getString(R.string.you_didnt_chose_restaurant));
                     }
                 }

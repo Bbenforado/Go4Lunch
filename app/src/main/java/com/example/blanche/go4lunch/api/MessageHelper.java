@@ -32,8 +32,7 @@ public class MessageHelper {
                 .add(message);
     }
 
-    public static Task<DocumentReference> createMessageWithImageForChat(
-            String urlImage, String textMessage, String chat, User userSender) {
+    public static Task<DocumentReference> createMessageWithImageForChat(String urlImage, String textMessage, String chat, User userSender) {
         Message message = new Message(textMessage, urlImage, userSender);
         return ChatHelper.getChatCollection()
                 .document(chat)

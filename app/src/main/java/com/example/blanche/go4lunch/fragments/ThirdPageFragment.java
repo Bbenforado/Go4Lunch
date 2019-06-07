@@ -108,16 +108,16 @@ public class ThirdPageFragment extends BaseFragment {
         ButterKnife.bind(this, result);
         preferences = getActivity().getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
 
+
         toolbar = result.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
         ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setTitle(R.string.toolbar_title_for_third_fragment);
-        System.out.println("user = " + isCurrentUserLogged());
 
 
-        configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences, KEY_ACTIVITY);
-        configureDrawerLayout(drawerLayout, toolbar, getActivity());
+        configureNavigationView(navigationView, getActivity(), drawerLayout, getContext(), preferences);
+        configureDrawerLayout(drawerLayout, getActivity());
         configureRecyclerView();
         configureOnClickRecyclerView();
         return result;
