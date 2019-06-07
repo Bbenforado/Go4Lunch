@@ -1,16 +1,17 @@
 package com.example.blanche.go4lunch.activities;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.design.widget.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,6 +106,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
     @BindView(R.id.star_two) ImageView starTwo;
     @BindView(R.id.star_three) ImageView starThree;
 
+
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -452,6 +455,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //----------------------
     private void getCurrentUserDataFromFireBase() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 currentUser = documentSnapshot.toObject(User.class);

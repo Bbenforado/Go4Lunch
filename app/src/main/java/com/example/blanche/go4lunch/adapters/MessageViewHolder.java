@@ -1,14 +1,12 @@
 package com.example.blanche.go4lunch.adapters;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
+
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -18,7 +16,6 @@ import android.view.View;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
-import com.example.blanche.go4lunch.fragments.ImageFragment;
 import com.example.blanche.go4lunch.models.Message;
 
 import java.text.DateFormat;

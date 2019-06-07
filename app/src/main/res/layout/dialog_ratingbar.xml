@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:numStars="3"
-        android:progressTint="@color/colorPrimary"
+        android:progressTint="@color/colorAccent"
         android:secondaryProgressTint="@android:color/transparent"
         android:progressBackgroundTint="@color/default_color_for_stars"
         android:stepSize="0.5" />

@@ -7,22 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
 
 import com.example.blanche.go4lunch.MyCallback;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.activities.MainActivity;
-import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
 import com.example.blanche.go4lunch.api.UserHelper;
-import com.example.blanche.go4lunch.models.Restaurant;
-import com.example.blanche.go4lunch.models.RestaurantPlace;
 import com.example.blanche.go4lunch.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -33,7 +27,6 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 

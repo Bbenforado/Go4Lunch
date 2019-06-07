@@ -1,38 +1,16 @@
 package com.example.blanche.go4lunch.utils;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.support.v7.widget.Toolbar;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+
+import android.widget.ImageView;
+import androidx.appcompat.widget.Toolbar;
+
 import com.example.blanche.go4lunch.R;
-import com.example.blanche.go4lunch.activities.RestaurantDetailsActivity;
-import com.example.blanche.go4lunch.activities.SettingActivity;
 import com.example.blanche.go4lunch.api.RestaurantPlaceHelper;
-import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.models.RestaurantPlace;
-import com.example.blanche.go4lunch.models.User;
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

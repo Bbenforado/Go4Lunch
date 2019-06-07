@@ -1,6 +1,6 @@
 package com.example.blanche.go4lunch;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import io.reactivex.annotations.NonNull;

@@ -1,7 +1,7 @@
 package com.example.blanche.go4lunch.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.bumptech.glide.RequestManager;
 import com.example.blanche.go4lunch.R;
 import com.example.blanche.go4lunch.models.User;
-import com.example.blanche.go4lunch.utils.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 

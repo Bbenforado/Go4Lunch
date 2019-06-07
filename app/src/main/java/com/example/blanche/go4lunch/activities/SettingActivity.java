@@ -2,11 +2,11 @@ package com.example.blanche.go4lunch.activities;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;

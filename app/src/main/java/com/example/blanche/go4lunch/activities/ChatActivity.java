@@ -1,40 +1,32 @@
 package com.example.blanche.go4lunch.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.text.Editable;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -45,7 +37,6 @@ import com.example.blanche.go4lunch.api.UserHelper;
 import com.example.blanche.go4lunch.fragments.ImageFragment;
 import com.example.blanche.go4lunch.models.Message;
 import com.example.blanche.go4lunch.models.User;
-import com.example.blanche.go4lunch.utils.ItemClickSupport;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -64,7 +55,6 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.internal.operators.completable.CompletableObserveOn;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -106,12 +96,6 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
     public static final String COLOR_FOR_CHAT_BACKGROUND_B = "color_b";
     public static final String COLOR_FOR_CHAT_BACKGROUND = "color";
     public static final String APP_PREFERENCES = "appPreferences";
-    private ImageFragment imageFragment;
-    private Toolbar toolbar;
-    int defaultColorR;
-    int defaultColorG;
-    int defaultColorB;
-    int selectedColorRGB;
     private SharedPreferences preferences;
 
     @Override
@@ -121,15 +105,14 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         ButterKnife.bind(this);
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         configureToolbar();
-        this.configureRecyclerView(CHAT_NAME_ANDROID);
-        this.getCurrentUserFromFirestore();
+        configureRecyclerView(CHAT_NAME_ANDROID);
+        getCurrentUserFromFirestore();
         displayChatColor();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // 2 - Forward results to EasyPermissions
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
@@ -137,6 +120,37 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         this.handleResponse(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar_chat, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    //-----------------------
+    //CONFIGURATION
+    //-----------------------
+    private void configureToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle("Chat");
+    }
+
+    private void configureRecyclerView(String chatName) {
+        currentChatName = chatName;
+        //Configure Adapter & RecyclerView
+        chatAdapter = new ChatAdapter(generateOptionsForAdapter(MessageHelper.getAllMessageForChat(currentChatName)), Glide.with(this), this, getCurrentUser().getUid());
+        chatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                recyclerView.smoothScrollToPosition(chatAdapter.getItemCount()); // Scroll to bottom on new messages
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(chatAdapter);
     }
 
     private void displayChatColor() {
@@ -150,6 +164,48 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
     // --------------------
     // ACTIONS
     // --------------------
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int defaultColorR;
+        int defaultColorG;
+        int defaultColorB;
+        switch (item.getItemId()) {
+            case R.id.search_item:
+                if (preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_R,-1) != -1 &&
+                        preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_G, -1) != -1 &&
+                        preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_B, -1) != -1) {
+                    defaultColorR = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_R, -1);
+                    defaultColorG = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_G, -1);
+                    defaultColorB = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_B, -1);
+                } else {
+                    defaultColorR = 234;
+                    defaultColorG = 239;
+                    defaultColorB = 242;
+                }
+                final ColorPicker colorPicker = new ColorPicker(this, defaultColorR, defaultColorG, defaultColorB);
+
+                colorPicker.show();
+                colorPicker.enableAutoClose();
+                colorPicker.setCallback(new ColorPickerCallback() {
+                    @Override
+                    public void onColorChosen(@ColorInt int color) {
+                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_R, Color.red(color)).apply();
+                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_G, Color.green(color)).apply();
+                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_B, Color.blue(color)).apply();
+                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND, color).apply();
+
+                        relativeLayout.setBackgroundColor(color);
+
+                        // If the auto-dismiss option is not enable (disabled as default) you have to manually dimiss the dialog
+                        // cp.dismiss();
+                    }
+                });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @OnClick(R.id.activity_chat_send_button)
     public void onClickSendMessage() {
         // 1 - Check if text field is not empty and current user properly downloaded from Firestore
@@ -173,21 +229,10 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         }
     }
 
-
     @OnClick(R.id.activity_chat_add_file_button)
     @AfterPermissionGranted(RC_IMAGE_PERMS)
     public void onClickAddFile() {
         chooseImageFromPhone();
-    }
-
-
-
-
-    private void showFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content, imageFragment)
-                .commit();
     }
 
     // --------------------
@@ -233,78 +278,6 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         });
     }
 
-    // --------------------
-    // UI
-    // --------------------
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar_chat, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_item:
-                if (preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_R,-1) != -1 &&
-                preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_G, -1) != -1 &&
-                preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_B, -1) != -1) {
-                    defaultColorR = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_R, -1);
-                    defaultColorG = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_G, -1);
-                    defaultColorB = preferences.getInt(COLOR_FOR_CHAT_BACKGROUND_B, -1);
-                } else {
-                    defaultColorR = 234;
-                    defaultColorG = 239;
-                    defaultColorB = 242;
-                }
-                final ColorPicker cp = new ColorPicker(this, defaultColorR, defaultColorG, defaultColorB);
-
-                cp.show();
-
-                cp.enableAutoClose(); // Enable auto-dismiss for the dialog
-
-                /* Set a new Listener called when user click "select" */
-                cp.setCallback(new ColorPickerCallback() {
-                    @Override
-                    public void onColorChosen(@ColorInt int color) {
-                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_R, Color.red(color)).apply();
-                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_G, Color.green(color)).apply();
-                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND_B, Color.blue(color)).apply();
-                        preferences.edit().putInt(COLOR_FOR_CHAT_BACKGROUND, color).apply();
-
-                        relativeLayout.setBackgroundColor(color);
-
-                        // If the auto-dismiss option is not enable (disabled as default) you have to manually dimiss the dialog
-                        // cp.dismiss();
-                    }
-                });
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-
-
-
-    private void configureRecyclerView(String chatName) {
-        //Track current chat name
-        this.currentChatName = chatName;
-        //Configure Adapter & RecyclerView
-        this.chatAdapter = new ChatAdapter(generateOptionsForAdapter(MessageHelper.getAllMessageForChat(this.currentChatName)), Glide.with(this), this, getCurrentUser().getUid());
-        chatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                recyclerView.smoothScrollToPosition(chatAdapter.getItemCount()); // Scroll to bottom on new messages
-            }
-        });
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(this.chatAdapter);
-    }
-
-    // 6 - Create options for RecyclerView from a Query
     private FirestoreRecyclerOptions<Message> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<Message>()
                 .setQuery(query, Message.class)
@@ -312,6 +285,9 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
                 .build();
     }
 
+    // --------------------
+    //
+    // -------------------
     private void handleResponse(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
@@ -330,14 +306,9 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
                     RC_IMAGE_PERMS, PERMS);
             return;
         }
-
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, RC_CHOOSE_PHOTO);
     }
-
-    // --------------------
-    // CALLBACK
-    // --------------------
 
     @Override
     public void onDataChanged() {
@@ -345,14 +316,4 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         textViewRecyclerViewEmpty.setVisibility(this.chatAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
-    //------------------
-    private void configureToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //get a support actionbar corresponding to this toolbar
-        ActionBar actionBar = getSupportActionBar();
-        //enable the up button
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Chat");
-    }
 }
