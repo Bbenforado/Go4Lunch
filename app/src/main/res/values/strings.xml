@@ -85,15 +85,15 @@
 
     <!-- CHAT ACTIVITY -->
     <string name="popup_title_permission_files_access">Cette application a besoin de permission pour fonctionner.</string>
-
+    <string name="type_something">Type something...</string>
+    <string name="send">Send</string>
 
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2329713414017344</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb2329713414017344</string>
 
 
-    <string name="type_something">Type something...</string>
-    <string name="send">Send</string>
+
 
 
 </resources>

@@ -53,4 +53,6 @@
     <string name="enable_notif_toast_message">Notifications activées</string>
     <string name="error_occurred">Une erreur est survenue, réessaie plus tard</string>
     <string name="popup_title_permission_files_access">App needs permissions to work</string>
+    <string name="send">Envoyer</string>
+    <string name="type_something">Ecris quelque chose...</string>
 </resources>
