@@ -69,7 +69,6 @@ public class SettingActivity extends BaseActivity {
         updateUIWithUserInfos();
     }
 
-
     //--------------------
     //CONFIGURATION
     //--------------------
@@ -215,5 +214,4 @@ public class SettingActivity extends BaseActivity {
             }
         });
     }
-
 }

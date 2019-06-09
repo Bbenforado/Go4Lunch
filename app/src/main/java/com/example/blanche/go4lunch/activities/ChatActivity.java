@@ -222,7 +222,6 @@ public class ChatActivity extends AppCompatActivity implements ChatAdapter.Liste
         }
         //Check if text field is not empty and current user properly downloaded from Firestore
         if (!TextUtils.isEmpty(editTextMessage.getText()) && modelCurrentUser != null) {
-
             if (imageViewPreview.getDrawable() == null) {
                 //Create a new Message to Firestore
                 MessageHelper.createMessageForChat(editTextMessage.getText().toString(), this.currentChatName, modelCurrentUser).addOnFailureListener(new OnFailureListener() {

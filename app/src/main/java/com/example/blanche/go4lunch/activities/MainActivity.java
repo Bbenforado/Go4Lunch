@@ -1,5 +1,6 @@
 package com.example.blanche.go4lunch.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
@@ -8,6 +9,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import androidx.cardview.widget.CardView;
 import android.view.MenuItem;
@@ -61,31 +65,40 @@ public class MainActivity extends BaseActivity {
         if (!isCurrentUserLogged()) {
             startSignInActivity();
         } else {
-            configureActivity();
+            //check if internet is available before to display fragments
+            if (isNetworkAvailable()) {
+                configureActivity();
+            } else {
+                setContentView(R.layout.layout_no_internet);
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-        AutoCompleteTextView autoCompleteTextView = findViewById(R.id.autocomplete_textview);
-        CardView cardView = findViewById(R.id.idCardView);
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        if (isNetworkAvailable()) {
+            AutoCompleteTextView autoCompleteTextView = findViewById(R.id.autocomplete_textview);
+            CardView cardView = findViewById(R.id.idCardView);
+            DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
 
-         if (pageFragment.isVisible() || secondPageFragment.isVisible()) {
-            if (cardView.getVisibility() == View.VISIBLE) {
-                cardView.setVisibility(View.GONE);
-                autoCompleteTextView.getText().clear();
-            } else if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-            } else {
-                super.onBackPressed();
+            if (pageFragment.isVisible() || secondPageFragment.isVisible()) {
+                if (cardView.getVisibility() == View.VISIBLE) {
+                    cardView.setVisibility(View.GONE);
+                    autoCompleteTextView.getText().clear();
+                } else if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    super.onBackPressed();
+                }
+            } else if (thirdPageFragment.isVisible()) {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    super.onBackPressed();
+                }
             }
-        } else if (thirdPageFragment.isVisible()) {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START);
-            } else {
-                super.onBackPressed();
-            }
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -133,16 +146,6 @@ public class MainActivity extends BaseActivity {
             }
         };
         bottomNavigationView.setOnNavigationItemSelectedListener(listener);
-    }
-
-    //-----------------------
-    //METHODS
-    //--------------------------
-    private void showFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content, fragment)
-                .commit();
     }
 
     //--------------------
@@ -206,6 +209,24 @@ public class MainActivity extends BaseActivity {
     //------------------
     //METHODS
     //------------------
+    private void showFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content, fragment)
+                .commit();
+    }
+
+    /**
+     * verify if there is a internet connection
+     * @return
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     /**
      * check if it s a new day since last time the user chose a restaurant.
      * If it's a new day, we delete the saved place.

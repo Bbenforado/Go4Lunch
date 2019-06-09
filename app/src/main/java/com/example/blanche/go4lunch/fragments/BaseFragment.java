@@ -136,7 +136,6 @@ public class BaseFragment extends Fragment implements LocationListener {
         displayUserInfoInNavigationDrawer(navigationView, context);
     }
 
-
     //---------------
     //METHODS
     //---------------------

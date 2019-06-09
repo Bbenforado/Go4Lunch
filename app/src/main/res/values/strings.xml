@@ -70,7 +70,7 @@
     <string name="dialog_positiv_button">Yes</string>
     <string name="dialog_negativ_button">No</string>
     <string name="dialog_change_username">Enter your new name:</string>
-    <string name="dialog_ok">Ok</string>
+    <string name="dialog_ok">OK</string>
     <string name="username_updated">Updated!</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="enable_notif_toast_message">You enabled notifications</string>
@@ -84,7 +84,7 @@
 
     <!-- CHAT ACTIVITY -->
     <string name="popup_title_permission_files_access">Cette application a besoin de permission pour fonctionner.</string>
-    <string name="type_something">Type something...</string>
+    <string name="type_something">Type something…</string>
     <string name="send">Send</string>
     <string name="message_missing">You have to write a message too!</string>
 
@@ -92,6 +92,8 @@
     <string name="facebook_application_id" translatable="false">2329713414017344</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb2329713414017344</string>
 
+    <!-- NO INTERNET -->
+    <string name="no_internet_string">You have no internet :(  Please try again later…</string>
 
 
 </resources>

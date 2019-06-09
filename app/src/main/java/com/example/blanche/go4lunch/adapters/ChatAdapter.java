@@ -16,11 +16,8 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<Message, MessageViewHo
             void onDataChanged();
         }
 
-        //FOR DATA
         private final RequestManager glide;
         private final String idCurrentUser;
-
-        //FOR COMMUNICATION
         private Listener callback;
 
         public ChatAdapter(@NonNull FirestoreRecyclerOptions<Message> options, RequestManager glide, Listener callback, String idCurrentUser) {

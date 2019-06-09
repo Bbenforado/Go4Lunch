@@ -31,6 +31,7 @@ public class Message {
         public User getUserSender() { return userSender; }
         public String getUrlImage() { return urlImage; }
 
+
         // --- SETTERS ---
         public void setMessage(String message) { this.message = message; }
         public void setDateCreated(Date dateCreated) { this.dateCreated = dateCreated; }

@@ -67,7 +67,7 @@ import static com.example.blanche.go4lunch.utils.Utils.disposeWhenDestroy;
 
 
 /**
- * PageFragment display the map
+ * PageFragment displays the map
  */
 public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback {
 
@@ -317,27 +317,29 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
      * get the user location and display markers (marker for the user and markers for the restaurants available) on the map
      */
     private void showMyLocation() {
-        Location location = getUserLocation(getContext(), this, getActivity());
-        //formatLocation(getUserLocation(getContext(), this, getActivity()));
-        String userLocation = formatLocation(location);
+        if (getUserLocation(getContext(), this, getActivity()) == null) {
+            Toast.makeText(getContext(), getContext().getString(R.string.location_not_found), Toast.LENGTH_SHORT).show();
+        } else {
+            Location location = getUserLocation(getContext(), this, getActivity());
+            String userLocation = formatLocation(location);
 
-        executeRequestForRestaurant(userLocation);
+            executeRequestForRestaurant(userLocation);
 
-        Double userLat = getUserLocation(getContext(), this, getActivity()).getLatitude();
-        Double userLng = getUserLocation(getContext(), this, getActivity()).getLongitude();
+            Double userLat = getUserLocation(getContext(), this, getActivity()).getLatitude();
+            Double userLng = getUserLocation(getContext(), this, getActivity()).getLongitude();
 
-        LatLng latLng = new LatLng(userLat, userLng);
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-        float zoomLevel = 16.0f;
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
+            LatLng latLng = new LatLng(userLat, userLng);
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+            float zoomLevel = 16.0f;
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
 
-        Marker marker;
-        marker = map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(getContext().getString(R.string.user_location_marker_title)));
-        marker.setTag(-1);
-        marker.showInfoWindow();
-
+            Marker marker;
+            marker = map.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(getContext().getString(R.string.user_location_marker_title)));
+            marker.setTag(-1);
+            marker.showInfoWindow();
+        }
     }
 
     //------------------
@@ -476,29 +478,4 @@ public class PageFragment extends BaseFragment implements GoogleMap.OnMarkerClic
         Intent yourLunchActivity = new Intent(getContext(), RestaurantDetailsActivity.class);
         startActivity(yourLunchActivity);
     }
-
-
-    //-------------------
-    //GET DATA
-    //-------------------
-    /**
-     * get the list of id of restaurants already stored in database to check if the restaurants we got from the request is already stored or not
-     * @param myCallback
-     */
-    /*private void readData(MyCallback myCallback) {
-        itemsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (DocumentSnapshot document : task.getResult()) {
-                        String id = document.getString("uid");
-                        idList.add(id);
-                    }
-                    myCallback.onCallback(idList);
-                } else {
-                    Log.e("TAG", "Error");
-                }
-            }
-        });
-    }*/
 }

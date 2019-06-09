@@ -7,14 +7,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <include
-        layout="@layout/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+
+        <include
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -32,26 +32,28 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/autocomplete_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:hint="@string/type_a_restaurant_name"
-                    android:padding="10dp"
-                    android:background="@android:color/transparent"/>
 
-                <ImageButton
-                    android:id="@+id/clear_text_button"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_clear"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="7dp"
-                    android:layout_marginTop="8dp"
-                    android:visibility="gone"
-                    android:backgroundTint="@android:color/transparent" />
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/autocomplete_textview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:hint="@string/type_a_restaurant_name"
+                        android:padding="10dp"
+                        android:background="@android:color/transparent"/>
+
+                    <ImageButton
+                        android:id="@+id/clear_text_button"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_clear"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="7dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        android:backgroundTint="@android:color/transparent" />
+
                 </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
@@ -59,7 +61,6 @@
         </RelativeLayout>
 
     </RelativeLayout>
-
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -71,8 +72,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:context="org.o7planning.mygooglemap.MainActivity">
-
-
 
                 <ProgressBar
                     android:id="@+id/bar"
@@ -94,10 +93,7 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentBottom="true"/>
 
-
-
             </RelativeLayout>
-
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/nav_view"
@@ -109,9 +105,6 @@
                 app:itemIconTint="#000000"
                 android:fitsSystemWindows="true"/>
 
-
-
         </androidx.drawerlayout.widget.DrawerLayout>
-
 
 </LinearLayout>

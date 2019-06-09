@@ -18,12 +18,14 @@ public interface PlacesService {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build();
 
+    //get places around the user
     @GET("/maps/api/place/nearbysearch/json?")
     Observable <RestaurantObject> getRestaurants (@Query("location")String latitudeLongitude,
                                                   @Query("radius") int radius,
                                                   @Query("type") String type,
                                                   @Query("key") String apiKey);
 
+    //get information about the place
     @GET("/maps/api/place/details/json?fields=name,rating,formatted_phone_number,place_id,photo,vicinity,geometry,opening_hours,website")
     Observable<RestaurantInformationObject> getRestaurantInfo (@Query("placeid")String placeId,
                                                                @Query("key")String apiKey);

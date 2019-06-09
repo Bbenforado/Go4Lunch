@@ -54,7 +54,6 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 app:layout_scrollFlags="scroll|enterAlways">
 
                 <LinearLayout
@@ -70,6 +69,7 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
+
                         <TextView
                             android:id="@+id/textview_hasnt_chose_yet"
                             android:layout_width="wrap_content"
@@ -77,12 +77,14 @@
                             android:text="@string/user_didnt_chose_restaurant"
                             android:layout_centerInParent="true"
                             android:visibility="gone"/>
-                    <ProgressBar
-                        android:id="@+id/bar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:visibility="gone"/>
+
+                        <ProgressBar
+                            android:id="@+id/bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"/>
+
                     </RelativeLayout>
 
                     <LinearLayout
@@ -91,17 +93,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-
                         <TextView
                             android:id="@+id/restaurant_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
                             android:textStyle="bold"
-                            android:textSize="18dp"
+                            android:textSize="16sp"
                             android:textColor="@android:color/white"/>
-
-
 
                         <ImageView
                             android:id="@+id/star_one"
@@ -111,6 +110,7 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="10dp"
                             android:tint="@android:color/white"/>
+
                         <ImageView
                             android:id="@+id/star_two"
                             android:layout_width="15dp"
@@ -119,6 +119,7 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginLeft="5dp"
                             android:tint="@android:color/white"/>
+
                         <ImageView
                             android:id="@+id/star_three"
                             android:layout_width="15dp"
@@ -136,14 +137,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="7dp"
                         android:layout_marginLeft="10dp"
+                        android:textSize="12sp"
                         android:textColor="@android:color/white"
                         android:paddingBottom="9dp"/>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
-
-
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -160,11 +160,13 @@
                     android:orientation="horizontal"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="2dp">
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_weight="1">
+
                         <ImageButton
                             android:id="@+id/call_button"
                             android:layout_width="35dp"
@@ -178,6 +180,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/call"
                             android:layout_gravity="center"/>
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -185,6 +188,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_weight="1">
+
                         <ImageButton
                             android:id="@+id/like_button"
                             android:layout_width="35dp"
@@ -192,12 +196,14 @@
                             android:background="@drawable/ic_like"
                             android:layout_gravity="center"
                             android:layout_marginTop="10dp"/>
+
                         <TextView
                             android:id="@+id/textview_like"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Like"
                             android:layout_gravity="center"/>
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -205,6 +211,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:layout_weight="1">
+
                         <ImageButton
                             android:id="@+id/website_button"
                             android:layout_width="35dp"
@@ -212,15 +219,20 @@
                             android:background="@drawable/ic_website"
                             android:layout_gravity="center"
                             android:layout_marginTop="10dp"/>
+
                         <TextView
                             android:id="@+id/textview_website"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/website"
                             android:layout_gravity="center"/>
+
                     </LinearLayout>
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -235,17 +247,17 @@
                     android:layout_marginTop="10dp"
                     android:layout_centerHorizontal="true"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/details_page_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:elevation="5dp"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/details_page_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="5dp"/>
 
             </RelativeLayout>
 
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button"
@@ -257,4 +269,5 @@
         app:layout_anchor="@id/main.appbar"
         app:layout_anchorGravity="bottom|right|end"
         android:focusable="true" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

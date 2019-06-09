@@ -112,7 +112,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_restaurant_details);
         ButterKnife.bind(this);
         apikey = BuildConfig.ApiKey;
-        System.out.println("on create details");
         //get the preferences
         preferences = getSharedPreferences(APP_PREFERENCES, MODE_PRIVATE);
         keyActivity = preferences.getInt(KEY_ACTIVITY, -1);
@@ -195,10 +194,10 @@ public class RestaurantDetailsActivity extends BaseActivity {
                 .setLifecycleOwner(this)
                 .build();
     }
+
     //--------------------------
     //REQUEST
     //-----------------------------
-
     /**
      * get information about the restaurant
      * @param placeId the id of the restaurant
@@ -237,6 +236,7 @@ public class RestaurantDetailsActivity extends BaseActivity {
                             }
                         });
     }
+
     //--------------------------
     //ACTIONS
     //-----------------------------
@@ -286,7 +286,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
     //-------------------
     //UPDATE UI
     //------------------------
-
     /**
      * display a dialog with a rating bar
      * save the user s rate
@@ -372,7 +371,6 @@ public class RestaurantDetailsActivity extends BaseActivity {
                 .setNegativeButton(getString(R.string.dialog_cancel), null)
                 .show();
     }
-
 
     private void displayRestaurantInformations() {
         bar.setVisibility(View.GONE);
@@ -495,10 +493,8 @@ public class RestaurantDetailsActivity extends BaseActivity {
         float result = 0;
         for (int j = 0; j<listRates.size(); j++) {
             result = result + listRates.get(j);
-            System.out.println("rate " + j + listRates.get(j));
         }
         float finalRate = result/listRates.size();
-        System.out.println("final rate = " + finalRate);
         return finalRate;
     }
 

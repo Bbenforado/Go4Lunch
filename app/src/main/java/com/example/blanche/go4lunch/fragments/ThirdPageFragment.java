@@ -47,7 +47,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.example.blanche.go4lunch.utils.Utils.getCurrentUser;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Third fragment displays the list of the workmates
  */
 public class ThirdPageFragment extends BaseFragment {
 

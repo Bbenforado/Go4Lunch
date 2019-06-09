@@ -24,7 +24,7 @@
     <string name="change_username_button_text">Modifier le nom d\'utilisateur</string>
     <string name="delete_account_button_text">Supprimer le compte</string>
     <string name="enable_notif">Activer les notifications</string>
-    <string name="no_one_eat_here">Personne ne mange ici pour le moment...</string>
+    <string name="no_one_eat_here">Personne ne mange ici pour le moment…</string>
     <string name="notifications_settings">Paramètres des notifications</string>
     <string name="user_didnt_chose_restaurant">Tu n\'as pas encore décidé</string>
     <string name="toast_text_when_user_chose_restaurant">"Tu vas manger à "</string>
@@ -48,13 +48,14 @@
     <string name="notif_title">C\'est presque l\'heure!</string>
     <string name="you_didnt_chose_restaurant">Tu n\'as pas encore choisi de restaurant!</string>
     <string name="rate_restaurant">Note ce restaurant:</string>
-    <string name="type_a_restaurant_name">Cherche un restaurant...</string>
+    <string name="type_a_restaurant_name">Cherche un restaurant…</string>
     <string name="disable_notif_toast_message">Notifications désactivées</string>
     <string name="enable_notif_toast_message">Notifications activées</string>
     <string name="error_occurred">Une erreur est survenue, réessaie plus tard</string>
     <string name="popup_title_permission_files_access">App needs permissions to work</string>
     <string name="send">Envoyer</string>
-    <string name="type_something">Ecris quelque chose...</string>
+    <string name="type_something">Ecris quelque chose…</string>
     <string name="message_missing">Tu dois écrire un message!</string>
     <string name="end_of_sentence_notif_workmates">vont manger avec toi!</string>
+    <string name="no_internet_string">Tu n\'as pas internet :(  Réessaie plus tard…</string>
 </resources>

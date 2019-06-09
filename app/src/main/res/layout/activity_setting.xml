@@ -26,7 +26,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:textStyle="bold"
-        android:textSize="17dp"/>
+        android:textSize="18sp"/>
 
     <TextView
         android:id="@+id/user_mail_settings"
@@ -35,7 +35,7 @@
         android:hint="mail here"
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
-        android:textSize="11dp"/>
+        android:textSize="12sp"/>
 
     <View
         android:layout_width="match_parent"
@@ -54,12 +54,13 @@
         android:textStyle="bold"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="10dp"
-        android:textSize="18dp"/>
+        android:textSize="17sp"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +73,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="10dp"/>
+
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
@@ -90,8 +93,7 @@
         android:textStyle="bold"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="10dp"
-        android:textSize="18dp"/>
-
+        android:textSize="17sp"/>
 
     <LinearLayout
         android:layout_marginTop="20dp"
@@ -123,8 +125,5 @@
         android:layout_gravity="center"
         android:text="@string/delete_account_button_text"/>
     </LinearLayout>
-
-
-
 
 </LinearLayout>

@@ -84,6 +84,13 @@ public class Utils {
     //---------------------------
     //ON SUCCESS LISTENER
     //------------------------------
+    /**
+     * Used in fragment for sign out
+     * in settingActivity for deleting user task
+     * @param origin
+     * @param activity
+     * @return
+     */
     public static OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin, Activity activity) {
         return new OnSuccessListener<Void>() {
             @Override
@@ -169,5 +176,17 @@ public class Utils {
             formattedOpeningHours = formattedOpeningHours.substring(string.length());
         }
         return formattedOpeningHours;
+    }
+
+    /**
+     * if the name of the user is too long, we make it shorter it
+     * @param username name of the user
+     * @return name of the user shorter if it was too long
+     */
+    public static String verifyUsernameLength(String username) {
+        if (username.length() > 10) {
+            username = username.substring(0, 7) + ".";
+        }
+        return username;
     }
 }

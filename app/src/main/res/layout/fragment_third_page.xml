@@ -13,12 +13,11 @@ xmlns:android="http://schemas.android.com/apk/res/android">
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:openDrawer="start">
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:openDrawer="start">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -38,16 +37,16 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 
         </RelativeLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/main_activity_nav_header"
-        app:menu="@menu/main_activity_drawer_menu"
-        app:itemIconTint="#000000"
-        android:fitsSystemWindows="true"/>
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/main_activity_nav_header"
+            app:menu="@menu/main_activity_drawer_menu"
+            app:itemIconTint="#000000"
+            android:fitsSystemWindows="true"/>
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </LinearLayout>

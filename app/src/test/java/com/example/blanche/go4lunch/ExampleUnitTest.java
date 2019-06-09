@@ -1,9 +1,13 @@
 package com.example.blanche.go4lunch;
 
+import com.example.blanche.go4lunch.adapters.MessageViewHolder;
+
 import org.junit.Test;
 
 import static com.example.blanche.go4lunch.utils.Utils.getDistance;
+import static com.example.blanche.go4lunch.utils.Utils.getFormattedOpeningHours;
 import static com.example.blanche.go4lunch.utils.Utils.meterDistanceBetweenPoints;
+import static com.example.blanche.go4lunch.utils.Utils.verifyUsernameLength;
 import static org.junit.Assert.*;
 
 /**
@@ -42,16 +46,17 @@ public class ExampleUnitTest {
     @Test
     public void testGetFormattedOpeningHours() {
         String openingHours = "Monday: open 24h";
-        assertTrue(getFormattedOpeningHours(openingHours, "Monday: ").equals("open 24h"));
-        assertTrue(getFormattedOpeningHours(openingHours, "Friday: ").equals("Monday: open 24h"));
-        assertFalse(getFormattedOpeningHours(openingHours, "Monday: ").equals("Monday: open 24h"));
+        assertEquals("open 24h", getFormattedOpeningHours(openingHours, "Monday: "));
+        assertEquals("Monday: open 24h", getFormattedOpeningHours(openingHours, "Friday: "));
+        assertNotEquals("Monday: open 24h", getFormattedOpeningHours(openingHours, "Monday: "));
     }
 
-    private String getFormattedOpeningHours(String openingHoursSentence, String string) {
-        String formattedOpeningHours = openingHoursSentence;
-        if (formattedOpeningHours.startsWith(string)) {
-            formattedOpeningHours = formattedOpeningHours.substring(string.length());
-        }
-        return formattedOpeningHours;
+    @Test
+    public void testVerifyUsernameLength() {
+        String username = "henri jacques";
+        assertEquals("henri j.", verifyUsernameLength(username));
+        String shortName = "henri";
+        assertEquals("henri", verifyUsernameLength(shortName));
     }
+
 }

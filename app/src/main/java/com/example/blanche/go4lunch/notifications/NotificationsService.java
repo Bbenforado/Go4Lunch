@@ -40,15 +40,17 @@ public class NotificationsService extends FirebaseMessagingService {
     private List<String> userNames;
 
     /**
-     * notifications are sent at 12:00
+     * notifications are sent at 12:00 everyday
      * if application is in front, notification displays to the user where he s going to eat, with who and info about where he s going
      * if application is in back, notification displays to the user a generic message that asks him to open app and check where he s going to eat
+     * user can disable notifications
      * @param remoteMessage message from notification from firebase
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        String messageBody = getString(R.string.toast_text_when_user_chose_restaurant);
+        if (getCurrentUser() != null) {
+            String messageBody = getString(R.string.toast_text_when_user_chose_restaurant);
             UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -76,6 +78,7 @@ public class NotificationsService extends FirebaseMessagingService {
                     }
                 }
             });
+        }
     }
 
     private void sendNotification(String message) {

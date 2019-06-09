@@ -1,7 +1,11 @@
 package com.example.blanche.go4lunch.adapters;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,11 +15,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.blanche.go4lunch.R;
+import com.example.blanche.go4lunch.api.MessageHelper;
 import com.example.blanche.go4lunch.models.Message;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +31,8 @@ import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.example.blanche.go4lunch.utils.Utils.verifyUsernameLength;
 
 public class MessageViewHolder extends RecyclerView.ViewHolder {
 
@@ -62,9 +72,9 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     public void updateWithMessage(Message message, String currentUserId, RequestManager glide) {
         // Check if current user is the sender
         Boolean isCurrentUser = message.getUserSender().getUid().equals(currentUserId);
-
         // Update message TextView
         this.textViewMessage.setText(message.getMessage());
+
         // Update date TextView
         String userNameAndDate = verifyUsernameLength(message.getUserSender().getUsername());
         if (message.getDateCreated() != null) {
@@ -88,12 +98,6 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
             glide.load(message.getUrlImage())
                     .into(imageViewSent);
             this.imageViewSent.setVisibility(View.VISIBLE);
-            imageViewSent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    System.out.println("click");
-                }
-            });
         } else {
             this.imageViewSent.setVisibility(View.GONE);
         }
@@ -127,16 +131,8 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     // --------
     //
     //---------------
-
     private String convertDateToHour(Date date) {
         DateFormat dfTime = new SimpleDateFormat("HH:mm");
         return dfTime.format(date);
-    }
-
-    private String verifyUsernameLength(String username) {
-        if (username.length() > 10) {
-            username = username.substring(0, 7) + ".";
-        }
-        return username;
     }
 }

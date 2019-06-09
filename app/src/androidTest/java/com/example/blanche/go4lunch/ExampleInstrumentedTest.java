@@ -59,12 +59,6 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void userCanTypeInSearchFieldTest() {
-        onView(withId(R.id.search_item)).perform(click());
-        onView(withId(R.id.autocomplete_textview)).perform(typeText("something"));
-    }
-
-    @Test
     public void userCanTypeAndClearTextInSearchFieldTest() {
         onView(withId(R.id.search_item)).perform(click());
         onView(withId(R.id.autocomplete_textview)).perform(typeText("something"));
